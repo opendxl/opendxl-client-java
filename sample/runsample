@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ -z "$1" ]
+  then
+    echo "Usage: runsample <sample-to-run>"
+    echo ""
+    echo "Example: runsample sample.basic.EventSample"
+    exit
+fi
+
+SCRIPT_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+SOURCES="$SCRIPT_PATH/sources.txt"
+SOURCE_DIR="$SCRIPT_PATH/src"
+CLASSPATH="$SCRIPT_PATH/lib/*:$SCRIPT_PATH/src"
+
+# Remove existing classes
+find "$SOURCE_DIR" -name "*.class" -type f -delete
+
+# Perform compilation
+find "$SOURCE_DIR" -name "*.java" -printf '"%p"\n' > "$SOURCES"
+javac -classpath "$CLASSPATH" @"$SOURCES"
+rm -f "$SOURCES"
+
+# Run sample
+java -classpath "$CLASSPATH" $1 "$SCRIPT_PATH/dxlclient.config"

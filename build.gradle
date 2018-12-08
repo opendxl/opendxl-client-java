@@ -1,0 +1,234 @@
+import com.sun.xml.internal.bind.v2.schemagen.xmlschema.Documentation
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
+    }
+}
+
+plugins {
+    id 'checkstyle'
+    id 'distribution'
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id "com.github.johnrengelman.shadow" version "4.0.3"
+    id "kr.motd.sphinx" version "2.3.1"
+//    id 'com.bmuschko.docker-remote-api' version '4.0.5'
+}
+
+group = "com.opendxl"
+
+apply plugin: 'base'
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+apply plugin: "com.github.johnrengelman.shadow"
+
+dependencies {
+    implementation 'commons-codec:commons-codec:1.10'
+    implementation 'commons-io:commons-io:2.4'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.7'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.7'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
+    implementation 'log4j:log4j:1.2.17'
+    implementation 'org.msgpack:msgpack:0.6.7'
+    implementation 'info.picocli:picocli:3.8.2'
+    implementation 'org.apache.commons:commons-lang3:3.8.1'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.objenesis:objenesis:3.0.1'
+    testImplementation 'org.hamcrest:hamcrest-core:1.3'
+    testImplementation 'org.mockito:mockito-android:2.23.0'
+    testImplementation 'org.javassist:javassist:3.24.0-GA'
+}
+
+// Repository locations
+repositories {
+    mavenCentral()
+}
+
+// Jar Manifest info
+jar {
+    manifest {
+        attributes('Main-Class': 'com.opendxl.client.cli.CommandLineInterface',
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version
+        )
+    }
+}
+
+// Task for creating a jar with the source files
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+// Task for creating a jar with JavaDoc
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+javadoc {
+    exclude "**/org/eclipse/paho/**"
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+    archives javadocJar
+}
+
+// Set up the distribution zip
+distributions {
+    main {
+        baseName = 'dxlclient-java-sdk'
+        contents {
+            from(jar) {
+                into('lib')
+            }
+            from(shadowJar) {
+                into("lib")
+            }
+            from(configurations.compileClasspath) {
+                into("lib/3rdparty")
+            }
+            from(sphinx) {
+                into('doc')
+            }
+            from('sample') {
+                into 'sample'
+            }
+            from("clientconfig/dxlclient.config.template") {
+                into("sample")
+                rename("dxlclient.config.template", "dxlclient.config");
+            }
+            from(shadowJar) {
+                into("sample/lib")
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir 'paho.mqtt.java/org.eclipse.paho.client.mqttv3/src/main/java'
+            srcDir 'paho.mqtt.java/org.eclipse.paho.client.mqttv3/src/main/java-templates'
+            srcDir 'paho.mqtt.java/org.eclipse.paho.client.mqttv3.internal.traceformat/src/main/java'
+        }
+        resources {
+            srcDir 'src/main/java'
+            srcDir 'paho.mqtt.java/org.eclipse.paho.client.mqttv3/src/main/resources'
+        }
+    }
+    sample {
+        java {
+            srcDir 'sample/src'
+        }
+        compileClasspath += main.output + configurations.compileClasspath
+        runtimeClasspath += main.output + configurations.runtimeClasspath
+    }
+    test {
+        resources {
+            srcDir 'src/test/resources'
+        }
+    }
+}
+
+// Make check style run before creating a jar
+jar.dependsOn(checkstyleMain)
+
+// Force distZip to be dependent on javadocJar and sourceJar
+distZip.dependsOn javadocJar
+distZip.dependsOn sourceJar
+
+tasks.withType(Checkstyle) {
+    exclude "**/org/eclipse/paho/**"
+}
+
+sphinx {
+    // Change the source directory.
+    sourceDirectory = "${projectDir}/docs"
+    // Change the output directory.
+    outputDirectory = "${project.buildDir}/docs"
+}
+
+task versionFile()  {
+    doLast {
+        new File("${projectDir}/VERSION").text = """$version"""
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = group
+            pom {
+                name = 'OpenDXL Java Client'
+                description = 'An OpenDXL client library for Java'
+                url = 'https://github.com/opendxl/opendxl-client-java'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        email = 'support@opendxl.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/opendxl/opendxl-client-java.git'
+                    developerConnection = 'scm:git:ssh://github.com/opendxl/opendxl-client-java.git'
+                    url = 'https://github.com/opendxl/opendxl-client-java'
+                }
+            }
+
+            from components.java
+            
+            artifact(sourceJar) {
+                classifier = 'sources'
+            }
+            artifact(javadocJar) {
+                classifier = 'javadoc'
+            }
+        }
+    }
+    repositories {
+        maven {
+            url = "$buildDir/repo"
+            //url "https://oss.sonatype.org/content/repositories/snapshots"
+            //url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            //credentials {
+            //    username sonatypeUsername
+            //    password sonatypePassword
+            //}
+        }
+    }
+}
+
+signing {sign publishing.publications.maven}
+
+distZip.dependsOn javadocJar
+distZip.dependsOn sourceJar
+sphinx.dependsOn(versionFile)
+
+test {
+    systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"
+//    filter {
+//        //specific test method
+//        includeTestsMatching "com.opendxl.client.DxlClientTest.testSyncRequest"
+//    }
+}
