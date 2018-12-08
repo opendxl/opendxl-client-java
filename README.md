@@ -9,9 +9,9 @@ The OpenDXL Java Client enables the development of applications that connect to 
 
 ## Documentation
 
-See the [Wiki](https://github.com/opendxl/opendxl-client-java/wiki) for an overview of the Data Exchange Layer (DXL), the OpenDXL Java client, and examples.
+See the [Wiki](https://github.com/opendxl/opendxl-client-java/wiki) for an overview of the Data Exchange Layer (DXL), the OpenDXL Java client, and samples.
 
-See the [Java Client SDK Documentation](https://opendxl.github.io/opendxl-client-java/doc) for installation instructions, API documentation, and examples.
+See the [Java Client SDK Documentation](https://opendxl.github.io/opendxl-client-java/doc) for installation instructions, API documentation, and samples.
 
 ## Installation
 
