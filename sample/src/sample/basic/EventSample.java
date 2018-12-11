@@ -48,7 +48,6 @@ public class EventSample {
                     }
                 };
             client.addEventCallback(EVENT_TOPIC, myEventCallback);
-            client.subscribe(EVENT_TOPIC); // TODO: Remove this when client auto-subscribes
 
             final long startTime = System.currentTimeMillis();
 

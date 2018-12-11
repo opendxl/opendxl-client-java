@@ -45,7 +45,7 @@ public class EventCounterCallback implements EventCallback {
 
     @Override
     public void onEvent(final Event event) {
-        System.out.println(event.getDestinationChannel());
+        System.out.println(event.getDestinationTopic());
         System.out.println(new String(event.getPayload()));
 
         counterLock.lock();

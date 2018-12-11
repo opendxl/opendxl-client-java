@@ -27,9 +27,9 @@ public class ServiceRegistrationInfo {
      */
     private final String serviceGuid;
     /**
-     * The map of registered channels and their associated callbacks
+     * The map of registered topics and their associated callbacks
      */
-    private final Map<String, Set<RequestCallback>> callbacksByChannel = new HashMap<>();
+    private final Map<String, Set<RequestCallback>> callbacksByTopic = new HashMap<>();
     /**
      * The map of meta data associated with this service (name-value pairs)
      */
@@ -154,86 +154,82 @@ public class ServiceRegistrationInfo {
     }
 
     /**
-     * Returns the list of full qualified registered channels
+     * Returns the list of full qualified registered topics
      *
-     * @return The list of full qualified registered channels
+     * @return The list of full qualified registered topics
      */
-    public Set<String> getChannels() {
-/*
-        Bug 974874: Need to allow services with no channels attached (for lookup only use case)
-        return callbacksByChannel.isEmpty() ? null : new HashSet<>( callbacksByChannel.keySet() );
-*/
-        return new HashSet<>(callbacksByChannel.keySet());
+    public Set<String> getTopics() {
+        return new HashSet<>(callbacksByTopic.keySet());
     }
 
     /**
-     * Returns the map of registered channels and their associated callbacks
+     * Returns the map of registered topics and their associated callbacks
      *
-     * @return The map of registered channels and their associated callbacks
+     * @return The map of registered topics and their associated callbacks
      */
-    public Map<String, Set<RequestCallback>> getCallbacksByChannel() {
-        return callbacksByChannel;
+    public Map<String, Set<RequestCallback>> getCallbacksByTopic() {
+        return callbacksByTopic;
     }
 
     /**
-     * Adds one or more request channels and an associated callback to the service.
+     * Adds one or more request topics and an associated callback to the service.
      *
-     * @param channelAndCallback The map of request channels and their associated callbacks
+     * @param topicAndCallback The map of request topics and their associated callbacks
      * @throws DxlException If a DXL exception occurs
      */
-    public void setCallbacksByChannel(Map<String, RequestCallback> channelAndCallback)
+    public void setCallbacksByTopic(Map<String, RequestCallback> topicAndCallback)
         throws DxlException {
-        if (channelAndCallback == null || channelAndCallback.isEmpty()) {
-            throw new IllegalArgumentException("Undefined channel");
+        if (topicAndCallback == null || topicAndCallback.isEmpty()) {
+            throw new IllegalArgumentException("Undefined topic");
         }
 
-        for (Map.Entry<String, RequestCallback> entry : channelAndCallback.entrySet()) {
-            addChannel(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, RequestCallback> entry : topicAndCallback.entrySet()) {
+            addTopic(entry.getKey(), entry.getValue());
         }
     }
 
     /**
-     * Adds a request channel and associated callback to the service.
+     * Adds a request topic and associated callback to the service.
      *
-     * @param channel  The request channel without service name prefix
-     * @param callback The callback associated with this request channel
+     * @param topic  The request topic without service name prefix
+     * @param callback The callback associated with this request topic
      */
-    public void addChannel(final String channel, final RequestCallback callback) {
-        if (channel == null || channel.isEmpty()) {
-            throw new IllegalArgumentException("Undefined channel");
+    public void addTopic(final String topic, final RequestCallback callback) {
+        if (topic == null || topic.isEmpty()) {
+            throw new IllegalArgumentException("Undefined topic");
         }
         if (callback == null) {
             throw new IllegalArgumentException("Undefined callback");
         }
 
-        Set<RequestCallback> callbacks = callbacksByChannel.get(channel);
+        Set<RequestCallback> callbacks = callbacksByTopic.get(topic);
         //noinspection Java8MapApi
         if (callbacks == null) {
             callbacks = new HashSet<>();
-            callbacksByChannel.put(channel, callbacks);
+            callbacksByTopic.put(topic, callbacks);
         }
         callbacks.add(callback);
     }
 
     /**
-     * Removes a request channel and associated callback to the service.
+     * Removes a request topic and associated callback to the service.
      *
-     * @param channel  The request channel without service name prefix
-     * @param callback The callback associated with this request channel
+     * @param topic  The request topic without service name prefix
+     * @param callback The callback associated with this request topic
      */
-    public void removeChannel(final String channel, final RequestCallback callback) {
-        if (channel == null || channel.isEmpty()) {
-            throw new IllegalArgumentException("Undefined channel");
+    public void removeTopic(final String topic, final RequestCallback callback) {
+        if (topic == null || topic.isEmpty()) {
+            throw new IllegalArgumentException("Undefined topic");
         }
         if (callback == null) {
             throw new IllegalArgumentException("Undefined callback");
         }
 
-        Set<RequestCallback> callbacks = callbacksByChannel.get(channel);
+        Set<RequestCallback> callbacks = callbacksByTopic.get(topic);
         if (callbacks != null) {
             callbacks.remove(callback);
             if (callbacks.size() == 0) {
-                callbacksByChannel.remove(channel);
+                callbacksByTopic.remove(topic);
             }
         }
     }

@@ -209,12 +209,14 @@ publishing {
     repositories {
         maven {
             url = "$buildDir/repo"
-            //url "https://oss.sonatype.org/content/repositories/snapshots"
-            //url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-            //credentials {
-            //    username sonatypeUsername
-            //    password sonatypePassword
-            //}
+
+//            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+//            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+//            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+//            credentials {
+//                username sonatypeUsername
+//                password sonatypePassword
+//            }
         }
     }
 }
@@ -229,6 +231,6 @@ test {
     systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"
 //    filter {
 //        //specific test method
-//        includeTestsMatching "com.opendxl.client.DxlClientTest.testSyncRequest"
+//        includeTestsMatching "com.opendxl.client.WildcardTest"
 //    }
 }

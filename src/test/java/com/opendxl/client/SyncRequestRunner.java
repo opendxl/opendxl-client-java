@@ -56,7 +56,7 @@ public class SyncRequestRunner extends AbstractRunner {
                     client,
                     "syncRequestRunnerService"
                 );
-            regInfo.addChannel(topic, testService);
+            regInfo.addTopic(topic, testService);
             client.registerServiceSync(regInfo, DEFAULT_TIMEOUT);
 
             //

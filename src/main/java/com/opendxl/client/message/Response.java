@@ -62,7 +62,7 @@ public class Response extends Message {
      * @param request        The request message that this will be a response for
      */
     public Response(final String sourceClientId, final Request request) {
-        this(sourceClientId, request.getReplyToChannel(), request.getMessageId(),
+        this(sourceClientId, request.getReplyToTopic(), request.getMessageId(),
             request.getServiceGuid(), request.getSourceClientInstanceId(), request.getSourceBrokerGuid());
 
         this.request = request;

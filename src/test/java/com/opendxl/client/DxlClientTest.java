@@ -148,7 +148,7 @@ public class DxlClientTest extends AbstractDxlTest {
                     client,
                     "testErrorMessageService"
                 );
-            regInfo.addChannel(topic, testService);
+            regInfo.addTopic(topic, testService);
             client.registerServiceSync(regInfo, DEFAULT_TIMEOUT);
 
             testService.setReturnError(true);
@@ -182,8 +182,6 @@ public class DxlClientTest extends AbstractDxlTest {
             }
 
             final String topic = UuidGenerator.generateIdAsString();
-            client.subscribe(topic);
-
             final Object sync = new Object();
             final Event[] receivedEvent = new Event[]{null};
 
@@ -249,7 +247,6 @@ public class DxlClientTest extends AbstractDxlTest {
         final Exception[] exception = {null};
         try (DxlClient client = newClientInstance()) {
             client.connect();
-            client.subscribe(eventTopic);
             client.addEventCallback(
                 eventTopic,
                 event -> {
@@ -286,7 +283,6 @@ public class DxlClientTest extends AbstractDxlTest {
             final String eventTopic = UuidGenerator.generateIdAsString();
             try (DxlClient client = newClientInstance()) {
                 client.connect();
-                client.subscribe(eventTopic);
                 client.addEventCallback(
                     eventTopic,
                     event -> {
@@ -346,7 +342,7 @@ public class DxlClientTest extends AbstractDxlTest {
                         client,
                         "asyncCallbackTestService"
                     );
-                regInfo.addChannel(reqTopic, testService);
+                regInfo.addTopic(reqTopic, testService);
                 client.registerServiceSync(regInfo, DEFAULT_TIMEOUT);
 
                 client.asyncRequest(new Request(client, reqTopic), cb, 60 * 1000);

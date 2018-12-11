@@ -152,7 +152,7 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
      * @param message The message to fire
      */
     void fireMessage(final MT message) {
-        final String destinationChannel = message.getDestinationChannel();
+        final String destinationChannel = message.getDestinationTopic();
 
         //SR 4-18281403991 . Fix Deadlock issues
         //Bug 1228290 - SIA Partner Extension Tycon Rapid Query hangs indefinitely on check-in

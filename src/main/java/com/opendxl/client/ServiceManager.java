@@ -33,11 +33,12 @@ class ServiceManager implements RequestCallback, AutoCloseable {
      * Read write lock for handling registration and firing concurrency
      */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
     /**
      * Map containing registered services
      */
     private final Map<String, ServiceRegistrationHandler> services = new HashMap<>();
-    //Bug 1228290 - SIA Partner Extension Tycon Rapid Query hangs indefinitely on check-in
+
     /**
      * cloned Map of services
      */
@@ -74,7 +75,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
         lock.writeLock().lock();
         try {
             boolean isUpdate = false;
-            @SuppressWarnings("unchecked") Set<String> oldChannels = Collections.EMPTY_SET;
+            @SuppressWarnings("unchecked") Set<String> oldTopics = Collections.EMPTY_SET;
             ServiceRegistrationHandler serviceHandler = services.get(service.getServiceGuid());
             if (serviceHandler == null) {
                 // Register the service
@@ -89,22 +90,22 @@ class ServiceManager implements RequestCallback, AutoCloseable {
                 }
 
                 isUpdate = true;
-                oldChannels = serviceHandler.getRequestChannels();
+                oldTopics = serviceHandler.getRequestTopics();
                 serviceHandler.updateService();
             }
 
-            // Register the generic callback(s) and subscribe to the channel(s)
-            final Set<String> newChannels = service.getChannels();
-            for (String channel : newChannels) {
-                if (!isUpdate || !oldChannels.contains(channel)) {
+            // Register the generic callback(s) and subscribe to the topic(s)
+            final Set<String> newTopics = service.getTopics();
+            for (String channel : newTopics) {
+                if (!isUpdate || !oldTopics.contains(channel)) {
                     client.addRequestCallback(channel, this);
                     client.subscribe(channel);
                 }
             }
 
             if (isUpdate) {
-                final Set<String> removedChannels = new HashSet<>(oldChannels);
-                removedChannels.removeAll(newChannels);
+                final Set<String> removedChannels = new HashSet<>(oldTopics);
+                removedChannels.removeAll(newTopics);
 
                 for (final String channelToRemove : removedChannels) {
                     client.removeRequestCallback(channelToRemove, this);
@@ -150,15 +151,15 @@ class ServiceManager implements RequestCallback, AutoCloseable {
             // Stop the TTL timer
             handler.stopTimer();
 
-            // Unsubscribe the channel(s) and unregister the generic callback
-            for (String channel : handler.getRequestChannels()) {
+            // Unsubscribe the topic(s) and unregister the generic callback
+            for (String topic : handler.getRequestTopics()) {
                 // This was the reason for the reference counter in the MessageCallback
-                // If we subscribe the same service channel twice, unregistering one of
+                // If we subscribe the same service topic twice, unregistering one of
                 // the services would unregister them all.  Hence, we need to check for
-                // the channel not being in use otherwise.
-                if (!hasActiveChannel(channel)) {
-                    client.unsubscribe(channel);
-                    client.removeRequestCallback(channel, this);
+                // the topic not being in use otherwise.
+                if (!hasActiveTopic(topic)) {
+                    client.unsubscribe(topic);
+                    client.removeRequestCallback(topic, this);
                 }
             }
 
@@ -183,33 +184,33 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     }
 
     /**
-     * Returns the set of all active channels
+     * Returns the set of all active topics
      *
-     * @return The set of all active channels
+     * @return The set of all active topics
      */
-    private Set<String> getActiveChannels() {
-        Set<String> channels = new HashSet<>();
+    private Set<String> getActiveTopics() {
+        Set<String> topics = new HashSet<>();
         lock.readLock().lock();
         try {
             for (ServiceRegistrationHandler handler : services.values()) {
-                if (!handler.isDeleted() && !handler.isInvalidReference()) {
-                    channels.addAll(handler.getRequestChannels());
+                if (!handler.isDeleted()) {
+                    topics.addAll(handler.getRequestTopics());
                 }
             }
         } finally {
             lock.readLock().unlock();
         }
-        return channels;
+        return topics;
     }
 
     /**
-     * Returns true if the set of active channels contains the given channel
+     * Returns true if the set of active topics contains the given topic
      *
-     * @param channel The channel to check for
-     * @return true if the set of active channels contains the given channel, otherwise false
+     * @param topic The topic to check for
+     * @return true if the set of active topics contains the given topic, otherwise false
      */
-    private boolean hasActiveChannel(String channel) {
-        return getActiveChannels().contains(channel);
+    private boolean hasActiveTopic(String topic) {
+        return getActiveTopics().contains(topic);
     }
 
     /**
@@ -281,7 +282,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
             while (iter.hasNext()) {
                 Map.Entry<String, ServiceRegistrationHandler> entry = iter.next();
                 ServiceRegistrationHandler handler = entry.getValue();
-                if (handler.isDeleted() || handler.isInvalidReference()) {
+                if (handler.isDeleted()) {
                     try {
                         handler.sendUnregisterServiceEvent();
                         iter.remove();

@@ -85,7 +85,7 @@ public class WildcardTest extends AbstractDxlTest {
                 }
             };
 
-        client.addEventCallback("#", cb);
+        client.addEventCallback("#", cb, false);
         if (withWildcard) {
             client.subscribe(topicPrefix + "#");
         }
@@ -223,10 +223,10 @@ public class WildcardTest extends AbstractDxlTest {
             info.setMetadata(meta);
 
             // Request handler for the service
-            info.addChannel("/request/test/#",
+            info.addTopic("/request/test/#",
                 request -> {
                     System.out.println(
-                        "## Request in service: " + request.getDestinationChannel() + ", "
+                        "## Request in service: " + request.getDestinationTopic() + ", "
                             + request.getMessageId());
                     System.out.println("## Request in service - payload: "
                         + new String(request.getPayload()));
@@ -257,13 +257,14 @@ public class WildcardTest extends AbstractDxlTest {
                 client.addEventCallback("/test/#",
                     event -> {
                         System.out.println("## receivedEvent: "
-                            + event.getDestinationChannel() + ", " + event.getMessageId());
+                            + event.getDestinationTopic() + ", " + event.getMessageId());
                         clientEventMessage[0] = event.getMessageId();
-                    }
+                    },
+                    false
                 );
 
                 // Send our event
-                System.out.println("## Sending event: " + evt.getDestinationChannel() + ", " + evt.getMessageId());
+                System.out.println("## Sending event: " + evt.getDestinationTopic() + ", " + evt.getMessageId());
                 evt.setPayload("Unit test payload".getBytes());
                 client.sendEvent(evt);
 

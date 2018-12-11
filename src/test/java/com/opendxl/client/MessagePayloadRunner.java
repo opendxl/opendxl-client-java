@@ -67,7 +67,7 @@ public class MessagePayloadRunner extends AbstractRunner {
                     server,
                     "messagePayloadRunnerService"
                 );
-            regInfo.addChannel(topic,
+            regInfo.addTopic(topic,
                 request -> {
                     try {
                         final MessagePack pack = Message.getMessagePack();

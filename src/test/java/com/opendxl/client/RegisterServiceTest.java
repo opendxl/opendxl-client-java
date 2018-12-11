@@ -44,16 +44,13 @@ public class RegisterServiceTest extends AbstractDxlTest {
         registerCallback.reset();
         unregisterCallback.reset();
 
-        client.addEventCallback(Constants.DXL_SERVICE_REGISTER_CHANNEL, registerCallback);
-        client.addEventCallback(Constants.DXL_SERVICE_UNREGISTER_CHANNEL, unregisterCallback);
-
-        client.subscribe(Constants.DXL_SERVICE_REGISTER_CHANNEL);
-        client.subscribe(Constants.DXL_SERVICE_UNREGISTER_CHANNEL);
+        client.addEventCallback(Constants.DXL_SERVICE_REGISTER_TOPIC, registerCallback);
+        client.addEventCallback(Constants.DXL_SERVICE_UNREGISTER_TOPIC, unregisterCallback);
 
         requestCallback = new RequestCallback() {
             @Override
             public void onRequest(final Request request) {
-                System.out.println(request.getDestinationChannel());
+                System.out.println(request.getDestinationTopic());
                 System.out.println(new String(request.getPayload()));
 
                 Response response = new Response(client, request);
@@ -71,8 +68,8 @@ public class RegisterServiceTest extends AbstractDxlTest {
 
         info = new ServiceRegistrationInfo(client, "/mcafee/service/JTI");
 
-        info.addChannel("/mcafee/service/JTI/file/reputation/" + info.getServiceGuid(), requestCallback);
-        info.addChannel("/mcafee/service/JTI/cert/reputation/" + info.getServiceGuid(), requestCallback);
+        info.addTopic("/mcafee/service/JTI/file/reputation/" + info.getServiceGuid(), requestCallback);
+        info.addTopic("/mcafee/service/JTI/cert/reputation/" + info.getServiceGuid(), requestCallback);
     }
 
     @After

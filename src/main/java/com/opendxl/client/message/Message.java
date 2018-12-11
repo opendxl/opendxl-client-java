@@ -108,9 +108,9 @@ public abstract class Message {
      */
     private String sourceBrokerGuid;
     /**
-     * The channel that the message is published on
+     * The topic that the message is published on
      */
-    private String destinationChannel;
+    private String destinationTopic;
     /**
      * The payload to send with the message
      */
@@ -171,10 +171,10 @@ public abstract class Message {
      * Constructs the message
      *
      * @param sourceClientId     The ID of the client that will be sending this message.
-     * @param destinationChannel The channel to publish the message on.
+     * @param destinationTopic The topic to publish the message on.
      */
-    public Message(final String sourceClientId, final String destinationChannel) {
-        if (destinationChannel == null) {
+    public Message(final String sourceClientId, final String destinationTopic) {
+        if (destinationTopic == null) {
             throw new IllegalArgumentException("Destination must not be null");
         }
 
@@ -182,7 +182,7 @@ public abstract class Message {
         // Set by the client before sending if empty
         // Will be overwritten by broker
         this.sourceClientId = sourceClientId;
-        this.destinationChannel = destinationChannel;
+        this.destinationTopic = destinationTopic;
         // Set by broker
         this.sourceBrokerGuid = "";
     }
@@ -268,21 +268,21 @@ public abstract class Message {
     }
 
     /**
-     * Returns the channel that the message is published on
+     * Returns the topic that the message is published on
      *
-     * @return The channel that the message is published on
+     * @return The topic that the message is published on
      */
-    public String getDestinationChannel() {
-        return this.destinationChannel;
+    public String getDestinationTopic() {
+        return this.destinationTopic;
     }
 
     /**
-     * Sets the channel that the message is published on
+     * Sets the topic that the message is published on
      *
-     * @param channel The channel that the message is published on
+     * @param topic The topic that the message is published on
      */
-    public void setDestinationChannel(final String channel) {
-        this.destinationChannel = channel;
+    public void setDestinationTopic(final String topic) {
+        this.destinationTopic = topic;
     }
 
     /**

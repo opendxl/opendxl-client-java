@@ -15,7 +15,6 @@ import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
 import org.apache.log4j.Logger;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,9 +56,9 @@ class ServiceRegistrationHandler {
      */
     private final String instanceId;
     /**
-     * The list of full qualified registered channels
+     * The list of full qualified registered topics
      */
-    private Set<String> requestChannels;
+    private Set<String> requestTopics;
     /**
      * The map of meta data associated with this service (name-value pairs)
      */
@@ -78,9 +77,9 @@ class ServiceRegistrationHandler {
     private final long ttlResolution;
 
     /**
-     * The service registration info (weak reference)
+     * The service registration info
      */
-    private final WeakReference<ServiceRegistrationInfo> serviceWeakReference;
+    private final ServiceRegistrationInfo serviceRegInfo;
 
     /**
      * The internal client reference
@@ -131,7 +130,7 @@ class ServiceRegistrationHandler {
         this.client = client;
 
         // Create a weak reference to the service registration info
-        this.serviceWeakReference = new WeakReference<>(service);
+        this.serviceRegInfo = service;
 
         // Update state associated with the service
         updateService();
@@ -150,20 +149,20 @@ class ServiceRegistrationHandler {
 
         // Add the callbacks
         CallbackManager.RequestCallbackManager cbManager = new CallbackManager.RequestCallbackManager();
-        for (Map.Entry<String, Set<RequestCallback>> cb : service.getCallbacksByChannel().entrySet()) {
-            String channel = cb.getKey();
+        for (Map.Entry<String, Set<RequestCallback>> cb : service.getCallbacksByTopic().entrySet()) {
+            String topic = cb.getKey();
             Set<RequestCallback> callbacks = cb.getValue();
             if (callbacks != null) {
                 for (RequestCallback callback : callbacks) {
                     if (callback != null) {
-                        cbManager.addCallback(channel, callback);
+                        cbManager.addCallback(topic, callback);
                     }
                 }
             }
         }
 
         requestCallbacks = cbManager;
-        requestChannels = new HashSet<>(service.getCallbacksByChannel().keySet());
+        requestTopics = new HashSet<>(service.getCallbacksByTopic().keySet());
         metadata = (service.getMetadata() == null || service.getMetadata().isEmpty() ? null
             : new HashMap<>(service.getMetadata()));
     }
@@ -187,12 +186,12 @@ class ServiceRegistrationHandler {
     }
 
     /**
-     * Returns The list of full qualified registered channels
+     * Returns The list of full qualified registered topics
      *
-     * @return The list of full qualified registered channels
+     * @return The list of full qualified registered topics
      */
-    public Set<String> getRequestChannels() {
-        return requestChannels;
+    public Set<String> getRequestTopics() {
+        return requestTopics;
     }
 
     /**
@@ -246,16 +245,7 @@ class ServiceRegistrationHandler {
      * @return The service registration info
      */
     public synchronized ServiceRegistrationInfo getService() {
-        return serviceWeakReference.get();
-    }
-
-    /**
-     * Returns true if the service weak reference is invalid
-     *
-     * @return True if the service weak reference is invalid, otherwise false
-     */
-    synchronized boolean isInvalidReference() {
-        return (getService() == null);
+        return this.serviceRegInfo;
     }
 
     /**
@@ -276,7 +266,7 @@ class ServiceRegistrationHandler {
             throw new DxlException("Client not defined");
         }
 
-        Request request = new Request(client, Constants.DXL_SERVICE_REGISTER_REQUEST_CHANNEL);
+        Request request = new Request(client, Constants.DXL_SERVICE_REGISTER_REQUEST_TOPIC);
 
         request.setDestTenantGuids(destTenantGuids);
         // Ensure our state does not change when serializing
@@ -287,13 +277,12 @@ class ServiceRegistrationHandler {
                     client,
                     this.serviceType,
                     this.instanceId,
-                    this.requestChannels,
+                    this.requestTopics,
                     this.metadata,
                     this.ttlMins);
         }
 
-        // TODO: Remove logging or switch to debug
-        log.info("Sending request\n" + json.toPrettyJsonString());
+        log.debug("Sending request\n" + json.toPrettyJsonString());
 
         request.setPayload(json.toJsonString().getBytes(UTF_8)); //TODO Change this to use standard charsets from java
         final Response response = client.syncRequest(request); // Synchronous?
@@ -325,11 +314,10 @@ class ServiceRegistrationHandler {
         Long lastRegisterTimeMillis = getRegisterTimeMillis();
         if (lastRegisterTimeMillis > 0 && ((currentTimeMillis - lastRegisterTimeMillis) / 1000L)
             <= ((ttl + ttlGracePeriod) * (60L / ttlResolution))) {
-            Request request = new Request(client, Constants.DXL_SERVICE_UNREGISTER_REQUEST_CHANNEL);
+            Request request = new Request(client, Constants.DXL_SERVICE_UNREGISTER_REQUEST_TOPIC);
             JsonUnregisterService json = new JsonUnregisterService(instanceId);
 
-            // TODO: Remove logging or switch to debug
-            log.info("Sending request\n" + json.toPrettyJsonString());
+            log.debug("Sending request\n" + json.toPrettyJsonString());
 
             request.setPayload(json.toJsonString().getBytes(UTF_8)); //TODO see other comment about charsets
             final Response response = client.syncRequest(request, 60 * 1000); // Wait a minute max
@@ -370,7 +358,7 @@ class ServiceRegistrationHandler {
                 public void run() {
                     if (client.isConnected()) {
                         // Send unregister event if service marked for deletion or is no longer valid
-                        if (deleted || isInvalidReference()) {
+                        if (deleted) {
                             try {
                                 markForDeletion();
                                 sendUnregisterServiceEvent();

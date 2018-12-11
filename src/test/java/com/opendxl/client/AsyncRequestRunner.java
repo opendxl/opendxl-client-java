@@ -65,7 +65,7 @@ public class AsyncRequestRunner extends AbstractRunner {
                     client,
                     "asyncRequestRunnerService"
                 );
-            regInfo.addChannel(topic, testService);
+            regInfo.addTopic(topic, testService);
             client.registerServiceSync(regInfo, DEFAULT_TIMEOUT);
 
             //

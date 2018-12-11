@@ -14,7 +14,6 @@ import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
 import com.opendxl.client.ssl.SSLValidationSocketFactory;
 import com.opendxl.client.util.Executors;
-import com.opendxl.client.util.UuidGenerator;
 import org.apache.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -38,21 +37,55 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Client interface to the Data Exchange Layer (DXL) fabric.
+ * The {@link DxlClient} class is responsible for all communication with the Data Exchange Layer (DXL) fabric (it can
+ * be thought of as the "main" class). All other classes exist to support the functionality provided by the client.
+ * <P>
+ * The following example demonstrates the configuration of a {@link DxlClient} instance and connecting it to the fabric:
+ * </P>
+ * <PRE>
+ * DxlClientConfig config = DxlClientConfig.createDxlConfigFromFile("dxlclient.config");
+ * try (DxlClient client = new DxlClient(config)) {
+ *     client.connect();
+ *
+ *     // do work here
+ * }
+ * </PRE>
+ * <P>
+ * <b>NOTE:</b> The preferred way to construct the client is with a <i>try-with-resource</i> statement as shown above.
+ * This ensures that resources associated with the client are properly cleaned up when the block is exited.
+ * </P>
+ * <P>
+ * The following classes and packages support the client:
+ * </P>
+ * <UL>
+ * <LI>
+ * {@link DxlClientConfig}: This class holds the information necessary to connect a {@link DxlClient} to the DXL
+ *      fabric.
+ * </LI>
+ * <LI>
+ * <code>com.opendxl.client.message</code>: See this package for information on the different types of messages that
+ *      can be exchanged over the DXL fabric
+ * </LI>
+ * <LI>
+ * <code>com.opendxl.client.callback</code>: See this package for information on registering "callbacks" that are used
+ *      to receive messages via the {@link DxlClient}.
+ * </LI>
+ * <LI>
+ * {@link ServiceRegistrationInfo}: This class holds the information necessary to register a service with the DXL
+ *      fabric.
+ * </LI>
+ * </UL>
  */
 public class DxlClient implements MqttCallback, AutoCloseable {
+
     /**
      * The logger
      */
     private static Logger logger = Logger.getLogger(DxlClient.class);
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Common Properties
-    ////////////////////////////////////////////////////////////////////////////
-
     /**
      * The default "reply-to" prefix. This is typically used for setting up response
-     * channels for requests, etc.
+     * topics for requests, etc.
      */
     @SuppressWarnings("FieldCanBeLocal")
     private static String replyToPrefix = "/mcafee/client/";
@@ -91,6 +124,9 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      */
     private DxlClientConfig config;
 
+    /**
+     *  The SSL socket factory
+     */
     private SSLSocketFactory socketFactory;
 
     /**
@@ -104,39 +140,11 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     private Broker currentBroker = null;
 
     /**
-     * The current list of subscriptions
+     * A {@link Set} containing the topics that the client is currently subscribed to
+     *
+     * See {@link #subscribe} for more information on adding subscriptions
      */
     private final Set<String> subscriptions = new HashSet<>();
-
-    /**
-     * The number of times to retry during connect, default -1 (infinite)
-     */
-    private int connectRetries =
-        Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_RETRIES, "-1"));
-
-    /**
-     * The reconnect delay (in ms), default 10ms
-     */
-    private int reconnectDelay =
-        Integer.parseInt(System.getProperty(Constants.SYSPROP_RECONNECT_DELAY, "1000"));
-
-    /**
-     * The reconnect back off multiplier, defaults to 2
-     */
-    private int backOffMultiplier =
-        Integer.parseInt(System.getProperty(Constants.SYSPROP_RECONNECT_BACK_OFF_MULTIPLIER, "2"));
-
-    /**
-     * The maximum reconnect delay, default is 1 minute
-     */
-    private long reconnectDelayMax =
-        Long.parseLong(System.getProperty(Constants.SYSPROP_MAX_RECONNECT_DELAY, Long.toString(60 * 1000)));
-
-    /**
-     * The reconnect delay random, defaults to 25%
-     */
-    private float delayRandom =
-        Float.parseFloat(System.getProperty(Constants.SYSPROP_RECONNECT_DELAY_RANDOM, "0.25f"));
 
     /**
      * The default wait time for a synchronous request, defaults to 1 hour
@@ -144,14 +152,9 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     private long defaultWait =
         Long.parseLong(System.getProperty(Constants.SYSPROP_DEFAULT_WAIT, Long.toString(60 * 60 * 1000)));
 
-    /**
-     * The default query timeout (for broker query request
-     */
-    public long defaultQueryTimeout =
-        Long.parseLong(System.getProperty(Constants.SYSPROP_DEFAULT_QUERY_TIMEOUT, Long.toString(10 * 1000)));
 
     /**
-     * The disconnect strategy
+     * The strategy to use when the client is disconnected from the fabric
      */
     private DisconnectedStrategy disconnectStrategy = new ReconnectDisconnectedStrategy();
 
@@ -160,50 +163,31 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      */
     private String messagePoolPrefix;
 
-    ////////////////////////////////////////////////////////////////////////////
-    // MQTT Specific Properties
-    ////////////////////////////////////////////////////////////////////////////
-
     /**
-     * The system property for the connect timeout
+     * The "reply-to" prefix, typically used for setting up response topics for requests, etc.
      */
-    private static String syspropMqttConnectTimeout = "dxlClient.mqtt.connectTimeout";
+    private String replyToTopic;
 
     /**
-     * The system property for the connect timeout
-     */
-    private static String syspropMqttDisconnectTimeout = "dxlClient.mqtt.disconnectTimeout";
-
-    /**
-     * The system property for specifying the time to wait for an operation to complete
-     */
-    private static String syspropMqttTimeToWait = "dxlClient.mqtt.timeToWait";
-
-    /**
-     * The reply-to channel
-     */
-    private String replyToChannel;
-
-    /**
-     * Time to wait for an operation to complete
+     * Time to wait for an operation to complete (defaults to 2 minutes)
      */
     private long timeToWait =
         Long.parseLong(
-            System.getProperty(syspropMqttTimeToWait, Long.toString(120 * 1000)));
+            System.getProperty(Constants.MQTT_TIME_TO_WAIT, Long.toString(120 * 1000)));
 
     /**
-     * Connect timeout
+     * Connect timeout (defaults to 30 seconds)
      */
     private int connectTimeout =
         Integer.parseInt(
-            System.getProperty(syspropMqttConnectTimeout, Integer.toString(30)));
+            System.getProperty(Constants.MQTT_CONNECT_TIMEOUT, Integer.toString(30)));
 
     /**
-     * Connect timeout
+     * Disconnect timeout (defaults to 60 seconds)
      */
     private int disconnectTimeout =
         Integer.parseInt(
-            System.getProperty(syspropMqttDisconnectTimeout, Integer.toString(60)));
+            System.getProperty(Constants.MQTT_DISCONNECT_TIMEOUT, Integer.toString(60)));
 
     /**
      * The underlying MQTT client instance
@@ -211,7 +195,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     private MqttClient client = null;
 
     /**
-     * Thread to handle received messages
+     * Service to handle incoming messages
      */
     private ExecutorService messageExecutor;
 
@@ -219,10 +203,12 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      * The thread interrupt flag
      */
     private AtomicBoolean interrupt = new AtomicBoolean(false);
+
     /**
      * The lock for the connect thread
      */
     private Lock connectWaitLock = new ReentrantLock();
+
     /**
      * The condition associated with the connect thread lock
      */
@@ -232,19 +218,39 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      * The lock for trying to connect
      */
     private ReentrantLock connectingLock = new ReentrantLock();
+
     /**
      * The connecting lock condition
      */
     private Condition connectingLockCondition = connectingLock.newCondition();
+
     /**
-     * boolean indicating if the client is attempting to connect or not
+     * Indicates if the client is attempting to connect
      */
     private boolean attemptingToConnect = false;
 
     /**
-     * Whether the client should infinitely retry to reconnect when it gets disconnected
+     * Constructor for the {@link DxlClient}
+     *
+     * @param config The DXL client configuration (see {@link DxlClientConfig})
+     * @throws DxlException If a DXL exception occurs
      */
-    private boolean infiniteReconnect = true;
+    public DxlClient(DxlClientConfig config)
+        throws DxlException {
+        if (config == null) {
+            throw new DxlException("No client configuration specified");
+        }
+        if (config.getUniqueId() == null || config.getUniqueId().isEmpty()) {
+            throw new DxlException("No unique identifier specified");
+        }
+
+        this.config = config;
+
+        this.requestManager = new RequestManager(this);
+        this.serviceManager = new ServiceManager(this);
+
+        init();
+    }
 
     /**
      * Returns the unique identifier of the client instance
@@ -268,17 +274,16 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Returns if the client is connected
+     * Whether the client is currently connected to the DXL fabric.
      *
-     * @return true if the client is connected, otherwise false
+     * @return {@code true} if the client is connected, otherwise {@code false}
      */
     public boolean isConnected() {
         return (this.init && this.client != null && this.client.isConnected());
     }
 
     /**
-     * Initializes the state of the client. This should be called via a factory method
-     * (bean, etc.) used to create concrete instances of a particular client type.
+     * Initializes the state of the client
      */
     private synchronized void init() throws DxlException {
         if (!this.init) {
@@ -289,86 +294,19 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Sets the number of retries to perform when connecting. A value of {@code -1}
-     * indicates retry forever.
+     * Destroys the client (releases all associated resources).
+     * <P>
+     * <b>NOTE</b>: This method should rarely be called directly. Instead, the preferred way to construct the client is
+     * with a <i>try-with-resource</i> statement. This ensures that resources associated with the client are properly
+     * cleaned up when the block is exited as shown below:
+     * </P>
+     * <PRE>
+     * try (DxlClient client = new DxlClient(config)) {
+     *     client.connect();
      *
-     * @param retries The number of retries. A value of {@code -1} indicates retry
-     *                forever.
-     */
-    public void setConnectRetries(final int retries) {
-        this.connectRetries = retries;
-    }
-
-    /**
-     * Sets whether the client should infinitely retry to reconnect when it gets disconnected
-     *
-     * @param infiniteReconnect Whether the client should infinitely retry to reconnect when
-     *                          it gets disconnected
-     */
-    public void setInfiniteReconnectRetries(boolean infiniteReconnect) {
-        this.infiniteReconnect = infiniteReconnect;
-    }
-
-    /**
-     * The amount of time (in ms) for the first connect retry, defaults to {@code 1000}
-     *
-     * @param delay The amount of time (in ms) for the first connect retry,
-     *              defaults to {@code 1000}
-     */
-    public void setReconnectDelay(final int delay) {
-        this.reconnectDelay = delay;
-    }
-
-    /**
-     * The maximum reconnect delay time, defaults to {@code 60000} (one minute)
-     *
-     * @param delayMax The maximum reconnect delay time, defaults to {@code 60000}
-     *                 (one minute)
-     */
-    public synchronized void setReconnectDelayMax(final long delayMax) {
-        this.reconnectDelayMax = delayMax;
-    }
-
-    /**
-     * Returns the maximum reconnect delay time, defaults to {@code 60000} (one minute)
-     *
-     * @return The maximum reconnect delay time, defaults to {@code 60000} (one minute)
-     */
-    private synchronized long getReconnectDelayMax() {
-        return this.reconnectDelayMax;
-    }
-
-    /**
-     * The exponential reconnect back off multiplier, defaults to {@code 2}
-     *
-     * @param multiplier The exponential reconnect back off multiplier,
-     *                   defaults to {@code 2}
-     */
-    public void setReconnectBackOffMultiplier(final int multiplier) {
-        this.backOffMultiplier = multiplier;
-    }
-
-    /**
-     * Sets a randomness delay percentage (between {@code 0.0} and {@code 1.0}). When
-     * calculating the reconnect delay, this percentage indicates how much randomness there
-     * should be in the current delay. For example, if the current delay is 100ms, a value of
-     * .25 would mean that the actual delay would be between 100ms and 125ms. The default value
-     * is {@code 0.25}
-     *
-     * @param percent The randomness delay percentage (between {@code 0.0} and
-     *                {@code 1.0}
-     */
-    public void setReconnectDelayRandom(float percent) {
-        if (percent < 0.0f || percent > 1.0f) {
-            throw new IllegalArgumentException(
-                "Percent must be between 0.0 and 1.0");
-        }
-
-        this.delayRandom = percent;
-    }
-
-    /**
-     * Destroys the client instance
+     *     // do work here
+     * }
+     * </PRE>
      */
     public final void close() throws Exception {
         // Stop any pending connect attempts
@@ -391,9 +329,39 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Connects to the DXL fabric
+     * Attempts to connect the client to the DXL fabric.
+     * <P>
+     * This method does not return until either the client has connected to the fabric or it has exhausted the number
+     * of retries configured for the client causing an exception to be raised.
+     * </P>
+     * <P>
+     * Several attributes are available for controlling the client retry behavior:
+     * </P>
+     * <UL>
+     * <LI>
+     * {@link DxlClientConfig#getConnectRetries} : The maximum number of connection attempts for each {@link Broker}
+     *      specified in the {@link DxlClientConfig}
+     * </LI>
+     * <LI>
+     * {@link DxlClientConfig#getReconnectDelay} : The initial delay between retry attempts. The delay increases
+     *      ("backs off") as subsequent connection attempts are made.
+     * </LI>
+     * <LI>
+     * {@link DxlClientConfig#getReconnectBackOffMultiplier} : Multiples the current reconnect delay by this value on
+     *      subsequent connect retries. For example, a current delay of 3 seconds with a multiplier of 2 would result
+     *      in the next retry attempt being in 6 seconds.
+     * </LI>
+     * <LI>
+     * {@link DxlClientConfig#getReconnectDelayRandom} : A randomness delay percentage (between 0.0 and 1.0) that is
+     *      used to increase the current retry delay by a random amount for the purpose of preventing multiple clients
+     *      from having the same retry pattern in the next retry attempt being in 6 seconds.
+     * </LI>
+     * <LI>
+     * {@link DxlClientConfig#getReconnectDelayMax} : The maximum delay between retry attempts
+     * </LI>
+     * </UL>
      *
-     * @throws DxlException If a DXL exception occurs
+     * @throws DxlException If the client is unable to establish a connection or an error occurs
      */
     public final void connect() throws DxlException {
         connect(false);
@@ -402,7 +370,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     /**
      * Connects to the DXL fabric
      *
-     * @param reconnect whether this is a reconnect or not(retry counts are ignored on a reconnect)
+     * @param reconnect whether this is a reconnect or not (retry counts are ignored on a reconnect)
      * @throws DxlException If a DXL exception occurs
      */
     private void connect(boolean reconnect) throws DxlException {
@@ -453,19 +421,20 @@ public class DxlClient implements MqttCallback, AutoCloseable {
                     throw new DxlException("No broker defined");
                 }
 
-                int retries = this.connectRetries;
-                long retryDelay = this.reconnectDelay;
+                int retries = config.getConnectRetries();
+                long retryDelay = config.getReconnectDelay();
                 boolean firstAttempt = true;
                 Exception latestEx = null;
 
                 while (!this.interrupt.get()
-                    && ((reconnect && this.infiniteReconnect) || this.connectRetries == -1 || retries >= 0)) {
+                        && ((reconnect && config.isInfiniteReconnectRetries())
+                            || config.getConnectRetries() == -1 || retries >= 0)) {
                     if (!firstAttempt) {
                         // Determine retry delay
-                        final long reconnectDelayMax = getReconnectDelayMax();
+                        final long reconnectDelayMax = config.getReconnectDelayMax();
                         retryDelay = (retryDelay > reconnectDelayMax ? reconnectDelayMax : retryDelay);
                         // Apply random after max (so we still have randomness, may exceed maximum)
-                        retryDelay += ((this.delayRandom * retryDelay) * Math.random());
+                        retryDelay += ((config.getReconnectDelayRandom() * retryDelay) * Math.random());
 
                         logger.error("Retrying connect in " + retryDelay + " ms: " + latestEx.getMessage());
 
@@ -484,7 +453,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
                         }
 
                         // Update retry delay
-                        retryDelay *= this.backOffMultiplier;
+                        retryDelay *= config.getReconnectBackOffMultiplier();
                     }
 
                     try {
@@ -492,10 +461,10 @@ public class DxlClient implements MqttCallback, AutoCloseable {
 
                         // Restore connections
                         synchronized (this.subscriptions) {
-                            // Get the reply channel
-                            final String replyChannel = getReplyToChannel();
-                            if (replyChannel != null) {
-                                this.subscriptions.add(replyChannel);
+                            // Get the reply topic
+                            final String replyTopic = getReplyToTopic();
+                            if (replyTopic != null) {
+                                this.subscriptions.add(replyTopic);
                             }
 
                             for (final String sub : this.subscriptions) {
@@ -536,7 +505,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Disconnects from the DXL fabric
+     * Attempts to disconnect the client from the DXL fabric.
      *
      * @throws DxlException If a DXL exception occurs
      */
@@ -554,21 +523,20 @@ public class DxlClient implements MqttCallback, AutoCloseable {
             this.connectWaitLock.unlock();
         }
 
-        commonDisconnect();
-    }
-
-    private synchronized void commonDisconnect() throws DxlException {
-        // Stop service registration threads
-        this.serviceManager.onDisconnect();
-        // Actually disconnect the MQTT client
-        doDisconnect();
+        synchronized (this) {
+            this.serviceManager.onDisconnect();
+            // Actually disconnect the MQTT client
+            doDisconnect();
+        }
     }
 
     /**
      * Disconnects from the DXL fabric unconditionally.
+     * <P>
      * A warning will still be logged.
+     * </P>
      */
-    public final void disconnectQuietly() {
+    private void disconnectQuietly() {
         try {
             disconnect();
         } catch (DxlException ex) {
@@ -577,8 +545,8 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Attempts to reconnect to the server. When performing a reconnect, all existing
-     * subscriptions are restored.
+     * Attempts to reconnect the client to the fabric. When performing a reconnect, all existing topic subscriptions
+     * are restored.
      *
      * @throws DxlException If a DXL exception occurs
      */
@@ -602,16 +570,8 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Returns the current broker ID the client is connected to
-     *
-     * @return The current broker ID the client is connected to or null if not connected
-     */
-    public String getCurrentBrokerId() {
-        return (isConnected() && this.currentBroker != null ? this.currentBroker.getUniqueId() : null);
-    }
-
-    /**
-     * Returns the current Broker object the client is connected to
+     * Returns the {@link Broker} that the client is currently connected to. {@code null} is returned if the client is
+     * not currently connected to a {@link Broker}.
      *
      * @return The current Broker object the client is connected to or null if not connected
      */
@@ -636,41 +596,66 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Subscribes to a channel on the DXL fabric
+     * Subscribes to the specified topic on the DXL fabric. This method is typically used in conjunction with the
+     * registration of {@link EventCallback} instances via the {@link #addEventCallback} method.
+     * <P>
+     * The following is a simple example of using this:
+     * </P>
+     * <PRE>
+     * final EventCallback myEventCallback =
+     *     event -&gt; {
+     *         try {
+     *             System.out.println("Received event: "
+     *                 + new String(event.getPayload(), Message.CHARSET_UTF8));
+     *         } catch (UnsupportedEncodingException ex) {
+     *             ex.printStackTrace();
+     *         }
+     *     };
+     * client.addEventCallback("/testeventtopic", myEventCallback, false);
+     * client.subscribe("/testeventtopic");
+     * </PRE>
+     * <P>
+     * <b>NOTE</b>: By default when registering an event callback the client will automatically subscribe to the
+     * topic. In this example the {@link DxlClient#addEventCallback} method is invoked with the
+     * <code>subscribeToTopic</code> parameter set to {@code false} preventing the automatic subscription.
+     * </P>
      *
-     * @param channel The channel name
+     * @param topic The topic to subscribe to
      * @throws DxlException If a DXL exception occurs
      */
-    public final void subscribe(final String channel) throws DxlException {
+    public final void subscribe(final String topic) throws DxlException {
         synchronized (this.subscriptions) {
-            this.subscriptions.add(channel);
+            this.subscriptions.add(topic);
         }
 
         if (isConnected()) {
-            doSubscribe(channel);
+            doSubscribe(topic);
         }
     }
 
     /**
-     * Unsubscribes from a channel on the DXL fabric
+     * Unsubscribes from the specified topic on the DXL fabric.
+     * <P>
+     * See the {@link #subscribe} method for more information on subscriptions.
+     * </P>
      *
-     * @param channel The channel name
+     * @param topic The topic to unsubscribe from
      * @throws DxlException If a DXL exception occurs
      */
-    public final void unsubscribe(final String channel) throws DxlException {
+    public final void unsubscribe(final String topic) throws DxlException {
         if (isConnected()) {
-            doUnsubscribe(channel);
+            doUnsubscribe(topic);
         }
 
         synchronized (this.subscriptions) {
-            this.subscriptions.remove(channel);
+            this.subscriptions.remove(topic);
         }
     }
 
     /**
-     * Returns the set of current subscriptions
+     * Returns a {@link Set} containing the topics that the client is currently subscribed to
      *
-     * @return The set of current subscriptions
+     * @return A {@link Set} containing the topics that the client is currently subscribed to
      */
     public Set<String> getSubscriptions() {
         synchronized (this.subscriptions) {
@@ -679,21 +664,15 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Returns the size of the current request queue
+     * Sends a {@link Request} message to a remote DXL service.
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
+     * The default wait time is {@code 1} hour
      *
-     * @return The size of the current request queue
-     */
-    @Deprecated
-    public int getCurrentRequestQueueSize() {
-        return 0;
-    }
-
-    /**
-     * Performs a synchronous request with the default timeout via the DXL fabric
-     *
-     * @param request The request
-     * @return The response
-     * @throws DxlException If an error occurs, or the operation times out
+     * @param request The {@link Request} message to send to a remote DXL service
+     * @return The {@link Response}
+     * @throws DxlException If an error occurs or the operation times out
      * @see com.opendxl.client.exception.WaitTimeoutException
      */
     public Response syncRequest(final Request request) throws DxlException {
@@ -701,12 +680,16 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Performs a synchronous request with the specified timeout via the DXL fabric
+     * Sends a {@link Request} message to a remote DXL service.
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
-     * @param request    The request
-     * @param waitMillis Wait timeout in milliseconds
-     * @return The response
-     * @throws DxlException If an error occurs, or the operation times out
+     * @param request The {@link Request} message to send to a remote DXL service
+     * @param waitMillis The amount of time (in milliseconds) to wait for the {@link Response} to the request.
+     *                   If the timeout is exceeded an exception will be raised.
+     * @return The {@link Response}
+     * @throws DxlException If an error occurs or the operation times out
      * @see com.opendxl.client.exception.WaitTimeoutException
      */
     public Response syncRequest(final Request request, final long waitMillis) throws DxlException {
@@ -716,11 +699,22 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Performs an asynchronous request via the DXL fabric
+     * Sends a {@link Request} message to a remote DXL service asynchronously. This method differs from
+     * {@link #syncRequest} due to the fact that it returns to the caller immediately after delivering the
+     * {@link Request} message to the DXL fabric (It does not wait for the corresponding {@link Response} to be
+     * received).
+     * <P>
+     * An optional {@link ResponseCallback} can be specified. This callback will be invoked when the corresponding
+     * {@link Response} message is received by the client.
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
-     * @param request    The request
-     * @param callback   The callback to be invoked when the response is received
-     * @param waitMillis The amount of time to wait for a response before removing the callback
+     * @param request The {@link Request} message to send to a remote DXL service
+     * @param callback  An optional {@link ResponseCallback} that will be invoked when the corresponding
+     *      {@link Response} message is received by the client.
+     * @param waitMillis The amount of time to wait for a {@link Response} before removing the callback
      * @throws DxlException If a DXL exception occurs
      */
     public void asyncRequest(final Request request, final ResponseCallback callback, final long waitMillis)
@@ -731,10 +725,23 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Performs an asynchronous request via the DXL fabric
+     * Sends a {@link Request} message to a remote DXL service asynchronously. This method differs from
+     * {@link #syncRequest} due to the fact that it returns to the caller immediately after delivering the
+     * {@link Request} message to the DXL fabric (It does not wait for the corresponding {@link Response} to be
+     * received).
+     * <P>
+     * An optional {@link ResponseCallback} can be specified. This callback will be invoked when the corresponding
+     * {@link Response} message is received by the client.
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
+     * The default wait time is {@code 1} hour. After the wait time is exceeded the callback will be removed
+     * (no longer tracked).
      *
-     * @param request  The request
-     * @param callback The callback to be invoked when the response is received
+     * @param request The {@link Request} message to send to a remote DXL service
+     * @param callback  An optional {@link ResponseCallback} that will be invoked when the corresponding
+     *      {@link Response} message is received by the client.
      * @throws DxlException If a DXL exception occurs
      */
     public void asyncRequest(final Request request, final ResponseCallback callback) throws DxlException {
@@ -742,31 +749,43 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Performs an asynchronous request via the DXL fabric
+     * Sends a {@link Request} message to a remote DXL service asynchronously. This method differs from
+     * {@link #syncRequest} due to the fact that it returns to the caller immediately after delivering the
+     * {@link Request} message to the DXL fabric (It does not wait for a {@link Response} to be received).
      *
-     * @param request The request
-     * @return The request message identifier
+     * @param request The {@link Request} message to send to a remote DXL service
      * @throws DxlException If a DXL exception occurs
      */
-    public String asyncRequest(final Request request) throws DxlException {
+    public void asyncRequest(final Request request) throws DxlException {
         asyncRequest(request, null);
-        return request.getMessageId();
     }
 
     /**
-     * Sends the specified event to registered listeners via the DXL fabric
+     * Attempts to deliver the specified {@link Event} message to the DXL fabric.
+     * <P>
+     * See the {@link Message} class for more information on message types, how they are delivered to remote
+     * clients, etc.
+     * </P>
      *
-     * @param event The event to send
+     * @param event The {@link Event} to send
      * @throws DxlException If a DXL exception occurs
      */
     public void sendEvent(final Event event) throws DxlException {
         checkInitialized();
         event.setSourceClientId(getUniqueId());
-        doSendEvent(event, event.getDestinationChannel(), packMessage(event));
+        doSendEvent(event, event.getDestinationTopic(), packMessage(event));
     }
 
     /**
-     * Sends the specified response back to the requester via the DXL fabric
+     * Attempts to deliver the specified {@link Response} message to the DXL fabric. The fabric will in turn attempt
+     * to deliver the response back to the client who sent the corresponding {@link Request}.
+     * <P>
+     * See the {@link Message} class for more information on message types, how they are delivered to remote
+     * clients, etc.
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
      * @param response The response to send
      * @throws DxlException If a DXL exception occurs
@@ -774,101 +793,163 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     public void sendResponse(final Response response) throws DxlException {
         checkInitialized();
         response.setSourceClientId(getUniqueId());
-        doSendResponse(response, response.getDestinationChannel(), packMessage(response));
+        doSendResponse(response, response.getDestinationTopic(), packMessage(response));
     }
 
     /**
-     * Adds a {@link RequestCallback} listener to the client. This listener will be
-     * notified of all requests received by the client instance on the specified
-     * channel. A {@code null} channel indicates that the callback should receive
-     * requests from all channels (no channel filtering).
+     * Adds a {@link RequestCallback} to the client for the specified topic. The callback will be invoked when
+     * {@link Request} messages are received by the client on the specified topic. A topic of {@code null} indicates
+     * that the callback should receive {@link Request} messages for all topics (no filtering).
+     * <P>
+     * <b>NOTE</b>: Usage of this method is quite rare due to the fact that registration of {@link RequestCallback}
+     * instances with the client occurs automatically when registering a service. See the
+     * {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
-     * @param channel  The channel that the requests are received on. A {@code null}
-     *                 channel indicates that the callback should receive requests from all
-     *                 channels (no channel filtering).
-     * @param callback The request callback
+     * @param topic The topic to receive {@link Request} messages on. A topic of {@code null} indicates that the
+     *              callback should receive {@link Request} messages for all topics (no filtering).
+     * @param callback The {@link RequestCallback} to be invoked when a {@link Request} message is received on the
+     *                 specified topic.
      */
-    public void addRequestCallback(final String channel, final RequestCallback callback) {
-        this.requestCallbacks.addCallback(channel, callback);
+    public void addRequestCallback(final String topic, final RequestCallback callback) {
+        this.requestCallbacks.addCallback(topic, callback);
     }
 
     /**
-     * Removes the {@link RequestCallback} listener from the client. This method should
-     * be called with the same arguments as when the callback was originally registered.
+     * Removes a {@link RequestCallback} from the client for the specified topic. This method must be invoked with the
+     * same arguments as when the callback was originally registered via {@link #addRequestCallback}.
      *
-     * @param channel  The channel to remove the callback from (or {@code null}).
-     * @param callback The request callback
+     * @param topic The topic to remove the callback for
+     * @param callback The {@link RequestCallback} to be removed for the specified topic
      * @see #addRequestCallback(String, RequestCallback)
      */
-    public void removeRequestCallback(final String channel, final RequestCallback callback) {
-        this.requestCallbacks.removeCallback(channel, callback);
+    public void removeRequestCallback(final String topic, final RequestCallback callback) {
+        this.requestCallbacks.removeCallback(topic, callback);
     }
 
     /**
-     * Adds a {@link ResponseCallback} listener to the client. This listener will be
-     * notified of all responses received by the client instance on the specified
-     * channel. A {@code null} channel indicates that the callback should receive
-     * responses from all channels (no channel filtering).
+     * Adds a {@link ResponseCallback} to the client for the specified topic. The callback will be invoked when
+     * {@link Response} messages are received by the client on the specified topic. A topic of {@code null} indicates
+     * that the callback should receive {@link Response} messages for all topics (no filtering).
+     * <P>
+     * <b>NOTE</b>: Usage of this method is quite rare due to the fact that the use of {@link ResponseCallback}
+     * instances are typically limited to invoking a remote DXL service via the {@link #asyncRequest} method.
+     * </P>
      *
-     * @param channel  The channel that the responses are received on. A {@code null}
-     *                 channel indicates that the callback should receive responses from all
-     *                 channels (no channel filtering).
-     * @param callback The response callback
+     * @param topic The topic to receive {@link Request} messages on. A topic of {@code null} indicates that the
+     *              callback should receive {@link Request} messages for all topics (no filtering).
+     * @param callback The {@link RequestCallback} to be invoked when a {@link Request} message is received on the
+     *                 specified topic.
      */
-    public void addResponseCallback(final String channel, final ResponseCallback callback) {
-        this.responseCallbacks.addCallback(channel, callback);
+    public void addResponseCallback(final String topic, final ResponseCallback callback) {
+        this.responseCallbacks.addCallback(topic, callback);
     }
 
     /**
-     * Removes the {@link ResponseCallback} listener from the client. This method should
-     * be called with the same arguments as when the callback was originally registered.
+     * Removes a {@link RequestCallback} from the client for the specified topic. This method must be invoked with the
+     * same arguments as when the callback was originally registered via {@link #addRequestCallback}.
      *
-     * @param channel  The channel to remove the callback from (or {@code null}).
-     * @param callback The response callback
+     * @param topic The topic to remove the callback for
+     * @param callback The {@link RequestCallback} to be removed for the specified topic
      * @see #addResponseCallback(String, ResponseCallback)
      */
-    public void removeResponseCallback(final String channel, final ResponseCallback callback) {
-        this.responseCallbacks.removeCallback(channel, callback);
+    public void removeResponseCallback(final String topic, final ResponseCallback callback) {
+        this.responseCallbacks.removeCallback(topic, callback);
     }
 
     /**
-     * Adds an {@link EventCallback} listener to the client. This listener will be
-     * notified of all events received by the client instance on the specified
-     * channel. A {@code null} channel indicates that the callback should receive
-     * events from all channels (no channel filtering).
+     * Adds a {@link EventCallback} to the client for the specified topic. The callback will be invoked when
+     * {@link Event} messages are received by the client on the specified topic. A topic of {@code null} indicates that
+     * the callback should receive {@link Event} messages for all topics (no filtering).
      *
-     * @param channel  The channel that the events are received on. A {@code null}
-     *                 channel indicates that the callback should receive events from all
-     *                 channels (no channel filtering).
-     * @param callback The event callback
+     * @param topic The topic to receive {@link Event} messages on. A topic of {@code null} indicates that the callback
+     *              should receive {@link Event} messages for all topics (no filtering).
+     * @param callback The {@link EventCallback} to be invoked when a {@link Event} message is received on the
+     *                 specified topic.
+     * @param subscribeToTopic Indicates if the client should automatically subscribe ({@link #subscribe}) to the topic.
+     * @throws DxlException If an error occurs
      */
-    public void addEventCallback(String channel, EventCallback callback) {
-        this.eventCallbacks.addCallback(channel, callback);
+    public void addEventCallback(final String topic, final EventCallback callback, final boolean subscribeToTopic)
+        throws DxlException {
+        this.eventCallbacks.addCallback(topic, callback);
+        if (topic != null && subscribeToTopic) {
+            this.subscribe(topic);
+        }
     }
 
     /**
-     * Removes the {@link EventCallback} listener from the client. This method should
-     * be called with the same arguments as when the callback was originally registered.
+     * Adds a {@link EventCallback} to the client for the specified topic. The callback will be invoked when
+     * {@link Event} messages are received by the client on the specified topic. A topic of {@code null} indicates that
+     * the callback should receive {@link Event} messages for all topics (no filtering).
+     * <P>
+     * This variant of the {@code "addEventCallback"} methods will automatically subscribe ({@link #subscribe}) to the
+     * topic. Use the {@link #addEventCallback(String, EventCallback, boolean)} method variant with the
+     * {@code subscribeToTopic} parameter set to {@code false} to prevent automatically subscribing to the topic.
+     * </P>
      *
-     * @param channel  The channel to remove the callback from (or {@code null}).
-     * @param callback The event callback
+     * @param topic The topic to receive {@link Event} messages on. A topic of {@code null} indicates that the callback
+     *              should receive {@link Event} messages for all topics (no filtering).
+     * @param callback The {@link EventCallback} to be invoked when a {@link Event} message is received on the
+     *                 specified topic.
+     * @throws DxlException If an error occurs
+     */
+    public void addEventCallback(final String topic, final EventCallback callback) throws DxlException {
+        this.addEventCallback(topic, callback, true);
+    }
+
+    /**
+     * Removes a {@link EventCallback} from the client for the specified topic. This method must be invoked with the
+     * same arguments as when the callback was originally registered via {@link #addEventCallback}.
+     *
+     * @param topic The topic to remove the callback for
+     * @param callback The {@link EventCallback} to be removed for the specified topic
+     * @param unsubscribeFromTopic Indicates if the client should also unsubscribe ((@link #unsubscribe)) from the
+     *                             topic.
+     * @throws DxlException If an error occurs
+     * @see #addEventCallback(String, EventCallback, boolean)
+     */
+    public void removeEventCallback(final String topic, final EventCallback callback,
+                                    final boolean unsubscribeFromTopic) throws DxlException {
+        this.eventCallbacks.removeCallback(topic, callback);
+        if (topic != null && unsubscribeFromTopic) {
+            this.unsubscribe(topic);
+        }
+    }
+
+    /**
+     * Removes a {@link EventCallback} from the client for the specified topic. This method must be invoked with the
+     * same arguments as when the callback was originally registered via {@link #addEventCallback}.
+     * <P>
+     * This variant of the {@code "removeEventCallback"} methods will automatically unsubscribe ({@link #unsubscribe})
+     * to the topic. Use the {@link #removeEventCallback(String, EventCallback, boolean)} method variant with the
+     * {@code unsubscribeToTopic} parameter set to {@code false} to prevent automatically unsubscribing to the topic.
+     * </P>
+     *
+     * @param topic The topic to remove the callback for
+     * @param callback The {@link EventCallback} to be removed for the specified topic
+     * @throws DxlException If an error occurs
      * @see #addEventCallback(String, EventCallback)
      */
-    public void removeEventCallback(final String channel, final EventCallback callback) {
-        this.eventCallbacks.removeCallback(channel, callback);
+    public void removeEventCallback(final String topic, final EventCallback callback) throws DxlException {
+        this.removeEventCallback(topic, callback, true);
     }
 
     /**
-     * Registers a service with the DXL fabric. See {@link ServiceRegistrationInfo}
-     * <p>
-     * NOTE: This method requires that the client is currently connected to a broker.
-     * </p>
+     * Registers a DXL service with the fabric. The specified {@link ServiceRegistrationInfo} instance contains
+     * information about the service that is to be registered.
+     * <P>
+     * This method will wait for confirmation of the service registration for up to the specified timeout in
+     * milliseconds. If the timeout is exceeded an exception will be raised.
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
-     * @param service The service registration info
-     * @param timeout The amount of time (in ms) to wait for the service to register with the broker. If this
-     *                timeout is exceeded an exception is thrown. However, it is important to note that the client
-     *                will continue to perform the registration in the background.
-     * @throws DxlException If a DXL exception occurs
+     * @param service A {@link ServiceRegistrationInfo} instance containing information about the service that is to
+     *                be registered.
+     * @param timeout The amount of time (in milliseconds) to wait for confirmation of the service registration. If
+     *                the timeout is exceeded an exception will be raised.
+     * @throws DxlException If an error occurs
      */
     public void registerServiceSync(final ServiceRegistrationInfo service, final long timeout)
         throws DxlException {
@@ -881,29 +962,41 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Registers the service asynchronously (does not wait for it to be registered with the broker).
-     * <p>
-     * This method does not require the client to be currently connected to a broker.
-     * </p>
+     * Registers a DXL service with the fabric asynchronously. The specified {@link ServiceRegistrationInfo} instance
+     * contains information about the service that is to be registered.
+     * <P>
+     * This method differs from {@link #registerServiceSync} due to the fact that it returns to the caller immediately
+     * after sending the registration message to the DXL fabric (It does not wait for registration confirmation
+     * before returning).
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
-     * @param service The service registration info
-     * @throws DxlException If a DXL exception occurs
+     * @param service A {@link ServiceRegistrationInfo} instance containing information about the service that is to
+     *                be registered.
+     * @throws DxlException If an error occurs
      */
     public void registerServiceAsync(ServiceRegistrationInfo service) throws DxlException {
         this.serviceManager.addService(service);
     }
 
     /**
-     * Unregisters a service from the DXL fabric.
-     * <p>
-     * NOTE: This method requires that the client is currently connected to a broker.
-     * </p>
+     * Unregisters (removes) a DXL service from the fabric. The specified {@link ServiceRegistrationInfo} instance
+     * contains information about the service that is to be removed.
+     * <P>
+     * This method will wait for confirmation of the service unregistration for up to the specified timeout in
+     * milliseconds. If the timeout is exceeded an exception will be raised.
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
-     * @param service The service registration info
-     * @param timeout The amount of time (in ms) to wait for the service to unregister with the broker. If this
-     *                timeout is exceeded an exception is thrown. However, it is important to note that the client
-     *                will continue to perform the unregistration in the background.
-     * @throws DxlException If a DXL exception occurs
+     * @param service A {@link ServiceRegistrationInfo} instance containing information about the service that is to
+     *                be unregistered.
+     * @param timeout The amount of time (in milliseconds) to wait for confirmation of the service unregistration. If
+     *                the timeout is exceeded an exception will be raised.
+     * @throws DxlException If an error occurs
      */
     public void unregisterServiceSync(final ServiceRegistrationInfo service, final long timeout)
         throws DxlException {
@@ -920,56 +1013,50 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Unregisters the service asynchronously (does not wait for it to be registered with the broker).
-     * <p>
-     * This method does not require the client to be currently connected to a broker.
-     * </p>
+     * Unregisters (removes) a DXL service with from the fabric asynchronously. The specified
+     * {@link ServiceRegistrationInfo} instance contains information about the service that is to be removed.
+     * <P>
+     * This method differs from {@link #unregisterServiceSync} due to the fact that it returns to the caller
+     * immediately after sending the unregistration message to the DXL fabric (It does not wait for
+     * unregistration confirmation before returning).
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
      *
-     * @param service The service registration info
-     * @throws DxlException If a DXL exception occurs
+     * @param service A {@link ServiceRegistrationInfo} instance containing information about the service that is to
+     *                be unregistered.
+     * @throws DxlException If an error occurs
      */
     public void unregisterServiceAsync(ServiceRegistrationInfo service) throws DxlException {
         this.serviceManager.removeService(service.getServiceGuid());
     }
 
     /**
-     * Unregisters a service from the DXL fabric.
-     *
-     * @param serviceGuid The unique ID of the service to unregister
-     * @throws DxlException If a DXL exception occurs
-     */
-    public void unregisterServiceAsync(final String serviceGuid) throws DxlException {
-        this.serviceManager.removeService(UuidGenerator.normalize(serviceGuid));
-    }
-
-    /**
-     * Fires the specified {@link Event} to {@link EventCallback} listeners currently
-     * registered with the client.
+     * Fires the specified {@link Event} to {@link EventCallback} listeners currently registered with the client.
      *
      * @param event The {@link Event} to fire.
-     * @see #addEventCallback(String, com.opendxl.client.callback.EventCallback)
+     * @see #addEventCallback
      */
     private void fireEvent(final Event event) {
         this.eventCallbacks.fireMessage(event);
     }
 
     /**
-     * Fires the specified {@link Response} to {@link ResponseCallback} listeners currently
-     * registered with the client.
+     * Fires the specified {@link Response} to {@link ResponseCallback} listeners currently registered with the client.
      *
      * @param response The {@link Response} to fire.
-     * @see #addResponseCallback(String, com.opendxl.client.callback.ResponseCallback)
+     * @see #addResponseCallback
      */
     private void fireResponse(final Response response) {
         this.responseCallbacks.fireMessage(response);
     }
 
     /**
-     * Fires the specified {@link Request} to {@link RequestCallback} listeners currently
-     * registered with the client.
+     * Fires the specified {@link Request} to {@link RequestCallback} listeners currently registered with the client.
      *
      * @param request The {@link Request} to fire.
-     * @see #addRequestCallback(String, com.opendxl.client.callback.RequestCallback)
+     * @see #addRequestCallback
      */
     private void fireRequest(final Request request) {
         this.requestCallbacks.fireMessage(request);
@@ -977,10 +1064,8 @@ public class DxlClient implements MqttCallback, AutoCloseable {
 
     /**
      * Invoked when the client has been disconnected by the broker.
-     * To be invoked by concrete implementation.
      */
     private void handleDisconnected() {
-        //Bug Fix : https://bugzilla.corp.nai.org/bugzilla/show_bug.cgi?id=1230697
         disconnectQuietly();
 
         // Check for disconnected strategy
@@ -995,8 +1080,8 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Sets the strategy to use if the client becomes unexpectedly disconnected from the
-     * broker. By default the {@link ReconnectDisconnectedStrategy} is used.
+     * Sets the strategy to use if the client becomes unexpectedly disconnected from the broker.
+     * By default the {@link ReconnectDisconnectedStrategy} is used.
      *
      * @param strategy The strategy to use if the client becomes unexpectedly disconnected
      *                 from the broker. By default the {@link ReconnectDisconnectedStrategy} is used.
@@ -1006,17 +1091,16 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Processes an incoming message. The bytes from the message are converted into the appropriate
-     * message type instance (request, response, event, etc.) and then the corresponding registered
-     * message callbacks are notified.
+     * Processes an incoming message. The bytes from the message are converted into the appropriate message type
+     * instance (request, response, event, etc.) and then the corresponding registered message callbacks are notified.
      *
-     * @param channel The channel that the message arrived on
-     * @param bytes   The message received from the channel (as bytes)
+     * @param topic The topic that the message arrived on
+     * @param bytes The message received (as bytes)
      */
-    private void handleMessage(final String channel, final byte[] bytes) throws IOException {
+    private void handleMessage(final String topic, final byte[] bytes) throws IOException {
         final Message message = Message.fromBytes(bytes);
-        // Set the channel that the message was delivered on
-        message.setDestinationChannel(channel);
+        // Set the topic that the message was delivered on
+        message.setDestinationTopic(topic);
         switch (message.getMessageType()) {
             case Message.MESSAGE_TYPE_EVENT:
                 this.fireEvent((Event) message);
@@ -1040,12 +1124,11 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      */
     void sendRequest(final Request request) throws DxlException {
         setReplyToForMessage(request);
-        doSendRequest(request, request.getDestinationChannel(), packMessage(request));
+        doSendRequest(request, request.getDestinationTopic(), packMessage(request));
     }
 
     /**
-     * Packs the specified message (converts the message to a byte array) for transmitting
-     * over the DXL fabric.
+     * Packs the specified message (converts the message to a byte array) for transmitting over the DXL fabric.
      *
      * @param message The message to pack
      * @return The packed message (as bytes)
@@ -1066,23 +1149,14 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     ////////////////////////////////////////////////////////////////////////////
 
     /**
-     * Sets the reply-to channel
-     *
-     * @param channel The reply-to channel
-     */
-    void setReplyToChannel(final String channel) {
-        this.replyToChannel = channel;
-    }
-
-    /**
-     * Returns the name of the "reply-to" channel to use for communicating back to this client
+     * Returns the name of the "reply-to" topic to use for communicating back to this client
      * (responses to requests).
      *
-     * @return The name of the "reply-to" channel to use for communicating back to this client
+     * @return The name of the "reply-to" topic to use for communicating back to this client
      * (responses to requests).
      */
-    private String getReplyToChannel() {
-        return this.replyToChannel;
+    private String getReplyToTopic() {
+        return this.replyToTopic;
     }
 
     /**
@@ -1104,9 +1178,9 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Returns the current DXL client configuration
+     * Returns the {@link DxlClientConfig} assoicated with the client
      *
-     * @return The current DXL client configuration
+     * @return The {@link DxlClientConfig} assoicated with the client
      */
     public DxlClientConfig getConfig() {
         return this.config;
@@ -1151,9 +1225,9 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      * {@inheritDoc}
      */
     @Override
-    public void messageArrived(final String channel, final MqttMessage message) {
+    public void messageArrived(final String topic, final MqttMessage message) {
         if (logger.isDebugEnabled()) {
-            logger.debug("messageArrived: " + channel);
+            logger.debug("messageArrived: " + topic);
         }
 
         // Handle any received messages on a separate thread.
@@ -1163,7 +1237,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
         this.messageExecutor.execute(
             () -> {
                 try {
-                    handleMessage(channel, message.getPayload());
+                    handleMessage(topic, message.getPayload());
                 } catch (Throwable t) {
                     logger.error("Error during message handling", t);
                 }
@@ -1210,8 +1284,8 @@ public class DxlClient implements MqttCallback, AutoCloseable {
             Broker broker = config.getBrokerList().get(0);
             resetClient(broker.toString());
 
-            // The reply-to channel name
-            this.replyToChannel = replyToPrefix + this.getUniqueId();
+            // The reply-to topic name
+            this.replyToTopic = replyToPrefix + this.getUniqueId();
 
             // Prefix for the message pool
             this.messagePoolPrefix = "DxlMessagePool-" + this.getUniqueId();
@@ -1256,6 +1330,8 @@ public class DxlClient implements MqttCallback, AutoCloseable {
 
     /**
      * Connects to the DXL fabric
+     *
+     * @param brokers The brokers to attempt to connect to
      */
     private synchronized void doConnect(final Map<String, Broker> brokers)
         throws DxlException {
@@ -1338,8 +1414,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Disconnects from the DXL fabric unconditionally.
-     * A warning will still be logged.
+     * Disconnects from the DXL fabric unconditionally. A warning will still be logged.
      */
     private synchronized void doDisconnectQuietly() {
         if (isConnected()) {
@@ -1352,28 +1427,28 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Subscribes to a channel on the DXL fabric
+     * Subscribes to a topic on the DXL fabric
      *
-     * @param channel The channel name
+     * @param topic The topic
      */
-    private void doSubscribe(final String channel)
+    private void doSubscribe(final String topic)
         throws DxlException {
         try {
-            this.client.subscribe(channel);
+            this.client.subscribe(topic);
         } catch (final Exception ex) {
             throw new DxlException("Error during subscribe", ex);
         }
     }
 
     /**
-     * Unsubscribes from a channel on the DXL fabric
+     * Unsubscribes from a topic on the DXL fabric
      *
-     * @param channel The channel name
+     * @param topic The topic
      */
-    private void doUnsubscribe(final String channel)
+    private void doUnsubscribe(final String topic)
         throws DxlException {
         try {
-            this.client.unsubscribe(channel);
+            this.client.unsubscribe(topic);
         } catch (final Exception ex) {
             throw new DxlException("Error during subscribe", ex);
         }
@@ -1382,14 +1457,14 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     /**
      * Publishes the specified message
      *
-     * @param channel The channel to publish on
-     * @param bytes   The message content
-     * @param qos     The quality of service (QOS)
+     * @param topic The topic to publish on
+     * @param bytes The message content
+     * @param qos The quality of service (QOS)
      */
-    private void publishMessage(final String channel, final byte[] bytes, int qos)
+    private void publishMessage(final String topic, final byte[] bytes, int qos)
         throws DxlException {
         try {
-            this.client.publish(channel, bytes, qos, false);
+            this.client.publish(topic, bytes, qos, false);
         } catch (final Exception ex) {
             throw new DxlException("Error publishing message", ex);
         }
@@ -1399,47 +1474,47 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      * Sends a request to the DXL fabric
      *
      * @param request The Request
-     * @param channel The channel name
-     * @param bytes   The request
+     * @param topic The topic
+     * @param bytes The message content
      */
-    private void doSendRequest(final Request request, final String channel, final byte[] bytes)
+    private void doSendRequest(final Request request, final String topic, final byte[] bytes)
         throws DxlException {
-        publishMessage(channel, bytes, 0 /* Only supports 0 currently */);
+        publishMessage(topic, bytes, 0 /* Only supports 0 currently */);
     }
 
     /**
      * Sends a response to the DXL fabric
      *
      * @param response The response
-     * @param channel  The channel name
-     * @param bytes    The response
+     * @param topic The topic
+     * @param bytes The message content
      */
-    private void doSendResponse(final Response response, final String channel, final byte[] bytes)
+    private void doSendResponse(final Response response, final String topic, final byte[] bytes)
         throws DxlException {
-        publishMessage(channel, bytes, 0 /* Only supports 0 currently */);
+        publishMessage(topic, bytes, 0 /* Only supports 0 currently */);
     }
 
     /**
      * Sends an event to the DXL fabric (to be implemented by concrete classes).
      *
-     * @param event   The event
-     * @param channel The channel name
-     * @param bytes   The event
+     * @param event The event
+     * @param topic The topic
+     * @param bytes The message content
      */
-    private void doSendEvent(final Event event, final String channel, final byte[] bytes)
+    private void doSendEvent(final Event event, final String topic, final byte[] bytes)
         throws DxlException {
-        publishMessage(channel, bytes, 0 /* Only supports 0 currently */);
+        publishMessage(topic, bytes, 0 /* Only supports 0 currently */);
     }
 
     /**
      * The purpose of this method is to allow to specify the appropriate "reply-to"
-     * path {@link Request#setReplyToChannel(String)} for the specified {@link Request}.
+     * path {@link Request#setReplyToTopic(String)} for the specified {@link Request}.
      *
      * @param request The {@link Request} to set the "reply-to" on
      */
     private void setReplyToForMessage(final Request request)
         throws DxlException {
-        request.setReplyToChannel(this.replyToChannel);
+        request.setReplyToTopic(this.replyToTopic);
     }
 
     /**
@@ -1449,33 +1524,6 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      */
     int getAsyncCallbackCount() {
         return this.requestManager.getAsyncCallbackCount();
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // Constructor
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Constructs the client
-     *
-     * @param config The DXL client configuration
-     * @throws DxlException If a DXL exception occurs
-     */
-    public DxlClient(DxlClientConfig config)
-        throws DxlException {
-        if (config == null) {
-            throw new DxlException("No client configuration specified");
-        }
-        if (config.getUniqueId() == null || config.getUniqueId().isEmpty()) {
-            throw new DxlException("No unique identifier specified");
-        }
-
-        this.config = config;
-
-        this.requestManager = new RequestManager(this);
-        this.serviceManager = new ServiceManager(this);
-
-        init();
     }
 
     /**

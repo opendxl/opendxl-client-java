@@ -79,39 +79,58 @@ public abstract class Constants {
     public static final String SYSPROP_INCOMING_MESSAGE_QUEUE_SIZE = "dxlClient.incomingMessageQueueSize";
 
     /**
-     * The channel notified when services are registered
+     * The topic notified when services are registered
      */
-    public static final String DXL_SERVICE_REGISTER_CHANNEL = "/mcafee/event/dxl/svcregistry/register";
+    public static final String DXL_SERVICE_REGISTER_TOPIC = "/mcafee/event/dxl/svcregistry/register";
     /**
-     * The channel to publish a service registration request to
+     * The topic to publish a service registration request to
      */
-    public static final String DXL_SERVICE_REGISTER_REQUEST_CHANNEL = "/mcafee/service/dxl/svcregistry/register";
+    public static final String DXL_SERVICE_REGISTER_REQUEST_TOPIC = "/mcafee/service/dxl/svcregistry/register";
     /**
-     * The channel notified when services are unregistered
+     * The topic notified when services are unregistered
      */
-    public static final String DXL_SERVICE_UNREGISTER_CHANNEL = "/mcafee/event/dxl/svcregistry/unregister";
+    public static final String DXL_SERVICE_UNREGISTER_TOPIC = "/mcafee/event/dxl/svcregistry/unregister";
     /**
-     * The channel to publish a service unregistration request to
+     * The topic to publish a service unregistration request to
      */
-    public static final String DXL_SERVICE_UNREGISTER_REQUEST_CHANNEL = "/mcafee/service/dxl/svcregistry/unregister";
+    public static final String DXL_SERVICE_UNREGISTER_REQUEST_TOPIC = "/mcafee/service/dxl/svcregistry/unregister";
     /**
-     * The channel to query the service registry
+     * The topic to query the service registry
      */
-    public static final String DXL_SERVICE_QUERY_CHANNEL = "/mcafee/service/dxl/svcregistry/query";
+    public static final String DXL_SERVICE_QUERY_TOPIC = "/mcafee/service/dxl/svcregistry/query";
     /**
-     * The channel to query the client registry
+     * The topic to query the client registry
      */
-    public static final String DXL_CLIENT_QUERY_CHANNEL = "/mcafee/service/dxl/clientregistry/query";
+    public static final String DXL_CLIENT_QUERY_TOPIC = "/mcafee/service/dxl/clientregistry/query";
     /**
-     * The channel to receive client connect events
+     * The topic to receive client connect events
      */
-    public static final String DXL_CLIENT_CONNECT_CHANNEL = "/mcafee/event/dxl/clientregistry/connect";
+    public static final String DXL_CLIENT_CONNECT_TOPIC = "/mcafee/event/dxl/clientregistry/connect";
     /**
-     * The channel to receive client disconnect events
+     * The topic to receive client disconnect events
      */
-    public static final String DXL_CLIENT_DISCONNECT_CHANNEL = "/mcafee/event/dxl/clientregistry/disconnect";
+    public static final String DXL_CLIENT_DISCONNECT_TOPIC = "/mcafee/event/dxl/clientregistry/disconnect";
     /**
-     * The channel to query the broker registry
+     * The topic to query the broker registry
      */
-    public static final String DXL_BROKER_REGISTER_CHANNEL = "/mcafee/service/dxl/brokerregistry/query";
+    public static final String DXL_BROKER_REGISTER_TOPIC = "/mcafee/service/dxl/brokerregistry/query";
+
+    ////////////////////////////////////////////////////////////////////////////
+    // MQTT Specific Properties
+    ////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * The system property for the connect timeout
+     */
+    public static final String MQTT_CONNECT_TIMEOUT = "dxlClient.mqtt.connectTimeout";
+
+    /**
+     * The system property for the connect timeout
+     */
+    public static final String MQTT_DISCONNECT_TIMEOUT = "dxlClient.mqtt.disconnectTimeout";
+
+    /**
+     * The system property for specifying the time to wait for an operation to complete
+     */
+    public static final String MQTT_TIME_TO_WAIT = "dxlClient.mqtt.timeToWait";
 }

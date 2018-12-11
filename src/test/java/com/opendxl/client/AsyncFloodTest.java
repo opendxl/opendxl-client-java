@@ -61,7 +61,7 @@ public class AsyncFloodTest extends AbstractDxlTest {
 
             client.connect();
             client.subscribe(channel);
-            this.info.addChannel(channel,
+            this.info.addTopic(channel,
                 request -> {
                     try {
                         Thread.sleep(50);

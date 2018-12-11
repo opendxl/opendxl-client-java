@@ -28,8 +28,8 @@ public class ServiceRegistrationInfoTest {
         final RequestCallback requestCallback = request -> {
         };
 
-        info.addChannel("/mcafee/service/JTI/file/reputation", requestCallback);
-        info.addChannel("/mcafee/service/JTI/cert/reputation", requestCallback);
+        info.addTopic("/mcafee/service/JTI/file/reputation", requestCallback);
+        info.addTopic("/mcafee/service/JTI/cert/reputation", requestCallback);
 
         JsonRegisterService registerService = new JsonRegisterService(null, info);
         String result = registerService.toJsonString();

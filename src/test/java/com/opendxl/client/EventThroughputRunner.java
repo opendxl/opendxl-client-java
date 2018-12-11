@@ -97,7 +97,6 @@ public class EventThroughputRunner extends AbstractRunner {
                                 fail("Unable to connect after retries.");
                             }
 
-                            client.subscribe(eventTopic);
                             client.addEventCallback(eventTopic,
                                 event -> {
                                     eventCountLock.lock();

@@ -41,7 +41,7 @@ public class ServiceSample {
                 };
 
             final ServiceRegistrationInfo info = new ServiceRegistrationInfo(client, "myService");
-            info.addChannel(SERVICE_TOPIC, myRequestCallback);
+            info.addTopic(SERVICE_TOPIC, myRequestCallback);
             client.registerServiceSync(info, TIMEOUT);
 
             try {

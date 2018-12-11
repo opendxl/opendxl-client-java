@@ -15,9 +15,9 @@ import java.io.IOException;
  */
 public class Request extends Message {
     /**
-     * The channel used to reply to this request
+     * The topic used to reply to this request
      */
-    private String replyToChannel;
+    private String replyToTopic;
     /**
      * The service GUID
      */
@@ -32,30 +32,30 @@ public class Request extends Message {
     /**
      * Constructs the request
      *
-     * @param client             The client that will be sending this request.
-     * @param destinationChannel The channel to publish the request on.
+     * @param client The client that will be sending this request.
+     * @param destinationTopic The topic to publish the request on.
      */
-    public Request(final DxlClient client, final String destinationChannel) {
-        this(client.getUniqueId(), destinationChannel);
+    public Request(final DxlClient client, final String destinationTopic) {
+        this(client.getUniqueId(), destinationTopic);
     }
 
     /**
      * Constructs the request
      *
-     * @param destinationChannel The channel to publish the request on.
+     * @param destinationTopic The topic to publish the request on.
      */
-    public Request(final String destinationChannel) {
-        this((String) null, destinationChannel);
+    public Request(final String destinationTopic) {
+        this((String) null, destinationTopic);
     }
 
     /**
      * Constructs the request
      *
      * @param sourceClientId     The ID of the client that will be sending this message.
-     * @param destinationChannel The channel to publish the request on.
+     * @param destinationTopic The topic to publish the request on.
      */
-    public Request(final String sourceClientId, final String destinationChannel) {
-        super(sourceClientId, destinationChannel);
+    public Request(final String sourceClientId, final String destinationTopic) {
+        super(sourceClientId, destinationTopic);
         this.serviceGuid = "";
     }
 
@@ -68,21 +68,21 @@ public class Request extends Message {
     }
 
     /**
-     * Returns the channel used to reply to this request.
+     * Returns the topic used to reply to this request.
      *
-     * @return The channel used to reply to this request.
+     * @return The topic used to reply to this request.
      */
-    public String getReplyToChannel() {
-        return this.replyToChannel;
+    public String getReplyToTopic() {
+        return this.replyToTopic;
     }
 
     /**
-     * Sets the channel used to reply to this request.
+     * Sets the topic used to reply to this request.
      *
-     * @param channel The channel used to reply to this request.
+     * @param topic The topic used to reply to this request.
      */
-    public void setReplyToChannel(final String channel) {
-        this.replyToChannel = channel;
+    public void setReplyToTopic(final String topic) {
+        this.replyToTopic = topic;
     }
 
     /**
@@ -109,7 +109,7 @@ public class Request extends Message {
     @Override
     protected void packMessage(final Packer packer) throws IOException {
         super.packMessage(packer);
-        packer.write(this.replyToChannel.getBytes(CHARSET_ASCII));
+        packer.write(this.replyToTopic.getBytes(CHARSET_ASCII));
         packer.write(this.serviceGuid.getBytes(CHARSET_ASCII));
     }
 
@@ -119,7 +119,7 @@ public class Request extends Message {
     @Override
     protected void unpackMessage(final BufferUnpacker unpacker) throws IOException {
         super.unpackMessage(unpacker);
-        this.replyToChannel = new String(unpacker.readByteArray(), CHARSET_ASCII);
+        this.replyToTopic = new String(unpacker.readByteArray(), CHARSET_ASCII);
         this.serviceGuid = new String(unpacker.readByteArray(), CHARSET_ASCII);
     }
 }

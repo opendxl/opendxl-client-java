@@ -78,7 +78,7 @@ public class SyncRequestThroughputRunner extends AbstractRunner {
                     serverClient,
                     "syncRequestThroughputRunnerService"
                 );
-            regInfo.addChannel(topic, testService);
+            regInfo.addTopic(topic, testService);
             serverClient.registerServiceSync(regInfo, DEFAULT_TIMEOUT);
 
             //

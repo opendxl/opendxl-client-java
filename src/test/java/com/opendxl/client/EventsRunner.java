@@ -51,7 +51,6 @@ public class EventsRunner extends AbstractRunner {
 
             // Subscribe to the appropriate event channel
             final String topic = UuidGenerator.generateIdAsString();
-            client.subscribe(topic);
 
             //
             // Create and register an event callback. Ensure that all sent events are received
