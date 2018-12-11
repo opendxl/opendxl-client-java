@@ -7,6 +7,10 @@ package com.opendxl.client;
 import com.opendxl.client.exception.MalformedBrokerException;
 import com.opendxl.client.util.ServerNameHelper;
 import com.opendxl.client.util.UuidGenerator;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * The definition of a DXL broker
@@ -16,6 +20,9 @@ public class Broker implements Comparable<Broker>, Cloneable {
      * Constant for ssl protocol
      */
     public static final String SSL_PROTOCOL = "ssl";
+
+    /** Constant for separator */
+    public static final String FIELD_SEPARATOR = ";";
 
     /**
      * The unique ID of the Broker
@@ -136,12 +143,61 @@ public class Broker implements Comparable<Broker>, Cloneable {
         return broker;
     }
 
+    public static Broker parseFromConfigString(final String configString)
+            throws MalformedBrokerException {
+        // [UniqueId];[Port];[HostName];[IpAddress]
+        if (StringUtils.isBlank(configString)) {
+            throw new MalformedBrokerException("Missing argument for creating a broker object");
+        }
+
+        final Broker broker = new Broker();
+        List<String> elements = Arrays.asList(configString.split(FIELD_SEPARATOR));
+        if (elements.size() < 3) {
+            throw new MalformedBrokerException("Missing element(s) for creating a broker object");
+        }
+
+        broker.uniqueId = elements.get(0);
+        // Remove brackets around IPv6 address
+        broker.hostName = elements.get(2).replaceAll("[\\[\\]]", "");
+        if (!ServerNameHelper.isValidHostNameOrIPAddress(broker.hostName)) {
+            throw new MalformedBrokerException("Invalid hostname");
+        }
+
+        if (elements.size() > 3) {
+            // Remove brackets around IPv6 address
+            broker.ipAddress = elements.get(3).replaceAll("[\\[\\]]", "");
+            if (!ServerNameHelper.isValidIPAddress(broker.ipAddress)) {
+                throw new MalformedBrokerException("Invalid IP address: " + broker.ipAddress);
+            }
+        }
+
+        try {
+            broker.port = Integer.parseInt(elements.get(1));
+            if (broker.port < 1 || broker.port > 65535) {
+                throw new MalformedBrokerException("Invalid port");
+            }
+        } catch (NumberFormatException ex) {
+            throw new MalformedBrokerException("Invalid port");
+        }
+        return broker;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public String toString() {
         return toServerURI();
+    }
+
+    public String toConfigString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(uniqueId).append(FIELD_SEPARATOR);
+        sb.append(port).append(FIELD_SEPARATOR);
+        sb.append(hostName).append(FIELD_SEPARATOR);
+        sb.append(ipAddress).append(FIELD_SEPARATOR);
+
+        return sb.toString();
     }
 
     /**

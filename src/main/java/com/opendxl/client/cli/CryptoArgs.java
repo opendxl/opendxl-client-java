@@ -75,8 +75,8 @@ public class CryptoArgs {
         return configDir + File.separatorChar + this.filePrefix + ".csr";
     }
 
-    public String certFileName() {
-        return this.filePrefix + ".crt";
+    public String certFileName(String configDir) {
+        return configDir + File.separatorChar + this.filePrefix + ".crt";
     }
 
     public List<String> getSubjectAlternativeNames() {

@@ -16,11 +16,11 @@ public class ServerArgs {
     private String user;
 
     @CommandLine.Option(names = {"-p", "--password"}, paramLabel = "PASSWORD",
-            description = "Password for the management service user", interactive = true)
+            description = "Password for the management service user")
     private String password;
 
     @CommandLine.Option(names = {"-t", "--port"}, paramLabel = "PORT",
-            description = "Port where the management service resides", defaultValue = "8843")
+            description = "Port where the management service resides", defaultValue = "8443")
     private int port;
 
     @CommandLine.Option(names = {"-e", "--truststore"}, paramLabel = "TRUSTSTORE_FILE",

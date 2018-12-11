@@ -152,6 +152,14 @@ public class IniParser {
         }
     }
 
+    public void addValue(final String sectionName, final String keyName, final String value) {
+        Map<String, String> keyValueMap = sections.containsKey(sectionName) ? sections.get(sectionName)
+                : new LinkedHashMap<>();
+
+        keyValueMap.put(keyName, value);
+        sections.put(sectionName, keyValueMap);
+    }
+
     /**
      * Reads teh configuration file from the specified {@link BufferedReader}
      *

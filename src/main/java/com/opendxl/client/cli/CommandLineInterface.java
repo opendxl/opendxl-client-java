@@ -56,8 +56,6 @@ public class CommandLineInterface implements Subcommand {
     }
 
     public static void main(String[] args) {
-//        System.setProperty("picocli.trace", "DEBUG");
-
         // Set up the parser
         CommandLine commandLine = new CommandLine(new CommandLineInterface());
         CommandLine.Model.CommandSpec commandSpec = commandLine.getCommandSpec();

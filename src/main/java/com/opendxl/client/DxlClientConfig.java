@@ -36,6 +36,19 @@ public class DxlClientConfig {
      */
     public static final String KS_PASS = "";
 
+    //
+    // INI Sections
+    //
+    private static final String CERTS_INI_SECTION = "Certs";
+    private static final String BROKERS_INI_SECTION = "Brokers";
+
+    //
+    // INI Keys
+    //
+    private static final String BROKER_CERT_INI_CHAIN_KEY_NAME = "BrokerCertChain";
+    private static final String CERT_FILE_INI_KEY_NAME = "CertFile";
+    private static final String PRIVATE_KEY_INI_KEY_NAME = "PrivateKey";
+
     /**
      * The unique identifier of the client
      */
@@ -402,6 +415,25 @@ public class DxlClientConfig {
         this.delayRandom = percent;
     }
 
+    public void write(String configFile) throws Exception {
+        final String certsSection = "Certs";
+
+        final IniParser parser = new IniParser();
+        // Add Broker Cert Chain
+        parser.addValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME, this.brokerCaBundlePath);
+        // Add Cert File
+        parser.addValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME, this.certFile);
+        // Add Private Key
+        parser.addValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME, this.privateKey);
+
+        // Add Brokers
+        for (Broker broker : this.brokers) {
+            parser.addValue(BROKERS_INI_SECTION, broker.getUniqueId(), broker.toConfigString());
+        }
+
+        parser.write(configFile);
+    }
+
     /**
      * Returns the randomness delay percentage (between {@code 0.0} and {@code 1.0}). When
      * calculating the reconnect delay, this percentage indicates how much randomness there
@@ -634,18 +666,16 @@ public class DxlClientConfig {
      */
     public static DxlClientConfig createDxlConfigFromFile(final String fileName) throws DxlException {
         try {
-            final String certsSection = "Certs";
-
             final IniParser parser = new IniParser();
             parser.read(fileName);
 
             String brokerCaBundlePath =
-                normalizeConfigFile(fileName, parser.getValue(certsSection, "BrokerCertChain"));
+                    normalizeConfigFile(fileName, parser.getValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME));
             String certFile =
-                normalizeConfigFile(fileName, parser.getValue(certsSection, "CertFile"));
+                    normalizeConfigFile(fileName, parser.getValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME));
             String privateKey =
-                normalizeConfigFile(fileName, parser.getValue(certsSection, "PrivateKey"));
-            Map<String, String> brokersSection = parser.getSection("Brokers");
+                    normalizeConfigFile(fileName, parser.getValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME));
+            Map<String, String> brokersSection = parser.getSection(BROKERS_INI_SECTION);
 
             List<Broker> brokers = new ArrayList<>();
             for (Map.Entry<String, String> entry : brokersSection.entrySet()) {

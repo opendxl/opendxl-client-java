@@ -11,7 +11,6 @@ import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 
 import javax.security.auth.x500.X500Principal;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -24,15 +23,6 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import java.util.List;
 
 public class CsrAndPrivateKeyGenerator {
-    /**
-     * Denotes a certificate request
-     */
-    private static final String CERTIFICATE_REQUEST = "CERTIFICATE REQUEST";
-
-    /**
-     * Denotes a private key
-     */
-    private static final String PRIVATE_KEY = "PRIVATE KEY";
 
     /**
      * SHA 256 with RSA indicator
@@ -91,22 +81,17 @@ public class CsrAndPrivateKeyGenerator {
     public void saveCsrAndPrivateKey(String csrFileName, String privateKeyFileName, String passphrase)
             throws IOException {
         PEMEncryptor pemEncryptor = null; // TODO deal with encryption
-        writePemFile(privateKeyFileName, new PemObject("PRIVATE KEY", this.keyPair.getPrivate().getEncoded()),
-                pemEncryptor);
-        writePemFile(csrFileName, new PemObject(CERTIFICATE_REQUEST, this.csr.getEncoded()), null);
-    }
-
-    // TODO put in util method?
-    private void writePemFile(String fileName, PemObject pemObject, PEMEncryptor pemEncryptor) throws IOException {
-        try (JcaPEMWriter pemWriter = new JcaPEMWriter(new FileWriter(fileName))) {
-            pemWriter.writeObject(pemObject, pemEncryptor);
-        }
+        CertUtils.writePemFile(privateKeyFileName, new PemObject(CertUtils.PRIVATE_KEY_OBJECT_TYPE_STRING,
+                        this.keyPair.getPrivate().getEncoded()), pemEncryptor);
+        CertUtils.writePemFile(csrFileName, new PemObject(CertUtils.CERTIFICATE_REQUEST_OBJECT_TYPE_STRING,
+                        this.csr.getEncoded()), null);
     }
 
     public String getCsrAsPemString() throws IOException {
         try (StringWriter stringWriter = new StringWriter();
              JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter)) {
-            pemWriter.writeObject(new PemObject(CERTIFICATE_REQUEST, this.csr.getEncoded()));
+            pemWriter.writeObject(new PemObject(CertUtils.CERTIFICATE_REQUEST_OBJECT_TYPE_STRING,
+                    this.csr.getEncoded()));
             pemWriter.flush();
             return stringWriter.toString();
         }
