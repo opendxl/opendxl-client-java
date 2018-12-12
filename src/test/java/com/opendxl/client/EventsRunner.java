@@ -23,8 +23,8 @@ import static org.junit.Assert.fail;
 /**
  * Tests the events-related methods of the {@link DxlClient}.
  * <p/>
- * This test sends events through the message broker and ensures that they arrive successfully
- * at a client that is listening for them.
+ * This test sends events through the message broker and ensures that they arrive successfully at a client that is
+ * listening for them.
  *
  * @see DxlClient#sendEvent(com.opendxl.client.message.Event)
  * @see DxlClient#addEventCallback(String, com.opendxl.client.callback.EventCallback)

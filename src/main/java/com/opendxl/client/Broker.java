@@ -6,31 +6,42 @@ package com.opendxl.client;
 
 import com.opendxl.client.exception.MalformedBrokerException;
 import com.opendxl.client.util.ServerNameHelper;
-import com.opendxl.client.util.UuidGenerator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * The definition of a DXL broker
+ * The class {@link Broker} represents a DXL message broker.
+ * <P>
+ * Instances of this class are created for the purpose of connecting to the DXL fabric.
+ * </P>
+ * <P>
+ * There are a couple of ways to create Broker instances:
+ * </P>
+ * <UL>
+ * <LI>Invoking the {@link Broker} constructor directly</LI>
+ * <LI>When creating a {@link DxlClientConfig} object via the {@link DxlClientConfig#createDxlConfigFromFile}
+ * static method</LI>
+ * </UL>
  */
 public class Broker implements Comparable<Broker>, Cloneable {
+
     /**
      * Constant for ssl protocol
      */
-    public static final String SSL_PROTOCOL = "ssl";
+    private static final String SSL_PROTOCOL = "ssl";
 
-    /** Constant for separator */
-    public static final String FIELD_SEPARATOR = ";";
+    /** Constant for parse separator */
+    private static final String FIELD_SEPARATOR = ";";
 
     /**
-     * The unique ID of the Broker
+     * The unique identifier of the Broker
      */
     private String uniqueId = "";
 
     /**
-     * The hostName or IP address of the broker
+     * The host name or IP address of the broker
      */
     private String hostName = "";
 
@@ -45,29 +56,28 @@ public class Broker implements Comparable<Broker>, Cloneable {
     private int port = 8883;
 
     /**
-     * The broker response time in nano seconds, or null if no response or not tested
+     * The broker response time in nano seconds, or {@code null} if it was not checked
      */
     private Long responseTime = null;
 
     /**
-     * The broker response came from the secondary test using the IP address
+     * The broker response came from the secondary check using the IP address
      */
     private boolean responseFromIpAddress = false;
 
     /**
-     * Constructs a Broker object
-     * Default constructor
+     * Constructor for the {@link Broker}
      */
-    public Broker() {
-    }
+    private Broker() { }
 
     /**
-     * Constructs a Broker object
+     * Constructor for the {@link Broker}
      *
-     * @param uniqueId  The unique ID of the Broker
-     * @param port      The TCP port of the broker
-     * @param hostName  The hostName or IP address of the broker
-     * @param ipAddress The IP address of the broker (optional)
+     * @param uniqueId A unique identifier for the broker, used to identify the broker in log messages, etc.
+     * @param port The port of the broker
+     * @param hostName The host name or IP address of the broker (required)
+     * @param ipAddress A valid IP address for the broker. This allows for both the host name and IP address to be
+     *                  used when connecting to the broker (optional).
      */
     public Broker(final String uniqueId, final int port, final String hostName, final String ipAddress) {
         this.uniqueId = uniqueId;
@@ -77,9 +87,9 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
-     * Clone a Broker object
+     * Creates a clone of the {@link Broker}
      *
-     * @return The cloned Broker object
+     * @return The cloned {@link Broker}
      */
     @Override
     public Broker clone() throws CloneNotSupportedException {
@@ -95,94 +105,6 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
-     * Constructs a Broker object for the specified url
-     *
-     * @param url The connection url
-     * @return A Broker object for the specified url
-     * @throws MalformedBrokerException If the URL is malformed
-     */
-    public static Broker parse(final String url)
-        throws MalformedBrokerException {
-        return parse(url, 8883);
-    }
-
-    /**
-     * Constructs a Broker object for the specified url and default port
-     *
-     * @param url             The connection url
-     * @param defaultPort     The connection default port
-     * @return A Broker object for the specified url and default port
-     * @throws MalformedBrokerException If the URL is malformed
-     */
-    public static Broker parse(final String url, final int defaultPort)
-        throws MalformedBrokerException {
-
-        final Broker broker = new Broker();
-
-        String hostname = url;
-        int port = defaultPort;
-
-        String[] elements = hostname.split("://");
-        if (elements.length == 2) {
-            hostname = elements[1];
-        }
-        elements = hostname.split(":");
-        if (elements.length == 2) {
-            hostname = elements[0];
-            try {
-                port = Integer.parseInt(elements[1]);
-            } catch (Exception ex) {
-                throw new MalformedBrokerException("Error parsing port", ex);
-            }
-        }
-
-        broker.hostName = hostname.replaceAll("[\\[\\]]", ""); // Remove brackets around IPv6 address
-        broker.port = port;
-        broker.uniqueId = UuidGenerator.generateIdAsString();
-
-        return broker;
-    }
-
-    public static Broker parseFromConfigString(final String configString)
-            throws MalformedBrokerException {
-        // [UniqueId];[Port];[HostName];[IpAddress]
-        if (StringUtils.isBlank(configString)) {
-            throw new MalformedBrokerException("Missing argument for creating a broker object");
-        }
-
-        final Broker broker = new Broker();
-        List<String> elements = Arrays.asList(configString.split(FIELD_SEPARATOR));
-        if (elements.size() < 3) {
-            throw new MalformedBrokerException("Missing element(s) for creating a broker object");
-        }
-
-        broker.uniqueId = elements.get(0);
-        // Remove brackets around IPv6 address
-        broker.hostName = elements.get(2).replaceAll("[\\[\\]]", "");
-        if (!ServerNameHelper.isValidHostNameOrIPAddress(broker.hostName)) {
-            throw new MalformedBrokerException("Invalid hostname");
-        }
-
-        if (elements.size() > 3) {
-            // Remove brackets around IPv6 address
-            broker.ipAddress = elements.get(3).replaceAll("[\\[\\]]", "");
-            if (!ServerNameHelper.isValidIPAddress(broker.ipAddress)) {
-                throw new MalformedBrokerException("Invalid IP address: " + broker.ipAddress);
-            }
-        }
-
-        try {
-            broker.port = Integer.parseInt(elements.get(1));
-            if (broker.port < 1 || broker.port > 65535) {
-                throw new MalformedBrokerException("Invalid port");
-            }
-        } catch (NumberFormatException ex) {
-            throw new MalformedBrokerException("Invalid port");
-        }
-        return broker;
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -190,7 +112,15 @@ public class Broker implements Comparable<Broker>, Cloneable {
         return toServerURI();
     }
 
-    public String toConfigString() {
+    /**
+     * Outputs the broker in the "config" string format:
+     * <P>
+     * {@code [UniqueId];[Port];[HostName];[IpAddress]}
+     * </P>
+     *
+     * @return Outputs the broker in the "config" string format
+     */
+    String toConfigString() {
         StringBuilder sb = new StringBuilder();
         sb.append(uniqueId).append(FIELD_SEPARATOR);
         sb.append(port).append(FIELD_SEPARATOR);
@@ -201,10 +131,9 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
-     * Returns a URI representation of the broker
-     * in the format [Protocol]://[ServerName]:[Port]
+     * Returns a URI representation of the broker in the format {@code [Protocol]://[ServerName]:[Port]}
      *
-     * @return The URI representation of the broker
+     * @return A URI representation of the broker
      */
     String toServerURI() {
         StringBuilder sb = new StringBuilder();
@@ -220,10 +149,10 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
-     * Returns a alternative URI representation of the broker using its IP address
-     * in the format [Protocol]://[ServerName]:[Port]
+     * Returns an alternative URI representation of the broker using its IP address in the format
+     * {@code [Protocol]://[ServerName]:[Port]}
      *
-     * @return The URI representation of the broker
+     * @return An alternative URI representation of the broker using its IP address
      */
     String toAlternativeServerURI() {
         StringBuilder sb = new StringBuilder();
@@ -255,52 +184,77 @@ public class Broker implements Comparable<Broker>, Cloneable {
             : (that.responseTime == null ? -1 : responseTime.compareTo(that.responseTime))));
     }
 
+    /**
+     * Returns a unique identifier for the broker, used to identify the broker in log messages, etc.
+     *
+     * @return A unique identifier for the broker, used to identify the broker in log messages, etc.
+     */
     public String getUniqueId() {
         return uniqueId;
     }
 
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
-
-    String getHostName() {
+    /**
+     * Returns the host name or IP address of the broker
+     *
+     * @return The host name or IP address of the broker
+     */
+    public String getHostName() {
         return hostName;
     }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
-
-    String getIpAddress() {
+    /**
+     * Returns a valid IP address for the broker. This allows for both the host name and IP address to be used when
+     * connecting to the broker.
+     *
+     * @return A valid IP address for the broker
+     */
+    public String getIpAddress() {
         return ipAddress;
     }
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    int getPort() {
+    /**
+     * Returns the port of the broker
+     *
+     * @return The port of the broker
+     */
+    public int getPort() {
         return port;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    Long getResponseTime() {
-        return responseTime;
-    }
-
+    /**
+     * Sets the response time for the broker (essentially the ping time)
+     *
+     * @param responseTime The response time for the broker (essentially the ping time)
+     */
     void setResponseTime(Long responseTime) {
         this.responseTime = responseTime;
     }
 
-    boolean isResponseFromIpAddress() {
-        return responseFromIpAddress;
+    /**
+     * Returns the response time for the broker (essentially the ping time)
+     *
+     * @return The response time for the broker (essentially the ping time)
+     */
+    Long getResponseTime() {
+        return this.responseTime;
     }
 
+    /**
+     * Sets whether the response time is for the broker's IP address
+     *
+     * @param responseFromIpAddress Whether the response time is for the broker's IP address
+     */
     void setResponseFromIpAddress(boolean responseFromIpAddress) {
         this.responseFromIpAddress = responseFromIpAddress;
+    }
+
+    /**
+     * Returns whether the response time is for the broker's IP address
+     *
+     * @return Whether the response time is for the broker's IP address
+     */
+    boolean isResponseFromIpAddress() {
+        return responseFromIpAddress;
     }
 
     /**
@@ -351,6 +305,54 @@ public class Broker implements Comparable<Broker>, Cloneable {
             : 0);
         result = 31 * result + (port);
         return result;
+    }
+
+    /**
+     * Constructs and returns a {@link Broker} for the specified configuration string of the following format:
+     * <P>
+     * {@code [UniqueId];[Port];[HostName];[IpAddress]}
+     * </P>
+     * @param configString The configuration string
+     * @return A {@link Broker} corresponding to the specified configuration string
+     * @throws MalformedBrokerException If the format is malformed
+     */
+    public static Broker parse(final String configString)
+        throws MalformedBrokerException {
+        // [UniqueId];[Port];[HostName];[IpAddress]
+        if (StringUtils.isBlank(configString)) {
+            throw new MalformedBrokerException("Missing argument for creating a broker object");
+        }
+
+        final Broker broker = new Broker();
+        List<String> elements = Arrays.asList(configString.split(FIELD_SEPARATOR));
+        if (elements.size() < 3) {
+            throw new MalformedBrokerException("Missing element(s) for creating a broker object");
+        }
+
+        broker.uniqueId = elements.get(0);
+        // Remove brackets around IPv6 address
+        broker.hostName = elements.get(2).replaceAll("[\\[\\]]", "");
+        if (!ServerNameHelper.isValidHostNameOrIPAddress(broker.hostName)) {
+            throw new MalformedBrokerException("Invalid hostname");
+        }
+
+        if (elements.size() > 3) {
+            // Remove brackets around IPv6 address
+            broker.ipAddress = elements.get(3).replaceAll("[\\[\\]]", "");
+            if (!ServerNameHelper.isValidIPAddress(broker.ipAddress)) {
+                throw new MalformedBrokerException("Invalid IP address: " + broker.ipAddress);
+            }
+        }
+
+        try {
+            broker.port = Integer.parseInt(elements.get(1));
+            if (broker.port < 1 || broker.port > 65535) {
+                throw new MalformedBrokerException("Invalid port");
+            }
+        } catch (NumberFormatException ex) {
+            throw new MalformedBrokerException("Invalid port");
+        }
+        return broker;
     }
 }
 

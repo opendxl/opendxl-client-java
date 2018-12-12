@@ -17,14 +17,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * Slams a service with a flood of asynchronous tests. The PAHO library by default will
- * deadlock when it is waiting to complete a publish and at the same time receives an
- * incoming message.
- * <p/>
- * This test ensures that the changes we made to the PAHO library now work in this particular
- * scenario.
+ * Overwhelms a service with a flood of asynchronous tests. The PAHO library by default will deadlock when it is
+ * waiting to complete a publish and at the same time receives an incoming message.
+ * <P>
+ * This test ensures that the changes we made to the PAHO library now work in this particular scenario.
+ * </P>
  */
 public class AsyncFloodTest extends AbstractDxlTest {
+
     /**
      * The count of requests to send
      */
@@ -42,7 +42,7 @@ public class AsyncFloodTest extends AbstractDxlTest {
     private ServiceRegistrationInfo info;
 
     /**
-     * Flood it.
+     * Flood the service.
      *
      * @throws Exception If an error occurs
      */

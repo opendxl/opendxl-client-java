@@ -24,9 +24,9 @@ import static org.junit.Assert.fail;
 /**
  * Tests the asynchronous request methods of the {@link DxlClient}.
  * <p/>
- * This test sends asynchronous requests to a test service and ensures that all of the
- * requests are responded to appropriately. The initiating client is informed of the responses
- * via registered {@link ResponseCallback} callbacks (one channel-specific, and one global).
+ * This test sends asynchronous requests to a test service and ensures that all of the requests are responded to
+ * appropriately. The initiating client is informed of the responses via registered {@link ResponseCallback}
+ * callbacks (one topic-specific, and one global).
  *
  * @see DxlClient#asyncRequest(com.opendxl.client.message.Request)
  * @see DxlClient#asyncRequest(com.opendxl.client.message.Request, com.opendxl.client.callback.ResponseCallback)
@@ -34,6 +34,7 @@ import static org.junit.Assert.fail;
  * @see DxlClient#addResponseCallback(String, com.opendxl.client.callback.ResponseCallback)
  */
 public class AsyncRequestRunner extends AbstractRunner {
+
     /**
      * The number of requests to send
      */

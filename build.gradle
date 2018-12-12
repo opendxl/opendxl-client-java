@@ -233,6 +233,6 @@ test {
     systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"
 //    filter {
 //        //specific test method
-//        includeTestsMatching "com.opendxl.client.WildcardTest"
+//        includeTestsMatching "com.opendxl.client.RegisterServiceTest"
 //    }
 }

@@ -6,6 +6,7 @@ package com.opendxl.client;
 
 import com.opendxl.client.callback.RequestCallback;
 import com.opendxl.client.exception.DxlException;
+import com.opendxl.client.message.Request;
 import com.opendxl.client.util.UuidGenerator;
 
 import java.util.Collections;
@@ -15,39 +16,115 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Service registration information for the Data Exchange Layer (DXL) fabric.
+ * Service Registration instances are used to register and expose services onto a DXL fabric.
+ * <P>
+ * DXL Services are exposed to the DXL fabric and are invoked in a fashion similar to RESTful web services.
+ * Communication between an invoking client and the DXL service is one-to-one (request/response).
+ * </P>
+ * <P>
+ * Each service is identified by the "topics" it responds to. Each of these "topics" can be thought of as a method that
+ * is being "invoked" on the service by the remote client.
+ * </P>
+ * <P>
+ * Multiple service "instances" can be registered with the DXL fabric that respond to the same "topics". When this
+ * occurs (unless explicitly overridden by the client) the fabric will select the particular instance to route the
+ * request to (by default round-robin). Multiple service instances can be used to increase scalability and
+ * fault-tolerance.
+ * </P>
+ * <P>
+ * The following demonstrates registering a service that responds to a single topic with the DXL fabric:
+ * </P>
+ * <PRE>
+ * RequestCallback myRequestCallback =
+ *     request -&gt; {
+ *         try {
+ *             // Extract information from request
+ *             System.out.println("Service received request payload: "
+ *                 + new String(request.getPayload(), Message.CHARSET_UTF8));
+ *
+ *             // Create the response message
+ *             final Response res = new Response(request);
+ *
+ *             // Populate the response payload
+ *             res.setPayload("pong".getBytes(Message.CHARSET_UTF8));
+ *
+ *             // Send the response
+ *             client.sendResponse(res);
+ *         } catch (Exception ex) {
+ *             ex.printStackTrace();
+ *         }
+ *     };
+ *
+ * // Create service registration object
+ * ServiceRegistrationInfo info = new ServiceRegistrationInfo(client, "myService");
+ *
+ * // Add a topic for the service to respond to
+ * info.addTopic("/mycompany/myservice", myRequestCallback);
+ *
+ * // Register the service with the fabric (wait up to 10 seconds for registration to complete)
+ * client.registerServiceSync(info, 10 * 1000);
+ * </PRE>
+ * <P>
+ * The following demonstrates a client that is invoking the service in the example above:
+ * </P>
+ * <PRE>
+ * // Create the request message
+ * final Request req = new Request("/mycompany/myservice");
+ *
+ * // Populate the request payload
+ * req.setPayload("ping".getBytes(Message.CHARSET_UTF8));
+ *
+ * // Send the request and wait for a response (synchronous)
+ * final Response res = client.syncRequest(req);
+ *
+ * // Extract information from the response (output error message if applicable)
+ * if (res.getMessageType() != Message.MESSAGE_TYPE_ERROR) {
+ *     System.out.println("Client received response payload: "
+ *         + new String(res.getPayload(), Message.CHARSET_UTF8));
+ * } else {
+ *     System.out.println("Error: " + ((ErrorResponse) res).getErrorMessage());
+ * }
+ * </PRE>
  */
 public class ServiceRegistrationInfo {
+
     /**
      * The service type or name prefix
      */
     private final String serviceType;
+
     /**
-     * The unique service ID
+     * The unique service identifier
      */
-    private final String serviceGuid;
+    private final String serviceId;
+
     /**
      * The map of registered topics and their associated callbacks
      */
     private final Map<String, Set<RequestCallback>> callbacksByTopic = new HashMap<>();
+
     /**
-     * The map of meta data associated with this service (name-value pairs)
+     * The map of meta-data associated with this service (name-value pairs)
      */
     private Map<String, String> metadata = null;
+
     /**
      * The Time-To-Live (TTL) of the service registration (in minutes)
      */
     private long ttlMins;
+
     /**
      * The Time-To-Live (TTL) of the service registration (default: 60 minutes)
      */
     private long ttl =
         Long.parseLong(System.getProperty(Constants.SYSPROP_SERVICE_TTL_DEFAULT, Long.toString(60)));
+
     /**
      * The minimum Time-To-Live (TTL) of the service registration (default: 10 minutes)
      */
     private long ttlLowerLimit =
         Long.parseLong(System.getProperty(Constants.SYSPROP_SERVICE_TTL_LOWER_LIMIT, Long.toString(10)));
+
     /**
      * The Time-To-Live (TTL) resolution factor (FOR TESTING ONLY)
      */
@@ -78,10 +155,10 @@ public class ServiceRegistrationInfo {
     private Set<String> destTenantGuids = Collections.EMPTY_SET;
 
     /**
-     * Constructs the ServiceRegistrationInfo object
+     * Constructor for {@link ServiceRegistrationInfo}
      *
-     * @param client      {@link DxlClient}
-     * @param serviceType The service type or name prefix
+     * @param client The {@link DxlClient} instance that will expose this service
+     * @param serviceType  textual name for the service. For example, "/mycompany/myservice"
      */
     public ServiceRegistrationInfo(final DxlClient client, final String serviceType) {
         if (serviceType == null || serviceType.isEmpty()) {
@@ -89,51 +166,59 @@ public class ServiceRegistrationInfo {
         }
 
         this.serviceType = serviceType;
-        this.serviceGuid = UuidGenerator.generateIdAsString();
+        this.serviceId = UuidGenerator.generateIdAsString();
         this.ttlMins = Math.max(1, this.ttl / this.ttlResolution);
         this.client = client;
     }
 
     /**
-     * Returns the service type
+     * Returns the a textual name for the service. For example, "/mycompany/myservice"
      *
-     * @return The service type
+     * @return A textual name for the service. For example, "/mycompany/myservice"
      */
     public String getServiceType() {
         return serviceType;
     }
 
     /**
-     * Returns the instance ID of the service
+     * Returns a unique identifier for the service instance (automatically generated when the
+     * {@link ServiceRegistrationInfo} object is constructed
      *
-     * @return The instance ID of the service
+     * @return A unique identifier for the service instance (automatically generated when the
+     *      {@link ServiceRegistrationInfo} object is constructed
      */
-    public String getServiceGuid() {
-        return serviceGuid;
+    public String getServiceId() {
+        return serviceId;
     }
 
     /**
-     * Returns the Time-To-Live (TTL) of the service registration (in minutes)
+     * Returns the interval (in minutes) at which the client will automatically re-register the service with the DXL
+     * fabric (defaults to {@code 60} minutes).
      *
-     * @return The Time-To-Live (TTL) of the service registration (in minutes)
+     * @return The interval (in minutes) at which the client will automatically re-register the service with the DXL
+     *      fabric (defaults to {@code 60} minutes).
      */
     public long getTtlMins() {
         return ttlMins;
     }
 
     /**
-     * Returns the Time-To-Live (TTL) of the service registration
+     * Returns the interval (in minutes unless the resolution has been modified) at which the client will automatically
+     * re-register the service with the DXL fabric (defaults to {@code 60} minutes).
      *
-     * @return The Time-To-Live (TTL) of the service registration
+     * @return The interval (in minutes unless the resolution has been modified) at which the client will
+     *      automatically re-register the service with the DXL fabric (defaults to {@code 60} minutes).
      */
     public long getTtl() {
         return ttl;
     }
 
     /**
-     * Sets the Time-To-Live (TTL) of the service registration
+     * Sets the interval (in minutes unless the resolution has been modified) at which the client will automatically
+     * re-register the service with the DXL fabric (defaults to {@code 60} minutes).
      *
-     * @param ttl The Time-To-Live (TTL) of the service registration
+     * @param ttl The interval (in minutes unless the resolution has been modified) at which the client will
+     *            automatically re-register the service with the DXL fabric (defaults to {@code 60} minutes).
      */
     public void setTtl(final long ttl)
         throws IllegalArgumentException {
@@ -145,54 +230,37 @@ public class ServiceRegistrationInfo {
     }
 
     /**
-     * Returns the Time-To-Live (TTL) resolution factor
+     * Returns the Time-To-Live (TTL) resolution factor (by default is {@code 1}, minutes)
      *
-     * @return The Time-To-Live (TTL) resolution factor
+     * @return The Time-To-Live (TTL) resolution factor (by default is {@code 1}, minutes)
      */
     public long getTtlResolution() {
         return ttlResolution;
     }
 
     /**
-     * Returns the list of full qualified registered topics
+     * Returns a {@link Set} containing the topics that the service responds to
      *
-     * @return The list of full qualified registered topics
+     * @return A {@link Set} containing the topics that the service responds to
      */
     public Set<String> getTopics() {
         return new HashSet<>(callbacksByTopic.keySet());
     }
 
     /**
-     * Returns the map of registered topics and their associated callbacks
+     * Returns the a {@link Map} containing the {@link RequestCallback} instances by their associated topic.
      *
-     * @return The map of registered topics and their associated callbacks
+     * @return A {@link Map} containing the {@link RequestCallback} instances by their associated topic.
      */
     public Map<String, Set<RequestCallback>> getCallbacksByTopic() {
         return callbacksByTopic;
     }
 
     /**
-     * Adds one or more request topics and an associated callback to the service.
+     * Registers a topic for the service to respond to along with the {@link RequestCallback} that will be invoked.
      *
-     * @param topicAndCallback The map of request topics and their associated callbacks
-     * @throws DxlException If a DXL exception occurs
-     */
-    public void setCallbacksByTopic(Map<String, RequestCallback> topicAndCallback)
-        throws DxlException {
-        if (topicAndCallback == null || topicAndCallback.isEmpty()) {
-            throw new IllegalArgumentException("Undefined topic");
-        }
-
-        for (Map.Entry<String, RequestCallback> entry : topicAndCallback.entrySet()) {
-            addTopic(entry.getKey(), entry.getValue());
-        }
-    }
-
-    /**
-     * Adds a request topic and associated callback to the service.
-     *
-     * @param topic  The request topic without service name prefix
-     * @param callback The callback associated with this request topic
+     * @param topic The topic for the service to respond to
+     * @param callback The {@link RequestCallback} that will be invoked when a {@link Request} message is received
      */
     public void addTopic(final String topic, final RequestCallback callback) {
         if (topic == null || topic.isEmpty()) {
@@ -212,10 +280,10 @@ public class ServiceRegistrationInfo {
     }
 
     /**
-     * Removes a request topic and associated callback to the service.
+     * Removes a request topic and associated callback from the service.
      *
-     * @param topic  The request topic without service name prefix
-     * @param callback The callback associated with this request topic
+     * @param topic The topic to remove
+     * @param callback The {@link RequestCallback} to remove
      */
     public void removeTopic(final String topic, final RequestCallback callback) {
         if (topic == null || topic.isEmpty()) {
@@ -244,19 +312,21 @@ public class ServiceRegistrationInfo {
     }
 
     /**
-     * Sets the map of meta data associated with this service
+     * A {@link Map} of name-value pairs that are sent as part of the service registration. Brokers provide a registry
+     * service that allows for registered services and their associated meta-information to be inspected. The meta-data
+     * is typically used to include information such as the versions for products that are exposing DXL services, etc.
      *
-     * @param metadata The map of meta data associated with this service
+     * @param metadata A {@link Map} of name-value pairs that are sent as part of the service registration.
      */
     public void setMetadata(Map<String, String> metadata) {
         this.metadata = metadata;
     }
 
     /**
-     * Add a name/value pair to the meta data associated with this service
+     * Adds a name-value pair to the meta-data associated with this service
      *
-     * @param name  Name of the meta data property
-     * @param value Value of the meta data property
+     * @param name Name of the meta-data property
+     * @param value Value of the meta-data property
      */
     public void addMetadata(final String name, final String value) {
         if (metadata == null) {
@@ -268,7 +338,7 @@ public class ServiceRegistrationInfo {
     /**
      * Waits for a registration notification (register or unregister)
      *
-     * @param waitTime   The amount of time to wait
+     * @param waitTime The amount of time to wait
      * @param isRegister Whether we are waiting for a register or unregister notification
      */
     private void waitForRegistrationNotification(final long waitTime, final boolean isRegister)
@@ -356,18 +426,21 @@ public class ServiceRegistrationInfo {
     }
 
     /**
-     * Returns the set of tenants that the service will be available to
+     * Returns the set of tenant identifiers that the service will be available to. Setting this value will limit which
+     * tenants can invoke the service.
      *
-     * @return The set of tenants that the service will be available to
+     * @return The set of tenant identifiers that the service will be available to. Setting this value will limit which
+     * tenants can invoke the service.
      */
     public Set<String> getDestTenantGuids() {
         return destTenantGuids;
     }
 
     /**
-     * Sets the list of tenants that the service will be available to
+     * Sets the tenant identifiers that the service will be available to. Setting this value will limit which
+     * tenants can invoke the service.
      *
-     * @param destTenantGuids The set of tenants that the service will be available to
+     * @param destTenantGuids The set of tenant identifiers that the service will be available to
      */
     public void setDestTenantGuids(final Set<String> destTenantGuids) {
         this.destTenantGuids = destTenantGuids;

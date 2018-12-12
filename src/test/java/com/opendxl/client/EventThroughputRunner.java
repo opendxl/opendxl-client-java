@@ -23,18 +23,25 @@ import static org.junit.Assert.fail;
  */
 public class EventThroughputRunner extends AbstractRunner {
     /**
-     * The number of requests to send
+     * The number of threads (clients)
      */
     private static final int THREAD_COUNT = 1000;
+
+    /**
+     * The number of events to send (per thread)
+     */
     private static final int EVENT_COUNT = 100;
+
     /**
      * The maximum time for the test
      */
     private static final long MAX_TIME = 10 * 60 * 1000;
+
     /**
      * The maximum time to wait between connections
      */
     private static final int MAX_CONNECT_WAIT = 60 * 1000;
+
     /**
      * The number of times to try to connect to the broker
      */

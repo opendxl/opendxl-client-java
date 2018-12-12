@@ -120,7 +120,7 @@ class ServiceRegistrationHandler {
         throws DxlException {
         // Hold onto all the data we need for the register and unregister events
         this.serviceType = service.getServiceType();
-        this.instanceId = service.getServiceGuid();
+        this.instanceId = service.getServiceId();
         this.ttlMins = service.getTtlMins();
         this.ttl = service.getTtl();
         this.ttlResolution = service.getTtlResolution();

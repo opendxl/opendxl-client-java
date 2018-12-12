@@ -7,7 +7,7 @@ package com.opendxl.client;
 import org.apache.log4j.Logger;
 
 /**
- * A disconnect strategy that attempts to reconnect to the server
+ * An implementation of the {@link DisconnectedStrategy} that attempt to reconnect to the fabric
  */
 public class ReconnectDisconnectedStrategy implements DisconnectedStrategy {
     /**

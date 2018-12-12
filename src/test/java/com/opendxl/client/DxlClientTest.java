@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Test cases for the MQTT {@link DxlClient} implementation
+ * Test cases for the {@link DxlClient} implementation
  */
 public class DxlClientTest extends AbstractDxlTest {
 
@@ -112,9 +112,8 @@ public class DxlClientTest extends AbstractDxlTest {
     }
 
     /**
-     * Tests whether payloads can be successfully delivered from a client to the server.
-     * Payloads are simply bytes of data that are used to provide application-specific
-     * information.
+     * Tests whether payloads can be successfully delivered from a client to the server. Payloads are simply bytes of
+     * data that are used to provide application-specific information.
      *
      * @see MessagePayloadRunner
      */
@@ -124,8 +123,7 @@ public class DxlClientTest extends AbstractDxlTest {
     }
 
     /**
-     * Test to ensure that {@link ErrorResponse} messages can be successfully delivered
-     * from a service to a client.
+     * Test to ensure that {@link ErrorResponse} messages can be successfully delivered from a service to a client.
      *
      * @see ErrorResponse
      */
@@ -221,9 +219,8 @@ public class DxlClientTest extends AbstractDxlTest {
     }
 
     /**
-     * {@link DxlClient} test that creates a thread per client and sends a request
-     * to a test service. Calculations such as request/second and average response
-     * time are calculated.
+     * {@link DxlClient} test that creates a thread per client and sends a request to a test service.
+     * Calculations such as request/second and average response time are calculated.
      *
      * @see SyncRequestThroughputRunner
      */
@@ -232,6 +229,11 @@ public class DxlClientTest extends AbstractDxlTest {
         new SyncRequestThroughputRunner().runTest(getDxlClientFactory());
     }
 
+    /**
+     * Measures the throughput of DXL events
+     *
+     * @see EventThroughputRunner
+     */
     @Test
     public void testEventThroughput() throws Exception {
         new EventThroughputRunner().runTest(getDxlClientFactory());
@@ -311,7 +313,7 @@ public class DxlClientTest extends AbstractDxlTest {
     }
 
     /**
-     * Test that ensures that async callbacks are being cleaned up via timeout
+     * Test that ensures that asynchronous callbacks are being cleaned up properly via timeout
      */
     @Test
     public void testAsyncCallbackTimeout() throws Exception {
@@ -370,6 +372,11 @@ public class DxlClientTest extends AbstractDxlTest {
         }
     }
 
+    /**
+     * Returns the client factory
+     *
+     * @return The client factory
+     */
     private DxlClientFactory getDxlClientFactory() {
         return DxlClientImplFactory.getDefaultInstance();
     }

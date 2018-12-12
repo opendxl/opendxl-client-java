@@ -13,6 +13,7 @@ import com.opendxl.client.exception.DxlException;
  * Default {@link DxlClientFactory} for {@link DxlClient} clients.
  */
 public class DxlClientImplFactory implements DxlClientFactory {
+
     /**
      * The client factory
      */
@@ -36,9 +37,9 @@ public class DxlClientImplFactory implements DxlClientFactory {
     }
 
     /**
-     * Returns the default {@link DxlClientImplFactory}
+     * Returns the default {@link DxlClientFactory}
      *
-     * @return The default {@link DxlClientImplFactory}
+     * @return The default {@link DxlClientFactory}
      */
     public static DxlClientImplFactory getDefaultInstance() {
         return clientFactory;

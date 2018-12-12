@@ -18,7 +18,7 @@ public class ServiceRegistrationInfoTest {
         String result = registerService.toJsonString();
 
         assertTrue(result.contains("\"serviceType\":\"/mcafee/service/JTI\""));
-        assertTrue(result.contains("\"serviceGuid\":\"" + info.getServiceGuid() + "\""));
+        assertTrue(result.contains("\"serviceGuid\":\"" + info.getServiceId() + "\""));
     }
 
     @Test
@@ -35,7 +35,7 @@ public class ServiceRegistrationInfoTest {
         String result = registerService.toJsonString();
 
         assertTrue(result.contains("\"serviceType\":\"/mcafee/service/JTI\""));
-        assertTrue(result.contains("\"serviceGuid\":\"" + info.getServiceGuid() + "\""));
+        assertTrue(result.contains("\"serviceGuid\":\"" + info.getServiceId() + "\""));
         assertTrue(result.contains("\"/mcafee/service/JTI/file/reputation\""));
         assertTrue(result.contains("\"/mcafee/service/JTI/cert/reputation\""));
     }

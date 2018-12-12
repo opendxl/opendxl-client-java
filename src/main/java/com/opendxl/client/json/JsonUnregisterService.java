@@ -28,7 +28,7 @@ public class JsonUnregisterService extends AbstractJsonMessage {
             throw new IllegalArgumentException("Undefined service object");
         }
 
-        this.instanceId = service.getServiceGuid();
+        this.instanceId = service.getServiceId();
     }
 
     /**

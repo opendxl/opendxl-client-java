@@ -17,22 +17,27 @@ import java.util.concurrent.ExecutorService;
  * Simple test service that sends back a generic {@link Response} or {@link ErrorResponse}
  */
 public class TestService implements RequestCallback, AutoCloseable {
+
     /**
      * The client
      */
     private DxlClient client;
+
     /**
      * Whether to return standard responses or errors
      */
     private boolean returnError = false;
+
     /**
      * Thread pool
      */
     private ExecutorService executor = null;
+
     /**
      * The error code to return
      */
     private int errorCode = 99;
+
     /**
      * The error message to return
      */
@@ -50,7 +55,7 @@ public class TestService implements RequestCallback, AutoCloseable {
     /**
      * Constructs the test service
      *
-     * @param client      The client
+     * @param client The client
      * @param threadCount The count of threads for the pool
      */
     private TestService(final DxlClient client, final int threadCount) {
@@ -59,11 +64,9 @@ public class TestService implements RequestCallback, AutoCloseable {
     }
 
     /**
-     * Whether to return standard {@link Response} messages or {@link ErrorResponse}
-     * messages.
+     * Whether to return standard {@link Response} messages or {@link ErrorResponse} messages.
      *
-     * @param val Whether to return standard {@link Response} messages or
-     *            {@link ErrorResponse} messages.
+     * @param val Whether to return standard {@link Response} messages or {@link ErrorResponse} messages.
      */
     public void setReturnError(final boolean val) {
         this.returnError = val;

@@ -14,9 +14,10 @@ import static org.junit.Assert.assertEquals;
  * Test cases for the {@link UuidGenerator} class.
  */
 public class UuidGeneratorTest {
+
     /**
-     * Generates a large number of random UUIDs and ensures that they can be converted
-     * to/from trimmed strings (22 characters in length).
+     * Generates a large number of random UUIDs and ensures that they can be converted to/from trimmed strings
+     * (22 characters in length).
      */
     @Test
     public void testUuidGeneration() {

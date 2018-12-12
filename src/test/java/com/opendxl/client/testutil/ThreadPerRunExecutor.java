@@ -10,16 +10,19 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * {@link Executor} implementation that executes the specified {@link Runnable}
- * a specified number of times using a new thread for each execution.
+ * {@link Executor} implementation that executes the specified {@link Runnable} a specified number of times using a
+ * new thread for each execution.
  * <p>
  * Note: This executor can only be used once.
+ * </p>
  */
 public class ThreadPerRunExecutor implements Executor {
+
     /**
      * The list of threads
      */
     private final List<Thread> threads = Collections.synchronizedList(new ArrayList<>());
+
     /**
      * The count of times to run the {@link Runnable}
      */
@@ -56,7 +59,7 @@ public class ThreadPerRunExecutor implements Executor {
      * Waits for all of the threads to complete executing
      *
      * @param waitTime The maximum time to wait (milliseconds)
-     * @return <code>false</code> If the maximum wait time was exceeded
+     * @return {@code false} If the maximum wait time was exceeded
      */
     public boolean joinThreads(final long waitTime) throws InterruptedException {
         final long endTime = System.currentTimeMillis() + waitTime;

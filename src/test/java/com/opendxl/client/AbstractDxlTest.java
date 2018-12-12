@@ -10,9 +10,10 @@ import org.junit.Before;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Base class for the DXL test cases
+ * Base class for DXL test cases
  */
 public abstract class AbstractDxlTest {
+
     /**
      * Default timeout
      */

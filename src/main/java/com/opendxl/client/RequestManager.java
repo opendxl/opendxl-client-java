@@ -25,22 +25,21 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Manager that tracks outstanding requests and notifies the appropriate parties
- * (invoking a response callback, notifying a waiting object, etc.) when a corresponding
- * response is received.
+ * Manager that tracks outstanding requests and notifies the appropriate parties (invoking a response callback,
+ * notifying a waiting object, etc.) when a corresponding response is received.
  * <p/>
- * This purpose of this object is to collaborate with an {@link DxlClient}
- * instance.
+ * This purpose of this object is to collaborate with an {@link DxlClient} instance.
  * <p/>
  */
 class RequestManager implements ResponseCallback {
+
     /**
      * The logger
      */
     private static Logger logger = Logger.getLogger(RequestManager.class);
 
     /**
-     * The interval to check async callbacks for removal
+     * The interval at which to check asynchronous callbacks for removal (Defaults to 5 minutes)
      */
     @SuppressWarnings("FieldCanBeLocal")
     private int asyncCallbackCheckInterval =
@@ -48,9 +47,8 @@ class RequestManager implements ResponseCallback {
             Constants.SYSPROP_ASYNC_CALLBACK_CHECK_INTERVAL, Integer.toString(5 * 60 * 1000)));
 
     /**
-     * Map containing {@link ResponseCallback} instances associated with the identifier
-     * of the request message that they are waiting for a response to. This map is used for
-     * asynchronous requests.
+     * Map containing {@link ResponseCallback} instances associated with the identifier of the request message that
+     * they are waiting for a response to. This map is used for asynchronous requests.
      */
     private Map<String, AsyncResponseCallbackHolder> callbackMap = new ConcurrentHashMap<>();
 
@@ -60,20 +58,18 @@ class RequestManager implements ResponseCallback {
     private Lock syncWaitMessageLock = new ReentrantLock();
 
     /**
-     * The condition associated with the request threads waiting for a response
-     * (for synchronous request).
+     * The condition associated with the request threads waiting for a response (for synchronous request).
      */
     private Condition syncWaitMessageCondition = this.syncWaitMessageLock.newCondition();
 
     /**
-     * The set of identifiers for request messages that are waiting for a response
-     * (for synchronous request).
+     * The set of identifiers for request messages that are waiting for a response (for synchronous request).
      */
     private Set<String> syncWaitMessageIds = new HashSet<>();
 
     /**
-     * Messages that have been received mapped by the corresponding request message
-     * identifier (for synchronous request).
+     * Messages that have been received mapped by the corresponding request message identifier
+     * (for synchronous request).
      */
     private Map<String, Response> syncWaitMessageResponses = new HashMap<>();
 
@@ -83,12 +79,12 @@ class RequestManager implements ResponseCallback {
     private DxlClient client;
 
     /**
-     * The lock used for checking async callbacks for timeout
+     * The lock used for checking asynchronous callbacks for timeout
      */
     private Lock asyncCallbackCheckLock = new ReentrantLock();
 
     /**
-     * The timer task for checking async callbacks
+     * The timer task for checking asynchronous callbacks
      */
     private AsyncResponseTimerTask asyncResponseTimerTask = new AsyncResponseTimerTask();
 
@@ -98,7 +94,7 @@ class RequestManager implements ResponseCallback {
     private static Timer maintenanceTimer = new Timer(true);
 
     /**
-     * Creates the request manager
+     * Constructor for {@link RequestManager}
      *
      * @param client The client that this request manager is associated with
      */
@@ -113,7 +109,7 @@ class RequestManager implements ResponseCallback {
         );
 
         // Register with the client as a response listener (all responses regardless
-        // of channel).
+        // of topic).
         client.addResponseCallback(null, this);
     }
 
@@ -152,8 +148,8 @@ class RequestManager implements ResponseCallback {
     /**
      * Performs an asynchronous request via the DXL fabric
      *
-     * @param request    The request
-     * @param callback   The callback to be invoked when the response is received
+     * @param request The request
+     * @param callback The callback to be invoked when the response is received
      * @param waitMillis The amount of time to wait for a response before removing the callback
      */
     void asyncRequest(
@@ -173,10 +169,9 @@ class RequestManager implements ResponseCallback {
     }
 
     /**
-     * Indicates to the request manager that you are about to wait for the specified
-     * request (synchronous response). The registration has to occur prior to actually
-     * sending the request message to account for the possibility of the response being
-     * received immediately.
+     * Indicates to the request manager that you are about to wait for the specified request (synchronous response).
+     * The registration has to occur prior to actually sending the request message to account for the possibility of
+     * the response being received immediately.
      *
      * @param request The request that is about to be waited for.
      * @see DxlClient#syncRequest(com.opendxl.client.message.Request, long)
@@ -191,9 +186,9 @@ class RequestManager implements ResponseCallback {
     }
 
     /**
-     * Indicates to the request manager that you no longer want to wait for the specified
-     * request (synchronous response). This must be invoked when an error occurs while
-     * waiting for the response, or the response was received.
+     * Indicates to the request manager that you no longer want to wait for the specified request
+     * (synchronous response). This must be invoked when an error occurs while waiting for the response, or the
+     * response was received.
      *
      * @param request The request that should no longer be waited for
      * @see DxlClient#syncRequest(com.opendxl.client.message.Request, long)
@@ -209,10 +204,9 @@ class RequestManager implements ResponseCallback {
     }
 
     /**
-     * Waits for a response to the specified request up to the specified wait time
-     * in milliseconds.
+     * Waits for a response to the specified request up to the specified wait time in milliseconds.
      *
-     * @param request    The request for which to wait for the response
+     * @param request The request for which to wait for the response
      * @param waitMillis The maximum time to wait for the request
      * @return The response
      * @throws InterruptedException If the wait is interrupted
@@ -252,9 +246,8 @@ class RequestManager implements ResponseCallback {
     /**
      * Registers an asynchronous callback for the specified request
      *
-     * @param request    The request
-     * @param callback   The callback to invoke when the response to request is
-     *                   received.
+     * @param request The request
+     * @param callback The callback to invoke when the response for the request is received.
      * @param waitMillis The amount of time to wait for a response before removing the callback
      * @see DxlClient#asyncRequest(Request, ResponseCallback)
      */
@@ -275,9 +268,9 @@ class RequestManager implements ResponseCallback {
     }
 
     /**
-     * Returns the count of async callbacks that are waiting for a response
+     * Returns the count of asynchronous callbacks that are waiting for a response
      *
-     * @return The count of async callbacks that are waiting for a response
+     * @return The count of asynchronous callbacks that are waiting for a response
      */
     int getAsyncCallbackCount() {
         return this.callbackMap.size();
@@ -312,10 +305,12 @@ class RequestManager implements ResponseCallback {
      * Wrapper around an asynchronous response callback
      */
     private static class AsyncResponseCallbackHolder {
+
         /**
          * The callback
          */
         private ResponseCallback callback;
+
         /**
          * When the callback expires
          */

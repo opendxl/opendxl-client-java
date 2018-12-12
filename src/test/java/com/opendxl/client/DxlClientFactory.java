@@ -10,6 +10,7 @@ import com.opendxl.client.exception.DxlException;
  * Factory for creating {@link DxlClient} instances
  */
 public interface DxlClientFactory {
+
     /**
      * Returns the DXL client configuration
      *

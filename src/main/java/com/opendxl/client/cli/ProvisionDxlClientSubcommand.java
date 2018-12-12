@@ -127,7 +127,7 @@ public class ProvisionDxlClientSubcommand implements Subcommand {
                 throw new Exception("Invalid key value pair for broker entry: " + brokerLine);
             }
 
-            Broker broker = Broker.parseFromConfigString(brokerKeyPairAsArray[1]);
+            Broker broker = Broker.parse(brokerKeyPairAsArray[1]);
 
             if (StringUtils.isBlank(broker.getUniqueId())) {
                 throw new Exception("No guid for broker: " + brokerKeyPairAsArray[1]);

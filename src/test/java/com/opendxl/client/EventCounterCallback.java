@@ -13,12 +13,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Helper class allowing to count incoming events
- * For unit testing only
+ * Helper class allowing to count incoming events (For unit testing only)
  */
 public class EventCounterCallback implements EventCallback {
+    /** The counter lock */
     private final Lock counterLock = new ReentrantLock();
+    /** The counter condition */
     private final Condition counterCondition = counterLock.newCondition();
+    /** The counter */
     private final AtomicInteger counter = new AtomicInteger();
 
     /**
@@ -43,6 +45,7 @@ public class EventCounterCallback implements EventCallback {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void onEvent(final Event event) {
         System.out.println(event.getDestinationTopic());

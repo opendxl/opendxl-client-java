@@ -28,8 +28,9 @@ import static org.junit.Assert.assertTrue;
  * Test the Broker Registry Topic Query - Test that brokers are storing topics that have subscriptions.
  * The storing of topics that have subscriptions is part of enabling topic based routing.
  * <p>
- * NOTE: Besides the tests that run during a build there are also tests in this class that test topic
+ * <b>NOTE</b>: Besides the tests that run during a build there are also tests in this class that test topic
  * subscription addition, removal, and transfer between multiple brokers that must be run manually.
+ * <p>
  */
 public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
     private static final String BROKERTOPIC_QUERY_TOPIC = "/mcafee/service/dxl/brokerregistry/topicquery";
@@ -200,11 +201,11 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
     }
 
     /**
-     * A method to validate a BrokerTopicQueryResponse object
+     * A method to validate a {@link BrokerTopicQueryResponse} object
      *
      * @param brokerTopicQueryResponse The broker topic query response object to validate
-     * @param expectedTopicCount       The expected count of topics
-     * @param expectedTopicsExist      The expected indicator if topics exist or not
+     * @param expectedTopicCount The expected count of topics
+     * @param expectedTopicsExist The expected indicator if topics exist or not
      */
     private void validateBrokerTopicQueryResponse(
         BrokerTopicQueryResponse brokerTopicQueryResponse, int expectedTopicCount, boolean expectedTopicsExist) {
@@ -216,10 +217,10 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
      * A method to send a broker topic query. Returns the response. This method also validates if the response message
      * came from one of the specified target brokers.
      *
-     * @param client        The dxl client
+     * @param client The dxl client
      * @param targetBrokers The brokers to send the query to
-     * @param brokerGuid    The broker to query on
-     * @param topics        The topics to query on
+     * @param brokerGuid The broker to query on
+     * @param topics The topics to query on
      * @return The response from a broker topic query
      */
     private BrokerTopicQueryResponse sendBrokerTopicQuery(DxlClient client, Set<String> targetBrokers,

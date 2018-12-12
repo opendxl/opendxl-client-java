@@ -68,8 +68,8 @@ public class RegisterServiceTest extends AbstractDxlTest {
 
         info = new ServiceRegistrationInfo(client, "/mcafee/service/JTI");
 
-        info.addTopic("/mcafee/service/JTI/file/reputation/" + info.getServiceGuid(), requestCallback);
-        info.addTopic("/mcafee/service/JTI/cert/reputation/" + info.getServiceGuid(), requestCallback);
+        info.addTopic("/mcafee/service/JTI/file/reputation/" + info.getServiceId(), requestCallback);
+        info.addTopic("/mcafee/service/JTI/cert/reputation/" + info.getServiceId(), requestCallback);
     }
 
     @After
@@ -138,7 +138,7 @@ public class RegisterServiceTest extends AbstractDxlTest {
         Thread.sleep(POST_OP_DELAY);
 
         Request request = new Request(client,
-            "/mcafee/service/JTI/file/reputation/" + info.getServiceGuid());
+            "/mcafee/service/JTI/file/reputation/" + info.getServiceId());
         request.setPayload("Test".getBytes());
 
         Response response = client.syncRequest(request);

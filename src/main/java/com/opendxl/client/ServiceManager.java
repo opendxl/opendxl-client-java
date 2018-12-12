@@ -24,13 +24,14 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * Service registration manager for the Data Exchange Layer (DXL) fabric.
  */
 class ServiceManager implements RequestCallback, AutoCloseable {
+
     /**
      * The logger
      */
     private static Logger log = Logger.getLogger(ServiceManager.class);
 
     /**
-     * Read write lock for handling registration and firing concurrency
+     * Read-write lock for handling registration and firing concurrency
      */
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -40,7 +41,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     private final Map<String, ServiceRegistrationHandler> services = new HashMap<>();
 
     /**
-     * cloned Map of services
+     * cloned {@link Map} of services
      */
     private Map<String, ServiceRegistrationHandler> clonedServices = Collections.EMPTY_MAP;
 
@@ -76,12 +77,12 @@ class ServiceManager implements RequestCallback, AutoCloseable {
         try {
             boolean isUpdate = false;
             @SuppressWarnings("unchecked") Set<String> oldTopics = Collections.EMPTY_SET;
-            ServiceRegistrationHandler serviceHandler = services.get(service.getServiceGuid());
+            ServiceRegistrationHandler serviceHandler = services.get(service.getServiceId());
             if (serviceHandler == null) {
                 // Register the service
                 serviceHandler = new ServiceRegistrationHandler(client, service);
                 // Add the service handler to the map
-                services.put(service.getServiceGuid(), serviceHandler);
+                services.put(service.getServiceId(), serviceHandler);
                 clonedServices = new HashMap<>(services);
             } else {
                 final ServiceRegistrationInfo oldInfo = serviceHandler.getService();
@@ -96,20 +97,20 @@ class ServiceManager implements RequestCallback, AutoCloseable {
 
             // Register the generic callback(s) and subscribe to the topic(s)
             final Set<String> newTopics = service.getTopics();
-            for (String channel : newTopics) {
-                if (!isUpdate || !oldTopics.contains(channel)) {
-                    client.addRequestCallback(channel, this);
-                    client.subscribe(channel);
+            for (String topic : newTopics) {
+                if (!isUpdate || !oldTopics.contains(topic)) {
+                    client.addRequestCallback(topic, this);
+                    client.subscribe(topic);
                 }
             }
 
             if (isUpdate) {
-                final Set<String> removedChannels = new HashSet<>(oldTopics);
-                removedChannels.removeAll(newTopics);
+                final Set<String> removedTopics = new HashSet<>(oldTopics);
+                removedTopics.removeAll(newTopics);
 
-                for (final String channelToRemove : removedChannels) {
-                    client.removeRequestCallback(channelToRemove, this);
-                    client.unsubscribe(channelToRemove);
+                for (final String topicToRemove : removedTopics) {
+                    client.removeRequestCallback(topicToRemove, this);
+                    client.unsubscribe(topicToRemove);
                 }
 
                 try {
@@ -133,7 +134,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     /**
      * Removes the specified service.
      *
-     * @param instanceId The instance ID of the service to remove
+     * @param instanceId The instance identifier of the service to remove
      */
     void removeService(final String instanceId)
         throws DxlException {
@@ -184,9 +185,9 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     }
 
     /**
-     * Returns the set of all active topics
+     * Returns the {@link Set} of all active topics
      *
-     * @return The set of all active topics
+     * @return The {@link Set} of all active topics
      */
     private Set<String> getActiveTopics() {
         Set<String> topics = new HashSet<>();
@@ -204,10 +205,10 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     }
 
     /**
-     * Returns true if the set of active topics contains the given topic
+     * Returns {@code true} if the set of active topics contains the given topic
      *
      * @param topic The topic to check for
-     * @return true if the set of active topics contains the given topic, otherwise false
+     * @return {@code true} if the set of active topics contains the given topic, otherwise {@code false}
      */
     private boolean hasActiveTopic(String topic) {
         return getActiveTopics().contains(topic);
@@ -239,7 +240,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     }
 
     /**
-     * Sens a service not found error message response
+     * Sends a service not found error message response
      *
      * @param request The request
      */

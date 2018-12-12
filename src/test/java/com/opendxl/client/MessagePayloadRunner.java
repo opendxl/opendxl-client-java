@@ -22,22 +22,24 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * Tests whether payloads can be successfully delivered from a client to the server.
- * Payloads are simply bytes of data that are used to provide application-specific
- * information.
+ * Tests whether payloads can be successfully delivered from a client to the server. Payloads are simply bytes of data
+ * that are used to provide application-specific information.
  *
  * @see com.opendxl.client.message.Message#setPayload(byte[])
  * @see com.opendxl.client.message.Message#getPayload()
  */
 public class MessagePayloadRunner extends AbstractRunner {
+
     /**
      * A test string to send
      */
     private static final String TEST_STRING = "SslUtils";
+
     /**
      * A test byte to send
      */
     private static final byte TEST_BYTE = 1;
+
     /**
      * A test integer
      */

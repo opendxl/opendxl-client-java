@@ -22,12 +22,11 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Manager that handles the registration and firing of messages to registered message
- * callbacks (requests, responses, events, etc.).
+ * Manager that handles the registration and firing of messages to registered message callbacks (requests, responses,
+ * events, etc.).
  *
- * @param <T>  The type of message callback managed by the manager instance
- *             (request callback, response callback, etc.
- * @param <MT> The type of message fired by the manager instance (request, response, etc.)
+ * @param <T>  The type of message callback being managed (request callback, response callback, etc.).
+ * @param <MT> The type of message being managed (request, response, etc.)
  * @see RequestCallback
  * @see ResponseCallback
  * @see EventCallback
@@ -36,32 +35,35 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @see Event
  */
 abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
+
     /**
-     * Read write lock for handling registration and firing concurrency
+     * Read-write lock for handling registration and firing concurrency
      */
     private final ReadWriteLock managerLock = new ReentrantReadWriteLock();
+
     /**
-     * Map containing registered listeners by channel name (null indicates all channels)
+     * Map containing registered listeners by topic name ({@code null} indicates all topics)
      */
-    private final Map<String, Set<T>> callbacksByChannel = new HashMap<>();
+    private final Map<String, Set<T>> callbacksByTopic = new HashMap<>();
+
     /**
-     * Is wildcarding enabled
+     * Whether topic wild carding is enabled
      */
     private boolean wildcardingEnabled = false;
 
     /**
-     * Returns whether the channel has a wildcard
+     * Returns whether the topic has a wildcard
      *
-     * @param channelName The channel name
-     * @return Whether the channel has a wildcard
+     * @param topicName The topic name
+     * @return Whether the topic has a wildcard
      */
-    private boolean hasWildcard(final String channelName) {
-        return channelName != null && channelName.endsWith("#");
+    private boolean hasWildcard(final String topicName) {
+        return topicName != null && topicName.endsWith("#");
     }
 
     /**
-     * Adds the specified callback. Since no channel has been specified, this callback will
-     * receive all messages (no channel filtering).
+     * Adds the specified callback. Since no topic has been specified, this callback will receive all messages
+     * (no topic filtering).
      *
      * @param callback The callback to add
      */
@@ -70,25 +72,23 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
     }
 
     /**
-     * Adds the specified callback. The callback will receive messages that were received
-     * via the specified channel.
+     * Adds the specified callback. The callback will receive messages that were received via the specified topic.
      *
-     * @param channelName Limits messages sent to the callback that were received via
-     *                    this channel.
-     * @param callback    The callback to add
+     * @param topicName Limits messages sent to the callback that were received via this topic.
+     * @param callback The callback to add
      */
-    public void addCallback(final String channelName, final T callback) {
+    public void addCallback(final String topicName, final T callback) {
         managerLock.writeLock().lock();
         try {
-            if (hasWildcard(channelName)) {
+            if (hasWildcard(topicName)) {
                 this.wildcardingEnabled = true;
             }
 
-            Set<T> callbacks = this.callbacksByChannel.get(channelName);
+            Set<T> callbacks = this.callbacksByTopic.get(topicName);
             //noinspection Java8MapApi
             if (callbacks == null) {
                 callbacks = new HashSet<>();
-                this.callbacksByChannel.put(channelName, callbacks);
+                this.callbacksByTopic.put(topicName, callbacks);
             }
             callbacks.add(callback);
         } finally {
@@ -97,8 +97,7 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
     }
 
     /**
-     * Removes the callback that was registered without a specific channel (no
-     * channel filtering).
+     * Removes the callback that was registered without a specific topic (no topic filtering).
      *
      * @param callback The callback to remove
      * @return If the callback was removed successfully
@@ -108,20 +107,20 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
     }
 
     /**
-     * Removes the callback that was registered for the specified channel.
+     * Removes the callback that was registered for the specified topic.
      *
-     * @param channelName The channel name
-     * @param callback    The callback to remove
+     * @param topicName The topic name
+     * @param callback The callback to remove
      * @return If the callback was removed successfully
      */
-    boolean removeCallback(final String channelName, final T callback) {
+    boolean removeCallback(final String topicName, final T callback) {
         managerLock.writeLock().lock();
         try {
-            Set<T> callbacks = this.callbacksByChannel.get(channelName);
+            Set<T> callbacks = this.callbacksByTopic.get(topicName);
             if (callbacks != null) {
                 if (callbacks.remove(callback)) {
                     if (callbacks.size() == 0) {
-                        this.callbacksByChannel.remove(channelName);
+                        this.callbacksByTopic.remove(topicName);
                     }
 
                     return true;
@@ -131,8 +130,8 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
             // Determine if any wildcards exist
             if (this.wildcardingEnabled) {
                 this.wildcardingEnabled = false;
-                for (final String currChannelName : this.callbacksByChannel.keySet()) {
-                    if (hasWildcard(currChannelName)) {
+                for (final String currTopicName : this.callbacksByTopic.keySet()) {
+                    if (hasWildcard(currTopicName)) {
                         this.wildcardingEnabled = true;
                         break;
                     }
@@ -146,23 +145,20 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
     }
 
     /**
-     * Fires the specified message to the appropriate (taking into consideration
-     * channel) registered listeners.
+     * Fires the specified message to the appropriate (taking into consideration topic) registered listeners.
      *
      * @param message The message to fire
      */
     void fireMessage(final MT message) {
-        final String destinationChannel = message.getDestinationTopic();
+        final String destinationTopic = message.getDestinationTopic();
 
-        //SR 4-18281403991 . Fix Deadlock issues
-        //Bug 1228290 - SIA Partner Extension Tycon Rapid Query hangs indefinitely on check-in
         Set<T> globalListeners;
-        Set<T> channelListeners;
+        Set<T> topicListeners;
 
         managerLock.readLock().lock();
         try {
-            globalListeners = this.callbacksByChannel.get(null);
-            channelListeners = this.callbacksByChannel.get(destinationChannel);
+            globalListeners = this.callbacksByTopic.get(null);
+            topicListeners = this.callbacksByTopic.get(destinationTopic);
         } finally {
             managerLock.readLock().unlock();
         }
@@ -170,24 +166,24 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
         // Fire for global listeners (null)
         commonFireMessage(
             globalListeners, message);
-        // Fire for channel listeners
+        // Fire for topic listeners
         commonFireMessage(
-            channelListeners, message);
+            topicListeners, message);
 
-        // Fire for all wildcarded channels
+        // Fire for all wildcarded topics
         if (this.wildcardingEnabled) {
             DxlUtils.iterateWildcards(
                 wildcard -> {
                     Set<T> wildCardListeners;
                     managerLock.readLock().lock();
                     try {
-                        wildCardListeners = this.callbacksByChannel.get(wildcard);
+                        wildCardListeners = this.callbacksByTopic.get(wildcard);
                     } finally {
                         managerLock.readLock().unlock();
                     }
                     commonFireMessage(wildCardListeners, message);
                 },
-                destinationChannel
+                destinationTopic
             );
         }
     }
@@ -196,7 +192,7 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
      * Fires the message to the specified set of callbacks
      *
      * @param callbacks The callbacks to fire the message to
-     * @param message   The message to fire
+     * @param message The message to fire
      */
     private void commonFireMessage(final Set<T> callbacks, final MT message) {
         if (callbacks == null || callbacks.isEmpty()) {
@@ -209,11 +205,10 @@ abstract class CallbackManager<T extends MessageCallback, MT extends Message> {
     }
 
     /**
-     * Method that is to be overridden by derived classes to fire the message to the
-     * specified listener.
+     * Method that is to be overridden by derived classes to fire the message to the specified listener.
      *
      * @param listener The target of the message
-     * @param message  The message
+     * @param message The message
      */
     protected abstract void handleFire(T listener, MT message);
 

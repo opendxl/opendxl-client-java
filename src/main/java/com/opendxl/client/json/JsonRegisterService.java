@@ -52,7 +52,7 @@ public class JsonRegisterService extends AbstractJsonMessage {
         }
 
         this.serviceType = service.getServiceType();
-        this.instanceId = service.getServiceGuid();
+        this.instanceId = service.getServiceId();
         this.requestChannels = (service.getCallbacksByTopic().isEmpty() ? null
             : new HashSet<>(service.getCallbacksByTopic().keySet()));
         this.metadata = (service.getMetadata() == null || service.getMetadata().isEmpty() ? null

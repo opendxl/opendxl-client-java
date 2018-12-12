@@ -76,7 +76,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * </LI>
  * </UL>
  */
-public class DxlClient implements MqttCallback, AutoCloseable {
+public class DxlClient implements AutoCloseable {
 
     /**
      * The logger
@@ -167,27 +167,6 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      * The "reply-to" prefix, typically used for setting up response topics for requests, etc.
      */
     private String replyToTopic;
-
-    /**
-     * Time to wait for an operation to complete (defaults to 2 minutes)
-     */
-    private long timeToWait =
-        Long.parseLong(
-            System.getProperty(Constants.MQTT_TIME_TO_WAIT, Long.toString(120 * 1000)));
-
-    /**
-     * Connect timeout (defaults to 30 seconds)
-     */
-    private int connectTimeout =
-        Integer.parseInt(
-            System.getProperty(Constants.MQTT_CONNECT_TIMEOUT, Integer.toString(30)));
-
-    /**
-     * Disconnect timeout (defaults to 60 seconds)
-     */
-    private int disconnectTimeout =
-        Integer.parseInt(
-            System.getProperty(Constants.MQTT_DISCONNECT_TIMEOUT, Integer.toString(60)));
 
     /**
      * The underlying MQTT client instance
@@ -1008,7 +987,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
             throw new IllegalArgumentException("Undefined service object");
         }
 
-        this.serviceManager.removeService(service.getServiceGuid());
+        this.serviceManager.removeService(service.getServiceId());
         service.waitForUnregistration(timeout);
     }
 
@@ -1029,7 +1008,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      * @throws DxlException If an error occurs
      */
     public void unregisterServiceAsync(ServiceRegistrationInfo service) throws DxlException {
-        this.serviceManager.removeService(service.getServiceGuid());
+        this.serviceManager.removeService(service.getServiceId());
     }
 
     /**
@@ -1160,24 +1139,6 @@ public class DxlClient implements MqttCallback, AutoCloseable {
     }
 
     /**
-     * Sets the time to wait for an operation to complete
-     *
-     * @param timeToWait The time to wait for an operation to complete (in milliseconds)
-     */
-    public void setTimeToWait(final long timeToWait) {
-        this.timeToWait = timeToWait;
-    }
-
-    /**
-     * Sets the connection timeout
-     *
-     * @param timeout The connection timeout
-     */
-    public void setConnectionTimeout(final int timeout) {
-        this.connectTimeout = timeout;
-    }
-
-    /**
      * Returns the {@link DxlClientConfig} assoicated with the client
      *
      * @return The {@link DxlClientConfig} assoicated with the client
@@ -1195,60 +1156,6 @@ public class DxlClient implements MqttCallback, AutoCloseable {
         return Thread.currentThread().getName().startsWith(this.messagePoolPrefix);
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Implements MqttCallback
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void connectionLost(final Throwable cause) {
-        logger.error("connectionLost: " + cause.getMessage()
-            + ", disconnection strategy will be invoked.", cause);
-
-        // Allow for disconnection strategy
-        handleDisconnected();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void deliveryComplete(final IMqttDeliveryToken token) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("deliveryComplete: " + token.getMessageId());
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void messageArrived(final String topic, final MqttMessage message) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("messageArrived: " + topic);
-        }
-
-        // Handle any received messages on a separate thread.
-        // If you invoke any MQTT client-related methods (subscribe/un-subscribe, etc.)
-        // during a handled message, deadlock will occur. The received messages
-        // are on the "MQTT Call" thread.
-        this.messageExecutor.execute(
-            () -> {
-                try {
-                    handleMessage(topic, message.getPayload());
-                } catch (Throwable t) {
-                    logger.error("Error during message handling", t);
-                }
-            }
-        );
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    // MQTT Specific Implementation
-    ////////////////////////////////////////////////////////////////////////////
-
     /**
      * Creates a new MQTT client (replaces existing)
      *
@@ -1259,7 +1166,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
         this.client = new MqttClient(serverUri, this.getUniqueId(), new MemoryPersistence());
 
         // This is a global operation timeout
-        this.client.setTimeToWait(this.timeToWait);
+        this.client.setTimeToWait(getConfig().getOperationTimeToWait());
     }
 
     /**
@@ -1340,13 +1247,13 @@ public class DxlClient implements MqttCallback, AutoCloseable {
         try {
             doDisconnectQuietly();
 
-            this.client.setCallback(this);
+            this.client.setCallback(new DxlMqttCallback());
 
             final MqttConnectOptions connectOps = new MqttConnectOptions();
 
             connectOps.setCleanSession(true);
             connectOps.setKeepAliveInterval(getConfig().getKeepAliveInterval());
-            connectOps.setConnectionTimeout(this.connectTimeout);
+            connectOps.setConnectionTimeout(this.getConfig().getConnectTimeout());
 
             // Set socket factory if applicable
             connectOps.setSocketFactory(socketFactory);
@@ -1398,7 +1305,7 @@ public class DxlClient implements MqttCallback, AutoCloseable {
                 dt.start();
 
                 // Wait for disconnect
-                dt.join(this.disconnectTimeout * 1000);
+                dt.join(this.getConfig().getDisconnectTimeout() * 1000);
 
                 if (!dt.isSuccess()) {
                     logger.error("Disconnect operation timed out! Creating new MQTT client.");
@@ -1524,6 +1431,59 @@ public class DxlClient implements MqttCallback, AutoCloseable {
      */
     int getAsyncCallbackCount() {
         return this.requestManager.getAsyncCallbackCount();
+    }
+
+
+    /**
+     * Implements the {@link MqttCallback} interface (used to received callbacks from the MQTT client.
+     */
+    private class DxlMqttCallback implements MqttCallback {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void connectionLost(final Throwable cause) {
+            logger.error("connectionLost: " + cause.getMessage()
+                + ", disconnection strategy will be invoked.", cause);
+
+            // Allow for disconnection strategy
+            handleDisconnected();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void deliveryComplete(final IMqttDeliveryToken token) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("deliveryComplete: " + token.getMessageId());
+            }
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void messageArrived(final String topic, final MqttMessage message) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("messageArrived: " + topic);
+            }
+
+            // Handle any received messages on a separate thread.
+            // If you invoke any MQTT client-related methods (subscribe/un-subscribe, etc.)
+            // during a handled message, deadlock will occur. The received messages
+            // are on the "MQTT Call" thread.
+            messageExecutor.execute(
+                () -> {
+                    try {
+                        handleMessage(topic, message.getPayload());
+                    } catch (Throwable t) {
+                        logger.error("Error during message handling", t);
+                    }
+                }
+            );
+        }
     }
 
     /**

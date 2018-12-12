@@ -110,9 +110,30 @@ public class DxlClientConfig {
         Float.parseFloat(System.getProperty(Constants.SYSPROP_RECONNECT_DELAY_RANDOM, "0.25f"));
 
     /**
-     * The broker connection timeout (in ms), defaults to 500ms
+     * Time to wait for an operation to complete (defaults to 2 minutes)
      */
-    private int brokerConnectTimeout =
+    private long operationTimeToWait =
+        Long.parseLong(
+            System.getProperty(Constants.MQTT_TIME_TO_WAIT, Long.toString(120 * 1000)));
+
+    /**
+     * Connect timeout (defaults to 30 seconds)
+     */
+    private int connectTimeout =
+        Integer.parseInt(
+            System.getProperty(Constants.MQTT_CONNECT_TIMEOUT, Integer.toString(30)));
+
+    /**
+     * Disconnect timeout (defaults to 60 seconds)
+     */
+    private int disconnectTimeout =
+        Integer.parseInt(
+            System.getProperty(Constants.MQTT_DISCONNECT_TIMEOUT, Integer.toString(60)));
+
+    /**
+     * The broker ping timeout (in ms), defaults to 500ms
+     */
+    private int brokerPingTimeout =
         Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_TIMEOUT, "500"));
 
     /**
@@ -497,7 +518,7 @@ public class DxlClientConfig {
         final ExecutorService es = Executors.newFixedThreadPool(20);
         try {
             for (final Broker broker : brokers) {
-                futures.add(connectToBroker(es, broker, brokerConnectTimeout));
+                futures.add(connectToBroker(es, broker, brokerPingTimeout));
             }
         } finally {
             es.shutdown();
@@ -510,6 +531,62 @@ public class DxlClientConfig {
         Collections.sort(brokersSorted);
 
         return brokersSorted;
+    }
+
+    /**
+     * Sets the time to wait for an underlying protocol operation to complete. The default value is
+     * {@code 2} minutes.
+     *
+     * @param timeToWait The time to wait for an underlying protocol operation to complete (in milliseconds)
+     */
+    public synchronized void setOperationTimeToWait(final long timeToWait) {
+        this.operationTimeToWait = timeToWait;
+    }
+
+    /**
+     * Returns the time to wait for an underlying protocol operation to complete. The default value is
+     * {@code 2} minutes.
+     *
+     * @return  The time to wait for an underlying protocol operation to complete (in milliseconds)
+     */
+    public synchronized long getOperationTimeToWait() {
+        return this.operationTimeToWait;
+    }
+
+    /**
+     * Sets the connection timeout. Defaults to {@code 30} seconds.
+     *
+     * @param timeout The connection timeout (in seconds)
+     */
+    public void setConnectTimeout(final int timeout) {
+        this.connectTimeout = timeout;
+    }
+
+    /**
+     * Returns the connection timeout. Defaults to {@code 30} seconds.
+     *
+     * @return The connection timeout (in seconds)
+     */
+    public int getConnectTimeout() {
+        return this.connectTimeout;
+    }
+
+    /**
+     * Sets the disconnection timeout. Defaults to {@code 60} seconds.
+     *
+     * @param timeout The disconnection timeout (in seconds)
+     */
+    public void setDisconnectTimeout(final int timeout) {
+        this.disconnectTimeout = timeout;
+    }
+
+    /**
+     * Returns the disconnection timeout. Defaults to {@code 60} seconds.
+     *
+     * @return The disconnection timeout (in seconds)
+     */
+    public int getDisconnectTimeout() {
+        return this.disconnectTimeout;
     }
 
     /**

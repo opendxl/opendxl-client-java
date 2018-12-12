@@ -15,6 +15,7 @@ import org.junit.Test;
  * Test the broker registry query
  */
 public class BrokerRegistryQueryTest extends AbstractDxlTest {
+
     /**
      * Invoked prior to running test
      */
@@ -27,7 +28,7 @@ public class BrokerRegistryQueryTest extends AbstractDxlTest {
     }
 
     /**
-     * See class level comment
+     * Test the broker registry query
      */
     @Test
     public void testBrokerRegistryQuery() throws Exception {
