@@ -206,6 +206,15 @@ public class DxlClientConfig {
     }
 
     /**
+     * Returns the file name of a bundle containing the broker CA certificates in PEM format
+     *
+     * @return the file name of a bundle containing the broker CA certificates in PEM format
+     */
+    public String getBrokerCaBundlePath() {
+        return brokerCaBundlePath;
+    }
+
+    /**
      * Returns the unique identifier of the client instance
      *
      * @return The unique identifier of the client instance

@@ -4,10 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -21,7 +17,6 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -50,9 +45,20 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Helpers for making requests to a Management Service for CLI subcommands
+ */
 public class ManagementService {
 
+    /**
+     * Colon delimiter use to delimit the response status and result of
+     * invoking a command on the Management Service
+     */
     private static final String COLON_DELIMITER = ":";
+
+    /**
+     * The OK response status from invoking a command on the Management Service
+     */
     private static final String OK_STATUS = "OK";
 
     //
@@ -91,15 +97,53 @@ public class ManagementService {
      */
     private static final String[] SUPPORTED_PROTOCOLS = new String[] {"TLSv1", "TLSv1.1", "TLSv1.2"};
 
+    /**
+     * Management Service host (FQDN or IP address)
+     */
     private String host;
+    /**
+     * Management Service port
+     */
     private int port;
+    /**
+     * The user name to authenticating with the Management Service
+     */
     private String userName;
+    /**
+     * The password to authenticating with the Management Service
+     */
     private String password;
+    /**
+     * The location of the file containing certificates used to do HTTPS certificate validation
+     */
     private String trustStoreFile;
+    /**
+     * The base URL for the Management Service
+     */
     private String baseUrl;
+    /**
+     * The http client for making a request to the Management Service
+     */
     private CloseableHttpClient httpClient;
-    private CookieStore cookieStore;
 
+    /**
+     * Constructor for the Management Service
+     *
+     * @param host           Management Service host (FQDN or IP address)
+     * @param port           Management Service port
+     * @param userName       The user name for authenticating with the Management Service
+     * @param password       The password for authenticating with the Management Services
+     * @param trustStoreFile The location of the file containing certificates used to HTTPS certificate validation
+     * @throws CertificateException     If there is an error creating certificates from the certificates in the
+     *                                  trust store file
+     * @throws NoSuchAlgorithmException If there is an issue creating a certificate trust manager
+     * @throws KeyStoreException        If there is an error creating a key store from the certificates in the
+     *                                  trust store file
+     * @throws KeyManagementException   If there is an error creating a key store from the certificates in the
+     *                                  trust store file
+     * @throws IOException              If there is an error creating a key store from the certificates in the
+     *                                  trust store file
+     */
     public ManagementService(String host, int port, String userName, String password, String trustStoreFile)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
             IOException {
@@ -110,6 +154,7 @@ public class ManagementService {
         this.trustStoreFile = trustStoreFile;
         this.baseUrl = "https://" + this.host + ":" + this.port + "/remote";
 
+        // Create the http client
         this.httpClient = createTlsHttpClient();
     }
 
@@ -169,12 +214,10 @@ public class ManagementService {
                     );
         }
 
-        this.cookieStore = new BasicCookieStore();
-
         return HttpClients.custom()
                 .setDefaultRequestConfig(createRequestConfig())
                 .setConnectionManager(createConnectionManager(socketFactory))
-                .setDefaultCookieStore(this.cookieStore)
+                .setDefaultCookieStore(new BasicCookieStore())
                 .setRedirectStrategy(new LaxRedirectStrategy())
                 .build();
     }
@@ -184,10 +227,13 @@ public class ManagementService {
      *
      * @param caChainPems the pems to be added in a single string format
      * @return The KeyStore
-     * @throws KeyStoreException
-     * @throws CertificateException
-     * @throws NoSuchAlgorithmException
-     * @throws IOException
+     * @throws KeyStoreException        If there is an error creating a key store from the certificates in the
+     *                                  trust store file
+     * @throws CertificateException     If there is an error creating a certificatefrom the certificates in the
+     *                                  trust store file
+     * @throws NoSuchAlgorithmException If there is an error creating a certificate factory
+     * @throws IOException              If there is an error creating a key store from the certificates in
+     *                                  the trust store file
      */
     private KeyStore createKeystore(String caChainPems) throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, IOException {
@@ -248,23 +294,27 @@ public class ManagementService {
     }
 
     /**
-     * Creates and returns a {@link CredentialsProvider}
+     * Invoke the input command name on the Management Service via an HTTPS request and return the response
+     * as an instance of the specified return type class.
      *
-     * @return A {@link CredentialsProvider} based on the specified descriptor properties
+     * @param commandName     The command name to be invoked on the Management Service
+     * @param parameters      A list of parameters to pass to the command to be invoked on the Management Services
+     * @param returnTypeClass The type class of the object to be returned by this method.
+     * @param <T>  The type of the object to return from the invoked command
+     * @return The response from invoking the command on the Management Service as an instance of the specified
+     * return type class.
+     * @throws URISyntaxException If there is an issue creating the Management Service URL with the input command name
+     * @throws IOException        If the response from invoked command is invalid
      */
-    private CredentialsProvider createCredentialsProvider() {
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-
-        credsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials(this.userName, this.password));
-
-        return credsProvider;
-    }
-
-    public String invokeCommand(String commandName, List<NameValuePair> parameters) throws URISyntaxException,
+    public <T> T invokeCommand(String commandName, List<NameValuePair> parameters, Class<T> returnTypeClass)
+            throws URISyntaxException,
             IOException {
         HttpGet request = new HttpGet(this.baseUrl + "/" + commandName);
-        URI uri = new URIBuilder(request.getURI()).addParameters(parameters).build();
+        URIBuilder uriBuilder = new URIBuilder(request.getURI());
+        if (parameters != null && !parameters.isEmpty()) {
+            uriBuilder.addParameters(parameters);
+        }
+        URI uri = uriBuilder.build();
         request.setURI(uri);
 
         String credentials = Base64.getEncoder().encodeToString(
@@ -280,11 +330,10 @@ public class ManagementService {
 
             String httpResponseBody = new BasicResponseHandler().handleResponse(response);
 
-            if (!httpResponseBody.contains(COLON_DELIMITER)) {
+            final int colonDelimiterLocation = httpResponseBody.indexOf(COLON_DELIMITER);
+            if (colonDelimiterLocation == -1) {
                 throw new IOException("Did not find ':' status delimiter in response body");
             }
-
-            final int colonDelimiterLocation = httpResponseBody.indexOf(COLON_DELIMITER);
             final String status = httpResponseBody.substring(0, colonDelimiterLocation);
             final String responseDetail = httpResponseBody.substring(colonDelimiterLocation + 1).trim();
 
@@ -293,7 +342,7 @@ public class ManagementService {
                         this.baseUrl + "/" + commandName, httpStatus, responseDetail));
             }
 
-            return new ObjectMapper().readValue(responseDetail, String.class);
+            return new ObjectMapper().readValue(responseDetail, returnTypeClass);
         }
     }
 }

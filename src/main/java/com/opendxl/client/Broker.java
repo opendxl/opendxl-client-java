@@ -4,6 +4,7 @@
 
 package com.opendxl.client;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.opendxl.client.exception.MalformedBrokerException;
 import com.opendxl.client.util.ServerNameHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +39,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
     /**
      * The unique identifier of the Broker
      */
+    @JsonAlias({"guid", "uniqueId"})
     private String uniqueId = "";
 
     /**
