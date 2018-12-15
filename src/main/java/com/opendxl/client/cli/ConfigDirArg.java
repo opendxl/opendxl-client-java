@@ -5,7 +5,7 @@ import picocli.CommandLine;
 /**
  * The configuration directory argument class for CLI subcommands that require a configuration directory.
  */
-public class ConfigDirArg {
+class ConfigDirArg {
 
     /**
      * The configuration directory
@@ -19,7 +19,7 @@ public class ConfigDirArg {
      *
      * @return The configuration directory
      */
-    public String getConfigDir() {
+    String getConfigDir() {
         return configDir;
     }
 
@@ -28,7 +28,7 @@ public class ConfigDirArg {
      *
      * @param configDir The configuration directory
      */
-    public void setConfigDir(String configDir) {
+    void setConfigDir(String configDir) {
         this.configDir = configDir;
     }
 }

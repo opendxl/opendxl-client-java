@@ -13,13 +13,26 @@ import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Main class for client CLI commands
+ * Main class for the OpenDXL Java Client CLI commands.
  * <p>
- * TODO add code for displaying the version from the manifest
+ * There are three CLI commands for the OpenDXL Java Client:
+ * </p>
+ * <ul>
+ *     <li>
+ *         provisionconfig - provisioning a DXL client
+ *     </li>
+ *     <li>
+ *         updateconfig - update the DXL client configuration
+ *     </li>
+ *     <li>
+ *         generatecsr - generate a private key and CSR
+ *     </li>
+ * </ul>
  */
 @CommandLine.Command(description = "dxlclient", name = "dxlclient", mixinStandardHelpOptions = true,
         version = "dxlclient <VERSION>", subcommands = {GenerateCsrAndPrivateKeySubcommand.class,
-        ProvisionDxlClientSubcommand.class, UpdateConfigSubcommand.class})
+        ProvisionDxlClientSubcommand.class, UpdateConfigSubcommand.class},
+        versionProvider = CommandLineInterface.ManifestVersionProvider.class)
 public class CommandLineInterface implements Subcommand {
 
     /**
@@ -35,15 +48,15 @@ public class CommandLineInterface implements Subcommand {
     /**
      * The key value pair splitter
      */
-    protected static final String KEY_VALUE_PAIR_SPLITTER = "=";
+    static final String KEY_VALUE_PAIR_SPLITTER = "=";
     /**
      * The name of the certificate authority bundle file
      */
-    protected static final String CA_BUNDLE_FILE_NAME = "ca-bundle.crt";
+    static final String CA_BUNDLE_FILE_NAME = "ca-bundle.crt";
     /**
      * The name of the dxl client configuration file
      */
-    protected static final String DXL_CONFIG_FILE_NAME = "dxlclient.config";
+    static final String DXL_CONFIG_FILE_NAME = "dxlclient.config";
 
     /**
      * Private constructor
@@ -59,7 +72,7 @@ public class CommandLineInterface implements Subcommand {
      * @return A string containing the value entered by the user
      * @throws IOException If there is an issue reading data input from the user
      */
-    public static String getValueFromPrompt(String title, boolean confirm) throws IOException {
+    static String getValueFromPrompt(String title, boolean confirm) throws IOException {
         String value;
         while (true) {
             while (true) {
@@ -90,7 +103,7 @@ public class CommandLineInterface implements Subcommand {
      * @return The user's input for the displayed message
      * @throws IOException If there is an error displaying or reading data from the console
      */
-    public static String readLine(String format, Object... args) throws IOException {
+    static String readLine(String format, Object... args) throws IOException {
         if (System.console() != null) {
             return System.console().readLine(format, args);
         }
@@ -109,7 +122,7 @@ public class CommandLineInterface implements Subcommand {
      * @return Input from CLI
      * @throws IOException If there is an error displaying or reading data from the console
      */
-    public static char[] readPassword(String format, Object... args)
+    static char[] readPassword(String format, Object... args)
             throws IOException {
         if (System.console() != null)
             return System.console().readPassword(format, args);
@@ -156,6 +169,7 @@ public class CommandLineInterface implements Subcommand {
             parseResult.commandSpec().commandLine().usage(System.out);
             exit = true;
         }
+
         if (parseResult.isVersionHelpRequested()) {
             parseResult.commandSpec().commandLine().printVersionHelp(System.out);
             exit = true;
@@ -172,8 +186,21 @@ public class CommandLineInterface implements Subcommand {
         }
 
         Subcommand parsedCommand = parseResult.commandSpec().commandLine().getCommand();
-
         parsedCommand.execute(parseResult);
+    }
 
+    /**
+     * {@link CommandLine.IVersionProvider} implementation that returns version information from the
+     * dxlclient.jar file's {@code /META-INF/MANIFEST.MF} file.
+     */
+    static class ManifestVersionProvider implements CommandLine.IVersionProvider {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String[] getVersion() throws Exception {
+            return new String[] {this.getClass().getPackage().getImplementationTitle() + " version: "
+                    + this.getClass().getPackage().getImplementationVersion()};
+        }
     }
 }

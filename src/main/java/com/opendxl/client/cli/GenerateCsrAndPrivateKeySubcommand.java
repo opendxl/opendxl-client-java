@@ -10,7 +10,7 @@ import java.lang.invoke.MethodHandles;
  */
 @CommandLine.Command(name = "generatecsr", description = "Generate CSR and private key",
         mixinStandardHelpOptions = true)
-public class GenerateCsrAndPrivateKeySubcommand implements Subcommand {
+class GenerateCsrAndPrivateKeySubcommand implements Subcommand {
 
     /**
      * The logger

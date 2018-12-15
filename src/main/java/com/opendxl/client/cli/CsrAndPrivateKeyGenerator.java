@@ -1,4 +1,4 @@
-package com.opendxl.client.cli.certs;
+package com.opendxl.client.cli;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.PEMEncryptor;
@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Class used for generating a private key and certificate signing request (CSR).
  */
-public class CsrAndPrivateKeyGenerator {
+class CsrAndPrivateKeyGenerator {
 
     /**
      * The logger
@@ -68,7 +68,7 @@ public class CsrAndPrivateKeyGenerator {
      * @throws NoSuchAlgorithmException           If there is an issue generating the key pair
      * @throws OperatorCreationException          If there is an issue generating the key pair or CSR
      */
-    public CsrAndPrivateKeyGenerator(String x509DistinguishedNames, List<String> subjectAlternativeNames)
+    CsrAndPrivateKeyGenerator(String x509DistinguishedNames, List<String> subjectAlternativeNames)
             throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, OperatorCreationException {
         this.keyPair = generateKeyPair();
         this.csr = generateCSR(x509DistinguishedNames, this.keyPair, subjectAlternativeNames);
@@ -122,7 +122,7 @@ public class CsrAndPrivateKeyGenerator {
      * @param passphrase         Encryption to use when saving the private key
      * @throws IOException If there is an error saving the CSR or private key to disk
      */
-    public void saveCsrAndPrivateKey(String csrFileName, String privateKeyFileName, String passphrase)
+    void saveCsrAndPrivateKey(String csrFileName, String privateKeyFileName, String passphrase)
             throws IOException {
         PEMEncryptor pemEncryptor = null; // TODO deal with encryption
         logger.info("Saving csr file to " + csrFileName);
@@ -140,7 +140,7 @@ public class CsrAndPrivateKeyGenerator {
      * @throws IOException If there is an issue converting the CSR from PKCS10CertificationRequest to a PEM
      *                     encoded string.
      */
-    public String getCsrAsPemString() throws IOException {
+    String getCsrAsPemString() throws IOException {
         try (StringWriter stringWriter = new StringWriter();
              JcaPEMWriter pemWriter = new JcaPEMWriter(stringWriter)) {
             pemWriter.writeObject(new PemObject(CertUtils.CERTIFICATE_REQUEST_OBJECT_TYPE_STRING,

@@ -3,7 +3,6 @@ package com.opendxl.client.cli;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opendxl.client.Broker;
 import com.opendxl.client.DxlClientConfig;
-import com.opendxl.client.cli.certs.CertUtils;
 import org.apache.log4j.Logger;
 import picocli.CommandLine;
 
@@ -102,7 +101,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "updateconfig", description = "Update the DXL client configuration",
         mixinStandardHelpOptions = true)
-public class UpdateConfigSubcommand implements Subcommand {
+class UpdateConfigSubcommand implements Subcommand {
 
     /**
      * The logger
@@ -187,23 +186,52 @@ public class UpdateConfigSubcommand implements Subcommand {
     }
 }
 
+/**
+ * Model object for the JSON returned by the broker list command
+ */
 class BrokerListCommandResults {
+    /**
+     * The list of brokers
+     */
     private List<Broker> brokers;
+    /**
+     * The certificate version
+     */
     private int certVersion;
 
-    public List<Broker> getBrokers() {
+    /**
+     * Get the list of brokers
+     *
+     * @return The list of brokers
+     */
+    List<Broker> getBrokers() {
         return brokers;
     }
 
-    public void setBrokers(List<Broker> brokers) {
+    /**
+     * Set the list of brokers
+     *
+     * @param brokers The list of brokers
+     */
+    void setBrokers(List<Broker> brokers) {
         this.brokers = brokers;
     }
 
-    public int getCertVersion() {
+    /**
+     * Get the certificate version
+     *
+     * @return The certificate version
+     */
+    int getCertVersion() {
         return certVersion;
     }
 
-    public void setCertVersion(int certVersion) {
+    /**
+     * Set the certificate version
+     *
+     * @param certVersion The certificate version
+     */
+    void setCertVersion(int certVersion) {
         this.certVersion = certVersion;
     }
 }

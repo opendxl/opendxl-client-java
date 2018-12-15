@@ -1,6 +1,5 @@
 package com.opendxl.client.cli;
 
-import com.opendxl.client.cli.certs.CsrAndPrivateKeyGenerator;
 import org.bouncycastle.operator.OperatorCreationException;
 import picocli.CommandLine;
 
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * The CLI arguments related to cryptography
  */
-public class CryptoArgs {
+class CryptoArgs {
 
     /**
      * The file prefix used on CSR, key, and cert files
@@ -121,7 +120,7 @@ public class CryptoArgs {
      * @param configDir The configuration directory
      * @return The full private key file name including configuration directory and file prefix
      */
-    public String privateKeyFileName(String configDir) {
+    String privateKeyFileName(String configDir) {
         return configDir + File.separatorChar + this.filePrefix + ".key";
     }
 
@@ -131,7 +130,7 @@ public class CryptoArgs {
      * @param configDir The configuration directory
      * @return The full CSR file name including configuration directory and file prefix
      */
-    public String csrFileName(String configDir) {
+    String csrFileName(String configDir) {
         return configDir + File.separatorChar + this.filePrefix + ".csr";
     }
 
@@ -141,7 +140,7 @@ public class CryptoArgs {
      * @param configDir The configuration directory
      * @return The full certificate file name including configuration directory and file prefix
      */
-    public String certFileName(String configDir) {
+    String certFileName(String configDir) {
         return configDir + File.separatorChar + this.filePrefix + ".crt";
     }
 
@@ -150,7 +149,7 @@ public class CryptoArgs {
      *
      * @return The Subject Alternative Names to be added to a CSR
      */
-    public List<String> getSubjectAlternativeNames() {
+    List<String> getSubjectAlternativeNames() {
         return subjectAlternativeNames;
     }
 
@@ -159,7 +158,7 @@ public class CryptoArgs {
      *
      * @param subjectAlternativeNames The Subject Alternative Names to be added to a CSR
      */
-    public void setSubjectAlternativeNames(List<String> subjectAlternativeNames) {
+    void setSubjectAlternativeNames(List<String> subjectAlternativeNames) {
         this.subjectAlternativeNames = subjectAlternativeNames;
     }
 
@@ -168,7 +167,7 @@ public class CryptoArgs {
      *
      * @return The file prefix used on CSR, key, and cert files
      */
-    public String getFilePrefix() {
+    String getFilePrefix() {
         return filePrefix;
     }
 
@@ -177,7 +176,7 @@ public class CryptoArgs {
      *
      * @param filePrefix The file prefix used on CSR, key, and cert files
      */
-    public void setFilePrefix(String filePrefix) {
+    void setFilePrefix(String filePrefix) {
         this.filePrefix = filePrefix;
     }
 
@@ -186,7 +185,7 @@ public class CryptoArgs {
      *
      * @return The passphrase to use for the private key
      */
-    public String getPassphrase() {
+    String getPassphrase() {
         return passphrase;
     }
 
@@ -195,7 +194,7 @@ public class CryptoArgs {
      *
      * @param passphrase The passphrase to use for the private key
      */
-    public void setPassphrase(String passphrase) {
+    void setPassphrase(String passphrase) {
         this.passphrase = passphrase;
     }
 
@@ -204,7 +203,7 @@ public class CryptoArgs {
      *
      * @return The country to use in a CSR's Subject DN
      */
-    public String getCountry() {
+    String getCountry() {
         return country;
     }
 
@@ -213,7 +212,7 @@ public class CryptoArgs {
      *
      * @param country The country to use in a CSR's Subject DN
      */
-    public void setCountry(String country) {
+    void setCountry(String country) {
         this.country = country;
     }
 
@@ -222,7 +221,7 @@ public class CryptoArgs {
      *
      * @return The State or province (ST) to use in a CSR's Subject DN
      */
-    public String getStateOrProvince() {
+    String getStateOrProvince() {
         return stateOrProvince;
     }
 
@@ -231,7 +230,7 @@ public class CryptoArgs {
      *
      * @param stateOrProvince The State or province (ST) to use in a CSR's Subject DN
      */
-    public void setStateOrProvince(String stateOrProvince) {
+    void setStateOrProvince(String stateOrProvince) {
         this.stateOrProvince = stateOrProvince;
     }
 
@@ -240,7 +239,7 @@ public class CryptoArgs {
      *
      * @return The Locality (L) to use in a CSR's Subject DN
      */
-    public String getLocality() {
+    String getLocality() {
         return locality;
     }
 
@@ -249,7 +248,7 @@ public class CryptoArgs {
      *
      * @param locality The Locality (L) to use in a CSR's Subject DN
      */
-    public void setLocality(String locality) {
+    void setLocality(String locality) {
         this.locality = locality;
     }
 
@@ -258,7 +257,7 @@ public class CryptoArgs {
      *
      * @return The Organization (O) to use in a CSR's Subject DN
      */
-    public String getOrganization() {
+    String getOrganization() {
         return organization;
     }
 
@@ -267,7 +266,7 @@ public class CryptoArgs {
      *
      * @param organization The organization (O) to use in a CSR's Subject DN
      */
-    public void setOrganization(String organization) {
+    void setOrganization(String organization) {
         this.organization = organization;
     }
 
@@ -276,7 +275,7 @@ public class CryptoArgs {
      *
      * @return The Organizational Unit (OU) to use in a CSR's Subject DN
      */
-    public String getOrganizationalUnit() {
+    String getOrganizationalUnit() {
         return organizationalUnit;
     }
 
@@ -285,7 +284,7 @@ public class CryptoArgs {
      *
      * @param organizationalUnit The Organizational Unit (OU) to use in a CSR's Subject DN
      */
-    public void setOrganizationalUnit(String organizationalUnit) {
+    void setOrganizationalUnit(String organizationalUnit) {
         this.organizationalUnit = organizationalUnit;
     }
 
@@ -294,7 +293,7 @@ public class CryptoArgs {
      *
      * @return The e-mail address to use in the CSR's Subject DN
      */
-    public String getEmail() {
+    String getEmail() {
         return email;
     }
 
@@ -303,7 +302,7 @@ public class CryptoArgs {
      *
      * @param email The e-mail address to use in the CSR's Subject DN
      */
-    public void setEmail(String email) {
+    void setEmail(String email) {
         this.email = email;
     }
 }

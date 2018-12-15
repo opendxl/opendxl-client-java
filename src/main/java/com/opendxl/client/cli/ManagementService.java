@@ -48,7 +48,7 @@ import java.util.List;
 /**
  * Helpers for making requests to a Management Service for CLI subcommands
  */
-public class ManagementService {
+class ManagementService {
 
     /**
      * Colon delimiter use to delimit the response status and result of
@@ -67,11 +67,11 @@ public class ManagementService {
     /**
      * The default connection pool maximum total of connections
      */
-    public static final int DEFAULT_CONN_POOL_MAX_TOTAL = 100;
+    private static final int DEFAULT_CONN_POOL_MAX_TOTAL = 100;
     /**
      * The default connection pool maximum total of connections per route
      */
-    public static final int DEFAULT_CONN_POOL_MAX_PER_ROUTE = 100;
+    private static final int DEFAULT_CONN_POOL_MAX_PER_ROUTE = 100;
 
     //
     // Timeouts
@@ -79,15 +79,15 @@ public class ManagementService {
     /**
      * The default initial connect timeout
      */
-    public static final int DEFAULT_CONNECT_TIMEOUT = 5000;
+    private static final int DEFAULT_CONNECT_TIMEOUT = 5000;
     /**
      * The default connection request timeout
      */
-    public static final int DEFAULT_CONNECT_REQUEST_TIMEOUT = 5000;
+    private static final int DEFAULT_CONNECT_REQUEST_TIMEOUT = 5000;
     /**
      * The default socket timeout
      */
-    public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
+    private static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 
     //
     // TLS
@@ -144,7 +144,7 @@ public class ManagementService {
      * @throws IOException              If there is an error creating a key store from the certificates in the
      *                                  trust store file
      */
-    public ManagementService(String host, int port, String userName, String password, String trustStoreFile)
+    ManagementService(String host, int port, String userName, String password, String trustStoreFile)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException,
             IOException {
         this.host = host;
@@ -306,7 +306,7 @@ public class ManagementService {
      * @throws URISyntaxException If there is an issue creating the Management Service URL with the input command name
      * @throws IOException        If the response from invoked command is invalid
      */
-    public <T> T invokeCommand(String commandName, List<NameValuePair> parameters, Class<T> returnTypeClass)
+    <T> T invokeCommand(String commandName, List<NameValuePair> parameters, Class<T> returnTypeClass)
             throws URISyntaxException,
             IOException {
         HttpGet request = new HttpGet(this.baseUrl + "/" + commandName);

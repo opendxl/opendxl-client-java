@@ -1,4 +1,4 @@
-package com.opendxl.client.cli.certs;
+package com.opendxl.client.cli;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -20,7 +20,7 @@ import java.util.Collection;
 /**
  * Utility class for dealing with certificates.
  */
-public class CertUtils {
+class CertUtils {
     /**
      * The logger
      */
@@ -60,7 +60,7 @@ public class CertUtils {
      * @param pemEncryptor PEM encryption to use when writing the file to disk
      * @throws IOException If there is an issue writing the file to disk
      */
-    public static void writePemFile(String fileName, PemObject pemObject, PEMEncryptor pemEncryptor)
+    static void writePemFile(String fileName, PemObject pemObject, PEMEncryptor pemEncryptor)
             throws IOException {
         File file = new File(fileName.substring(0, fileName.lastIndexOf(File.separator)));
         if (!file.exists()) {
@@ -79,7 +79,7 @@ public class CertUtils {
      * @param certChain The certificate chain of certificates to write to a single file.
      * @throws IOException If there is an issue writing the file to disk
      */
-    public static void writePemFile(String fileName, Collection<? extends Certificate> certChain) throws IOException {
+    static void writePemFile(String fileName, Collection<? extends Certificate> certChain) throws IOException {
         File file = new File(fileName);
         logger.info(String.format("Saving %s file to %s", file.getName(), file.getParent()));
 
@@ -105,7 +105,7 @@ public class CertUtils {
      * @param certString The string containing one or more certificates
      * @throws Exception If there is an issue converting the input certificate string to one or more certificates
      */
-    public static void writePemFile(String fileName, String certString) throws Exception {
+    static void writePemFile(String fileName, String certString) throws Exception {
         if (StringUtils.isBlank(certString)) {
             throw new Exception("Cert string is blank");
         }

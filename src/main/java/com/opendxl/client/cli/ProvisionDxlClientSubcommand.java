@@ -2,7 +2,6 @@ package com.opendxl.client.cli;
 
 import com.opendxl.client.Broker;
 import com.opendxl.client.DxlClientConfig;
-import com.opendxl.client.cli.certs.CertUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
@@ -118,7 +117,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "provisionconfig", description = "Download and provision the DXL client configuration",
         mixinStandardHelpOptions = true)
-public class ProvisionDxlClientSubcommand implements Subcommand {
+class ProvisionDxlClientSubcommand implements Subcommand {
 
     /**
      * The logger

@@ -9,7 +9,7 @@ import java.io.IOException;
  * Class containing members used for cli subcommands which communicating with a server require,
  * e.g., hostname and credential information.
  */
-public class ServerArgs {
+class ServerArgs {
 
 //    @CommandLine.Parameters(index = "${sys:hostNameParamIndex}", paramLabel = "HOSTNAME",
 //            description = "Hostname where the management service resides")
@@ -49,7 +49,7 @@ public class ServerArgs {
      *
      * @return The user registered at the management service
      */
-    public String getUser() {
+    String getUser() {
         return user;
     }
 
@@ -58,7 +58,7 @@ public class ServerArgs {
      *
      * @param user The user registered at the management service
      */
-    public void setUser(String user) {
+    void setUser(String user) {
         this.user = user;
     }
 
@@ -67,7 +67,7 @@ public class ServerArgs {
      *
      * @return The password for the management service user
      */
-    public String getPassword() {
+    String getPassword() {
         return password;
     }
 
@@ -76,7 +76,7 @@ public class ServerArgs {
      *
      * @param password The password for the management service user
      */
-    public void setPassword(String password) {
+    void setPassword(String password) {
         this.password = password;
     }
 
@@ -85,7 +85,7 @@ public class ServerArgs {
      *
      * @return The port where the management service resides
      */
-    public int getPort() {
+    int getPort() {
         return port;
     }
 
@@ -94,7 +94,7 @@ public class ServerArgs {
      *
      * @param port The port where the management service resides
      */
-    public void setPort(int port) {
+    void setPort(int port) {
         this.port = port;
     }
 
@@ -103,7 +103,7 @@ public class ServerArgs {
      *
      * @return The name of file containing one or more CA pems to use in validating the management server
      */
-    public String getTrustStoreFile() {
+    String getTrustStoreFile() {
         return trustStoreFile;
     }
 
@@ -112,7 +112,7 @@ public class ServerArgs {
      *
      * @param trustStoreFile The name of file containing one or more CA pems to use in validating the management server
      */
-    public void setTrustStoreFile(String trustStoreFile) {
+    void setTrustStoreFile(String trustStoreFile) {
         this.trustStoreFile = trustStoreFile;
     }
 
@@ -121,7 +121,7 @@ public class ServerArgs {
      *
      * @throws IOException If there is an issue getting data from the CLI
      */
-    public void promptServerArgs() throws IOException {
+    void promptServerArgs() throws IOException {
         if (StringUtils.isBlank(user)) {
             this.user = CommandLineInterface.getValueFromPrompt("server username", false);
         }
@@ -130,6 +130,4 @@ public class ServerArgs {
             this.password = CommandLineInterface.getValueFromPrompt("server password", false);
         }
     }
-
-
 }
