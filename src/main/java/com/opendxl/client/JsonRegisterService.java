@@ -2,12 +2,10 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.json;
+package com.opendxl.client;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.opendxl.client.DxlClient;
-import com.opendxl.client.ServiceRegistrationInfo;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,39 +16,44 @@ import java.util.Set;
  * Payload for a request to register a service with the Data Exchange Layer (DXL) fabric.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class JsonRegisterService extends AbstractJsonMessage {
+class JsonRegisterService extends AbstractJsonMessage {
+
     /**
      * The service type
      */
     private final String serviceType;
+
     /**
-     * The service instance ID
+     * The service instance identifier
      */
     private final String instanceId;
+
     /**
+     *
      * The set of registered channels
      */
     private final Set<String> requestChannels;
+
     /**
      * The map of meta data associated with this service (name-value pairs)
      */
     private final Map<String, String> metadata;
+
     /**
      * The Time-To-Live (TTL) of the service registration (in minutes)
      */
     private final long ttlMins;
 
     /**
-     * Constructs the JsonRegisterService object
+     * Constructor for {@link JsonRegisterService}
      *
      * @param service The service registration info
-     * @param client  The related DXL client
+     * @param client The related DXL client
      */
-    public JsonRegisterService(final DxlClient client, final ServiceRegistrationInfo service) {
+    JsonRegisterService(final DxlClient client, final ServiceRegistrationInfo service) {
         if (service == null) {
             throw new IllegalArgumentException("Undefined service object");
         }
-
         this.serviceType = service.getServiceType();
         this.instanceId = service.getServiceId();
         this.requestChannels = (service.getCallbacksByTopic().isEmpty() ? null
@@ -70,7 +73,7 @@ public class JsonRegisterService extends AbstractJsonMessage {
      * @param ttlMins The ttl in minutes
      * @param client  The related DXL client
      */
-    public JsonRegisterService(final DxlClient client, final String serviceType, final String instanceId,
+    JsonRegisterService(final DxlClient client, final String serviceType, final String instanceId,
                                final Set<String> requestChannels, final Map<String, String> metaData,
                                final long ttlMins) {
         this.serviceType = serviceType;
@@ -91,9 +94,9 @@ public class JsonRegisterService extends AbstractJsonMessage {
     }
 
     /**
-     * Returns the instance ID of the service
+     * Returns the instance identifier of the service
      *
-     * @return The instance ID of the service
+     * @return The instance identifier of the service
      */
     @JsonProperty("serviceGuid")
     public String getInstanceId() {

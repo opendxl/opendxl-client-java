@@ -5,12 +5,20 @@
 package com.opendxl.client;
 
 import com.opendxl.client.callback.RequestCallback;
-import com.opendxl.client.json.JsonRegisterService;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Test the serialization (to JSON) of {@link ServiceRegistrationInfo}
+ */
 public class ServiceRegistrationInfoTest {
+
+    /**
+     * Test serialization without any topics
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testSerializeWithNoData() throws Exception {
         ServiceRegistrationInfo info = new ServiceRegistrationInfo(null, "/mcafee/service/JTI");
@@ -21,12 +29,16 @@ public class ServiceRegistrationInfoTest {
         assertTrue(result.contains("\"serviceGuid\":\"" + info.getServiceId() + "\""));
     }
 
+    /**
+     * Test serialization with topics
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testSerialize() throws Exception {
         ServiceRegistrationInfo info = new ServiceRegistrationInfo(null, "/mcafee/service/JTI");
 
-        final RequestCallback requestCallback = request -> {
-        };
+        final RequestCallback requestCallback = request -> { };
 
         info.addTopic("/mcafee/service/JTI/file/reputation", requestCallback);
         info.addTopic("/mcafee/service/JTI/cert/reputation", requestCallback);

@@ -119,6 +119,7 @@ distributions {
             from(shadowJar) {
                 into("sample/lib")
             }
+            from('distribution')
         }
     }
 }

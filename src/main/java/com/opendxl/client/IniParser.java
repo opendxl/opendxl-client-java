@@ -2,7 +2,7 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.util;
+package com.opendxl.client;
 
 // This is a highly modified version of 'java-configparser: a Python-compatible Java INI parser'.
 // [https://github.com/ASzc/java-configparser]
@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
  *
  * @see <a href="https://github.com/ASzc/java-configparser">https://github.com/ASzc/java-configparser</a>
  */
-public class IniParser {
+class IniParser {
 
     /** Pattern for non-whitespace characters */
     private static final Pattern nonWhitespacePattern = Pattern.compile("\\S");
@@ -65,7 +65,7 @@ public class IniParser {
     /**
      * Constructs the parser
      */
-    public IniParser() {
+    IniParser() {
         // Comment prefixes
         commentPrefixes.add("#");
         commentPrefixes.add(";");
@@ -106,9 +106,9 @@ public class IniParser {
     /**
      * Returns the values for the specified section
      *
-     * @param   sectionName The section name
-     * @return  The values for the specified section
-     * @throws  Exception If an error occurs
+     * @param sectionName The section name
+     * @return The values for the specified section
+     * @throws Exception If an error occurs
      */
     public Map<String, String> getSection(final String sectionName) throws Exception {
         final Map<String, String> section = sections.get(sectionName);
@@ -121,10 +121,10 @@ public class IniParser {
     /**
      * Returns the value for the specified key in the specified section
      *
-     * @param   sectionName The section name
-     * @param   keyName The key name
-     * @return  The value
-     * @throws  Exception If an error occurs
+     * @param sectionName The section name
+     * @param  keyName The key name
+     * @return The value
+     * @throws Exception If an error occurs
      */
     public String getValue(final String sectionName, final String keyName) throws Exception {
         final String value = getSection(sectionName).get(keyName.toLowerCase());
@@ -138,10 +138,10 @@ public class IniParser {
     /**
      * Returns the value for the specified key in the specified section
      *
-     * @param   sectionName The section name
-     * @param   keyName The key name
-     * @param   defaultValue A default value (if a value is not found)
-     * @return  The value
+     * @param sectionName The section name
+     * @param keyName The key name
+     * @param defaultValue A default value (if a value is not found)
+     * @return The value
      */
     public String getValue(final String sectionName, final String keyName,
                            final String defaultValue) {
@@ -152,6 +152,13 @@ public class IniParser {
         }
     }
 
+    /**
+     * Adds a value for the specified key in the specified section
+     *
+     * @param sectionName The section name
+     * @param keyName The key name
+     * @param value The value
+     */
     public void addValue(final String sectionName, final String keyName, final String value) {
         Map<String, String> keyValueMap = sections.containsKey(sectionName) ? sections.get(sectionName)
                 : new LinkedHashMap<>();
@@ -161,10 +168,10 @@ public class IniParser {
     }
 
     /**
-     * Reads teh configuration file from the specified {@link BufferedReader}
+     * Reads the configuration file from the specified {@link BufferedReader}
      *
-     * @param   reader The {@link BufferedReader}
-     * @throws  Exception If an error occurs
+     * @param reader The {@link BufferedReader}
+     * @throws Exception If an error occurs
      */
     public void read(final BufferedReader reader) throws Exception {
         final Map<String, Map<String, List<String>>> unjoinedSections = new LinkedHashMap<>();
@@ -299,8 +306,8 @@ public class IniParser {
     /**
      * Reads the specified configuration file
      *
-     * @param   iniPath The path to the configuration file
-     * @throws  Exception If an error occurs
+     * @param iniPath The path to the configuration file
+     * @throws Exception If an error occurs
      */
     public void read(final String iniPath) throws Exception {
         if (iniPath == null) {
@@ -314,8 +321,8 @@ public class IniParser {
     /**
      * Writes the current configuration to the specified file
      *
-     * @param   iniPath The path to the destination configuration file
-     * @throws  Exception If an error occurs
+     * @param iniPath The path to the destination configuration file
+     * @throws Exception If an error occurs
      */
     public void write(final String iniPath) throws Exception {
         if (iniPath == null) {

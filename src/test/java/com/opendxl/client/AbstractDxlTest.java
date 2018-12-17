@@ -17,7 +17,7 @@ public abstract class AbstractDxlTest {
     /**
      * Default timeout
      */
-    static final long DEFAULT_TIMEOUT = 5 * 60 * 1000;
+    public static final long DEFAULT_TIMEOUT = 5 * 60 * 1000;
 
     /**
      * Invoked prior to running test

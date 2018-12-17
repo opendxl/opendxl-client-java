@@ -4,16 +4,23 @@
 
 package com.opendxl.client.callback;
 
+import com.opendxl.client.ServiceRegistrationInfo;
 import com.opendxl.client.message.Request;
 
 /**
- * Callback interface to receive {@link Request} messages.
+ * Concrete instances of this interface are used to receive {@link Request} messages.
+ * <P>
+ * Request callbacks are typically used when implementing a "service".
+ * </P>
+ * <P>
+ * See {@link ServiceRegistrationInfo} for more information on how to register a service.
+ * </P>
  */
 public interface RequestCallback extends MessageCallback {
     /**
      * Invoked when a {@link Request} has been received.
      *
-     * @param request The request
+     * @param request The {@link Request} message that was received
      */
     void onRequest(Request request);
 }

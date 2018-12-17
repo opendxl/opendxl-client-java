@@ -8,7 +8,6 @@ import com.opendxl.client.callback.EventCallback;
 import com.opendxl.client.message.Event;
 import com.opendxl.client.message.Response;
 import com.opendxl.client.testutil.impl.DxlClientImplFactory;
-import com.opendxl.client.util.DxlUtils;
 import com.opendxl.client.util.UuidGenerator;
 import org.junit.Test;
 
@@ -27,38 +26,10 @@ import static org.junit.Assert.assertTrue;
  * Test for wildcarding support
  */
 public class WildcardTest extends AbstractDxlTest {
-//    @Test
-//    public void testWildcardAuth() throws Exception
-//    {
-//        final DxlClientConfig config = DxlClientImplFactory.getDefaultInstance().getConfig();
-//        config.setUniqueId( "{8a490551-5521-4b48-80f4-c909912be9da}" );
-//
-//        try (final DxlClient client = DxlClientImpl.newInstance( config, DxlClientImplFactory.getDefaultInstance() ) )
-//        {
-//            client.connect();
-//            client.subscribe( "/foo/#" );
-//            client.addEventCallback( null,
-//                new EventCallback()
-//                {
-//                    @Override
-//                    public void onEvent( final Event event )
-//                    {
-//                        System.out.println( event.getDestinationChannel() );
-//                    }
-//                }
-//             );
-//
-//            final Event evt = new Event( client, "/foo/bar" );
-//
-//            client.sendEvent( evt );
-//
-//            Thread.sleep( 2 * 1000 );
-//        }
-//    }
 
     /**
-     * Worker associated with test to determine whether Bug 1060219 - "Performance of Broker degrades when
-     * subscribing to channel (with a lot of subscriptions) using wildcards" has been fixed.
+     * Worker to ensure performance of broker does not degrade when subscribing to topic (with a lot of subscriptions)
+     * using wildcards.
      */
     private long measurePerformance(
         final DxlClient client, final boolean withWildcard, final boolean topicExists
@@ -122,8 +93,8 @@ public class WildcardTest extends AbstractDxlTest {
     }
 
     /**
-     * Test to determine whether Bug 1060219 - "Performance of Broker degrades when subscribing to channel
-     * (with a lot of subscriptions) using wildcards" has been fixed.
+     * Test to ensure performance of broker does not degrade when subscribing to topic (with a lot of subscriptions)
+     * using wildcards.
      */
     @Test
     public void testWildcardPerformance() throws Exception {

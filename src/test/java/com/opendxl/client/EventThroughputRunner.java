@@ -22,6 +22,7 @@ import static org.junit.Assert.fail;
  * Measures the throughput of DXL events
  */
 public class EventThroughputRunner extends AbstractRunner {
+
     /**
      * The number of threads (clients)
      */

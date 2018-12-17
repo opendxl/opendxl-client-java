@@ -9,7 +9,6 @@ import com.opendxl.client.exception.DxlException;
 import com.opendxl.client.exception.WaitTimeoutException;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
-import com.opendxl.client.util.DxlUtils;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;

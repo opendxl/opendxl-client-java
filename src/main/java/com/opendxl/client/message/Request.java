@@ -11,52 +11,56 @@ import org.msgpack.unpacker.BufferUnpacker;
 import java.io.IOException;
 
 /**
- * A request message.
+ * A {@link Request} messages are sent using the {@link DxlClient#syncRequest} and {@link DxlClient#asyncRequest}
+ * methods of a client instance. Request messages are used when invoking a method on a remote service.
+ * This communication is one-to-one where a client sends a request to a service instance and in turn receives
+ * a response.
  */
 public class Request extends Message {
+
     /**
      * The topic used to reply to this request
      */
     private String replyToTopic;
-    /**
-     * The service GUID
-     */
-    private String serviceGuid;
 
     /**
-     * Constructs the request
+     * The service identifier
      */
-    Request() {
-    }
+    private String serviceId;
 
     /**
-     * Constructs the request
+     * Constructor for {@link Request}
+     */
+    Request() { }
+
+    /**
+     * Constructor for {@link Request}
      *
      * @param client The client that will be sending this request.
-     * @param destinationTopic The topic to publish the request on.
+     * @param destinationTopic The topic to publish the request to
      */
     public Request(final DxlClient client, final String destinationTopic) {
         this(client.getUniqueId(), destinationTopic);
     }
 
     /**
-     * Constructs the request
+     * Constructor for {@link Request}
      *
-     * @param destinationTopic The topic to publish the request on.
+     * @param destinationTopic The topic to publish the request to
      */
     public Request(final String destinationTopic) {
         this((String) null, destinationTopic);
     }
 
     /**
-     * Constructs the request
+     * Constructor for {@link Request}
      *
-     * @param sourceClientId     The ID of the client that will be sending this message.
-     * @param destinationTopic The topic to publish the request on.
+     * @param sourceClientId The identifier of the client that will be sending this message.
+     * @param destinationTopic The topic to publish the request to
      */
     public Request(final String sourceClientId, final String destinationTopic) {
         super(sourceClientId, destinationTopic);
-        this.serviceGuid = "";
+        this.serviceId = "";
     }
 
     /**
@@ -68,58 +72,60 @@ public class Request extends Message {
     }
 
     /**
-     * Returns the topic used to reply to this request.
+     * Returns the topic that the {@link Response} to this {@link Request} will be sent to
      *
-     * @return The topic used to reply to this request.
+     * @return The topic that the {@link Response} to this {@link Request} will be sent to
      */
     public String getReplyToTopic() {
         return this.replyToTopic;
     }
 
     /**
-     * Sets the topic used to reply to this request.
+     * Sets the topic that the {@link Response} to this {@link Request} will be sent to
      *
-     * @param topic The topic used to reply to this request.
+     * @param topic the topic that the {@link Response} to this {@link Request} will be sent to
      */
     public void setReplyToTopic(final String topic) {
         this.replyToTopic = topic;
     }
 
     /**
-     * Returns the GUID of the service associated with this request
+     * Returns the identifier of the service that this request will be routed to. If an identifier is not specified,
+     * the initial broker that receives the request will select the service to handle the request
+     * (round-robin by default).
      *
-     * @return The GUID of the service associated with this request
+     * @return The identifier of the service that this request will be routed to.
      */
-    public String getServiceGuid() {
-        return this.serviceGuid;
+    public String getServiceId() {
+        return this.serviceId;
     }
 
     /**
-     * Sets the GUID of the service associated with this request
+     * Sets the identifier of the service that this request will be routed to.
      *
-     * @param serviceGuid The GUID of the service associated with this request
+     * @param serviceId The identifier of the service that this request will be routed to.
      */
-    public void setServiceGuid(final String serviceGuid) {
-        this.serviceGuid = serviceGuid;
+    public void setServiceId(final String serviceId) {
+        this.serviceId = serviceId;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void packMessage(final Packer packer) throws IOException {
+    void packMessage(final Packer packer) throws IOException {
         super.packMessage(packer);
         packer.write(this.replyToTopic.getBytes(CHARSET_ASCII));
-        packer.write(this.serviceGuid.getBytes(CHARSET_ASCII));
+        packer.write(this.serviceId.getBytes(CHARSET_ASCII));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void unpackMessage(final BufferUnpacker unpacker) throws IOException {
+    void unpackMessage(final BufferUnpacker unpacker) throws IOException {
         super.unpackMessage(unpacker);
         this.replyToTopic = new String(unpacker.readByteArray(), CHARSET_ASCII);
-        this.serviceGuid = new String(unpacker.readByteArray(), CHARSET_ASCII);
+        this.serviceId = new String(unpacker.readByteArray(), CHARSET_ASCII);
     }
 }

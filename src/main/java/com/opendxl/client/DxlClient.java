@@ -12,8 +12,6 @@ import com.opendxl.client.message.Event;
 import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
-import com.opendxl.client.ssl.SSLValidationSocketFactory;
-import com.opendxl.client.util.Executors;
 import org.apache.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;

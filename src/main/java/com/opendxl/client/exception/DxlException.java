@@ -8,6 +8,7 @@ package com.opendxl.client.exception;
  * A general Data Exchange Layer (DXL) Exception
  */
 public class DxlException extends Exception {
+
     /**
      * Constructs the exception
      *
@@ -21,7 +22,7 @@ public class DxlException extends Exception {
      * Constructs the exception
      *
      * @param message The message associated with the exception
-     * @param cause   The cause of the exception
+     * @param cause The cause of the exception
      */
     public DxlException(final String message, final Throwable cause) {
         super(message, cause);
@@ -36,9 +37,7 @@ public class DxlException extends Exception {
         super(cause);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     public String getMessage() {
         final StringBuilder buff = new StringBuilder(super.getMessage());

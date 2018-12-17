@@ -5,7 +5,11 @@
 package com.opendxl.client.callback;
 
 /**
- * Marker interface for message callbacks.
+ * Interface implemented by the different callbacks
+ *
+ * @see EventCallback
+ * @see RequestCallback
+ * @see ResponseCallback
  */
 public interface MessageCallback {
 }

@@ -8,9 +8,9 @@ package com.opendxl.client.exception;
  * A malformed broker exception for use with Data Exchange Layer (DXL)
  */
 public class MalformedBrokerException extends DxlException {
+
     /**
-     * Constructs a <code>MalformedBrokerException</code> with the
-     * specified detail message.
+     * Constructs a <code>MalformedBrokerException</code> with the specified detail message.
      *
      * @param message The message associated with the exception
      */
@@ -19,8 +19,7 @@ public class MalformedBrokerException extends DxlException {
     }
 
     /**
-     * Constructs a <code>MalformedBrokerException</code> with the
-     * specified detail message.
+     * Constructs a <code>MalformedBrokerException</code> with the specified detail message.
      *
      * @param message The message associated with the exception
      * @param cause   The cause of the exception

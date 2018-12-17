@@ -4,6 +4,8 @@
 
 package com.opendxl.client;
 
+import com.opendxl.client.message.MessagePayloadRunner;
+
 /**
  * Runners allows large test cases to be broken out into individual classes, but still be part of a larger suite of
  * tests that can be inherited via a common base class. The {@link DxlClientTest} contains a suite of tests

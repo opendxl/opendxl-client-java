@@ -11,42 +11,44 @@ import org.msgpack.unpacker.BufferUnpacker;
 import java.io.IOException;
 
 /**
- * An event message
+ * Event messages are sent using the {@link DxlClient#sendEvent} method of a client instance. Event messages are sent
+ * by one publisher and received by one or more recipients that are currently subscribed to the
+ * {@link Message#getDestinationTopic} associated with the event (otherwise known as one-to-many).
  */
 public class Event extends Message {
     /**
-     * Constructs the event message
+     * Constructor for {@link Event} message
      */
     Event() {
     }
 
     /**
-     * Constructs the event message
+     * Constructor for {@link Event} message
      *
-     * @param client             The client that will be sending this event.
-     * @param destinationChannel The channel to publish the event on.
+     * @param client The client that will be sending this event.
+     * @param destinationTopic The topic to publish the message to
      */
-    public Event(final DxlClient client, final String destinationChannel) {
-        this(client.getUniqueId(), destinationChannel);
+    public Event(final DxlClient client, final String destinationTopic) {
+        this(client.getUniqueId(), destinationTopic);
     }
 
     /**
-     * Constructs the event message
+     * Constructor for {@link Event} message
      *
-     * @param destinationChannel The channel to publish the event on.
+     * @param destinationTopic The topic to publish the message to
      */
-    public Event(final String destinationChannel) {
-        this((String) null, destinationChannel);
+    public Event(final String destinationTopic) {
+        this((String) null, destinationTopic);
     }
 
     /**
-     * Constructs the event message
+     * Constructor for {@link Event} message
      *
-     * @param sourceClientId     The ID of the client that will be sending this message.
-     * @param destinationChannel The channel to publish the event on.
+     * @param sourceClientId  The identifier of the client that will be sending this message.
+     * @param destinationTopic The topic to publish the message to
      */
-    public Event(final String sourceClientId, final String destinationChannel) {
-        super(sourceClientId, destinationChannel);
+    public Event(final String sourceClientId, final String destinationTopic) {
+        super(sourceClientId, destinationTopic);
     }
 
     /**
@@ -61,7 +63,7 @@ public class Event extends Message {
      * {@inheritDoc}
      */
     @Override
-    protected void packMessage(Packer packer) throws IOException {
+    void packMessage(Packer packer) throws IOException {
         super.packMessage(packer);
     }
 
@@ -69,7 +71,7 @@ public class Event extends Message {
      * {@inheritDoc}
      */
     @Override
-    protected void unpackMessage(BufferUnpacker unpacker) throws IOException {
+    void unpackMessage(BufferUnpacker unpacker) throws IOException {
         super.unpackMessage(unpacker);
     }
 }

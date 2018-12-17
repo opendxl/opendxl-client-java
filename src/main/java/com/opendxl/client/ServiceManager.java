@@ -219,7 +219,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
      */
     @Override
     public void onRequest(final Request request) {
-        String serviceInstanceId = request.getServiceGuid();
+        String serviceInstanceId = request.getServiceId();
 
         // If no instance ID available, send to all registered instances
         //Bug 1228290 - SIA Partner Extension Tycon Rapid Query hangs indefinitely on check-in

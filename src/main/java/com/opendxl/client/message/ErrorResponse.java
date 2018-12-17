@@ -11,10 +11,13 @@ import org.msgpack.unpacker.BufferUnpacker;
 import java.io.IOException;
 
 /**
- * Represents an error that occurred when attempting to generate a response
- * to a request.
+ * {@link ErrorResponse} messages are sent by the DXL fabric itself or service instances upon receiving
+ * {@link Request} messages. The error response may indicate the inability to locate a service to handle the request
+ * or an internal error within the service itself. Error response messages are sent using the
+ * {@link DxlClient#sendResponse} method of a client instance.
  */
 public class ErrorResponse extends Response {
+
     /**
      * The error code
      */
@@ -26,19 +29,19 @@ public class ErrorResponse extends Response {
     private String errorMessage;
 
     /**
-     * Constructs the error response
+     * Constructor for {@link ErrorResponse}
      */
     ErrorResponse() {
         super();
     }
 
     /**
-     * Constructs the error response
+     * Constructor for {@link ErrorResponse}
      *
-     * @param client       The client that will be sending this response
-     * @param request      The request message that this will be a response for
-     * @param errorCode    The error code
-     * @param errorMessage The error message
+     * @param client The client that will be sending this response
+     * @param request The {@link Request} message that this will be a {@link Response} for
+     * @param errorCode The numeric error code
+     * @param errorMessage The textual error message
      */
     public ErrorResponse(
         final DxlClient client,
@@ -49,11 +52,11 @@ public class ErrorResponse extends Response {
     }
 
     /**
-     * Constructs the error response
+     * Constructor for {@link ErrorResponse}
      *
-     * @param request      The request message that this will be a response for
-     * @param errorCode    The error code
-     * @param errorMessage The error message
+     * @param request The {@link Request} message that this will be a {@link Response} for
+     * @param errorCode The numeric error code
+     * @param errorMessage The textual error message
      */
     public ErrorResponse(
         final Request request,
@@ -63,12 +66,12 @@ public class ErrorResponse extends Response {
     }
 
     /**
-     * Constructs the error response
+     * Constructor for {@link ErrorResponse}
      *
      * @param sourceClientId The ID of the client that will be sending this message.
-     * @param request        The request message that this will be a response for
-     * @param errorCode      The error code
-     * @param errorMessage   The error message
+     * @param request The {@link Request} message that this will be a {@link Response} for
+     * @param errorCode The numeric error code
+     * @param errorMessage The textual error message
      */
     public ErrorResponse(
         final String sourceClientId,
@@ -82,28 +85,18 @@ public class ErrorResponse extends Response {
     }
 
     /**
-     * Returns the error code
+     * Returns the numeric error code for the error response
      *
-     * @return The error code
+     * @return The numeric error code for the error response
      */
     public int getErrorCode() {
         return this.errorCode;
     }
 
     /**
-     * Returns the error code as a hex string
+     * Returns the textual error message
      *
-     * @return The error code as a hex string
-     */
-    public String getErrorCodeAsHex() {
-        return String.format(
-            "0x%8s", Integer.toHexString(this.errorCode).replace(' ', '0'));
-    }
-
-    /**
-     * Returns the error message
-     *
-     * @return The error message
+     * @return The textual error message
      */
     public String getErrorMessage() {
         return this.errorMessage;
@@ -121,7 +114,7 @@ public class ErrorResponse extends Response {
      * {@inheritDoc}
      */
     @Override
-    protected void packMessage(final Packer packer) throws IOException {
+    void packMessage(final Packer packer) throws IOException {
         super.packMessage(packer);
         packer.write(this.errorCode);
         packer.write(this.errorMessage.getBytes(CHARSET_UTF8));
@@ -131,7 +124,7 @@ public class ErrorResponse extends Response {
      * {@inheritDoc}
      */
     @Override
-    protected void unpackMessage(final BufferUnpacker unpacker) throws IOException {
+    void unpackMessage(final BufferUnpacker unpacker) throws IOException {
         super.unpackMessage(unpacker);
         this.errorCode = unpacker.readInt();
         this.errorMessage = new String(unpacker.readByteArray(), CHARSET_UTF8);

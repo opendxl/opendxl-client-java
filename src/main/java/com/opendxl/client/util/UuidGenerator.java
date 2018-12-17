@@ -7,8 +7,8 @@ package com.opendxl.client.util;
 import java.util.UUID;
 
 /**
- * Generator used to generate a universally unique identifier (UUID) string that
- * is all lowercase and has enclosing brackets (following McAfee Agent format)
+ * Generator used to generate a universally unique identifier (UUID) string that is all lowercase and has enclosing
+ * brackets
  */
 public class UuidGenerator {
 

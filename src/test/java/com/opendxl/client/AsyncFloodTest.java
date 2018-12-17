@@ -54,14 +54,14 @@ public class AsyncFloodTest extends AbstractDxlTest {
 
         final DxlClientConfig config = DxlClientImplFactory.getDefaultInstance().getConfig();
         config.setIncomingMessageQueueSize(10); // Small queue... to make it happen quicker
-        final String channel = UuidGenerator.generateIdAsString();
+        final String topic = UuidGenerator.generateIdAsString();
 
         try (DxlClient client = new DxlClient(config)) {
-            this.info = new ServiceRegistrationInfo(client, channel);
+            this.info = new ServiceRegistrationInfo(client, topic);
 
             client.connect();
-            client.subscribe(channel);
-            this.info.addTopic(channel,
+            client.subscribe(topic);
+            this.info.addTopic(topic,
                 request -> {
                     try {
                         Thread.sleep(50);
@@ -89,7 +89,7 @@ public class AsyncFloodTest extends AbstractDxlTest {
                         } else {
                             if (responseCount.incrementAndGet() % 10 == 0) {
                                 System.out.println("Received response: "
-                                    + responseCount.get() + ", " + response.getClientGuids().iterator().next());
+                                    + responseCount.get() + ", " + response.getClientIds().iterator().next());
                             }
                         }
 
@@ -104,7 +104,7 @@ public class AsyncFloodTest extends AbstractDxlTest {
                         System.out.println("Sent: " + i);
                     }
 
-                    final Request req = new Request(client2, channel);
+                    final Request req = new Request(client2, topic);
                     final String pl = Integer.toString(i);
                     req.setPayload(pl.getBytes());
                     client2.asyncRequest(req);

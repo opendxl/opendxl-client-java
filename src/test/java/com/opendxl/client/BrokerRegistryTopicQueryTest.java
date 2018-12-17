@@ -5,13 +5,11 @@
 package com.opendxl.client;
 
 import com.opendxl.client.exception.DxlException;
-import com.opendxl.client.json.AbstractJsonMessage;
 import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
 import com.opendxl.client.testutil.impl.DxlClientImplFactory;
-import com.opendxl.client.util.JsonUtils;
 import com.opendxl.client.util.UuidGenerator;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +59,7 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
      */
     @Test
     public void testSingleTopic() throws Exception {
-        final String channel = UuidGenerator.generateIdAsString();
+        final String topic = UuidGenerator.generateIdAsString();
 
         try (DxlClient client = DxlClientImplFactory.getDefaultInstance().newClientInstance()) {
             client.connect();
@@ -70,8 +68,8 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
             @SuppressWarnings("unchecked") final int initialSubscriptionCount = sendBrokerTopicQuery(
                 client, null, BROKER1_GUID, EMPTY_SET).getCount();
 
-            client.subscribe(channel);
-            System.out.println("## testSingleTopic channel = " + channel);
+            client.subscribe(topic);
+            System.out.println("## testSingleTopic topic = " + topic);
 
             final int expectedSubscriptionCount = 1 + initialSubscriptionCount;
 
@@ -89,26 +87,26 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
 
             //Query on one existing topic
             topics.clear();
-            topics.add(channel);
+            topics.add(topic);
             validateBrokerTopicQueryResponse(sendBrokerTopicQuery(client, null, BROKER1_GUID, topics),
                 expectedSubscriptionCount, true);
 
             //Query on existing topic and non-existing topic
             topics.clear();
-            topics.add(channel);
+            topics.add(topic);
             topics.add("not/gonna/find/it");
             validateBrokerTopicQueryResponse(sendBrokerTopicQuery(client, null, BROKER1_GUID, topics),
                 expectedSubscriptionCount, false);
 
             //Query on non existing broker guid
             topics.clear();
-            topics.add(channel);
+            topics.add(topic);
             validateBrokerTopicQueryResponse(sendBrokerTopicQuery(client, null, "{1234}", topics), 0, false);
 
             //Query on topic after unsubscribe with topic
-            client.unsubscribe(channel);
+            client.unsubscribe(topic);
             topics.clear();
-            topics.add(channel);
+            topics.add(topic);
             validateBrokerTopicQueryResponse(sendBrokerTopicQuery(client, null, BROKER1_GUID, topics),
                 initialSubscriptionCount, false);
 
@@ -117,7 +115,7 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
 
             //query on random topic, should match since client is subscribed to general wild card
             topics.clear();
-            //topics.add( channel );
+            //topics.add( topic );
             topics.add("/foo/#");
             System.out.println("## testSingleTopic subscribed to /foo/#");
             validateBrokerTopicQueryResponse(sendBrokerTopicQuery(client, null, BROKER1_GUID, topics),
@@ -170,9 +168,9 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
      */
     @Test
     public void testSubscriptionCountAfterDisconnect() throws Exception {
-        final String channel = UuidGenerator.generateIdAsString();
+        final String topic = UuidGenerator.generateIdAsString();
         final Set<String> topics = new HashSet<>();
-        topics.add(channel);
+        topics.add(topic);
 
         try (DxlClient client1 = DxlClientImplFactory.getDefaultInstance().newClientInstance()) {
             client1.connect();
@@ -185,9 +183,9 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
             try (DxlClient client2 = DxlClientImplFactory.getDefaultInstance().newClientInstance()) {
                 client2.connect();
 
-                client2.subscribe(channel);
+                client2.subscribe(topic);
                 final int expectedSubscriptionCount = 1 + initialSubscriptionCount;
-                System.out.println("## Subscribe to channel " + channel
+                System.out.println("## Subscribe to topic " + topic
                     + ". expectedSubscriptionCount:" + expectedSubscriptionCount);
                 validateBrokerTopicQueryResponse(sendBrokerTopicQuery(client2, null, BROKER1_GUID, topics),
                     expectedSubscriptionCount, true);
@@ -229,7 +227,7 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
         Request request = new Request(client, BROKERTOPIC_QUERY_TOPIC);
 
         if (targetBrokers != null && !targetBrokers.isEmpty()) {
-            request.setBrokerGuids(targetBrokers);
+            request.setBrokerIds(targetBrokers);
         }
 
         BrokerTopicQueryRequest brokerTopicQueryRequest = new BrokerTopicQueryRequest();
@@ -249,10 +247,10 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
         //Validate response came from a target broker
         if (targetBrokers != null && !targetBrokers.isEmpty()) {
             assertTrue("Broker Source guid did not match input target brokers",
-                targetBrokers.contains(response.getSourceBrokerGuid()));
+                targetBrokers.contains(response.getSourceBrokerId()));
         }
 
-        System.out.println("## response.getSourceBrokerGuid: " + response.getSourceBrokerGuid());
+        System.out.println("## response.getSourceBrokerGuid: " + response.getSourceBrokerId());
 
         String responsePayload = new String(response.getPayload(), Message.CHARSET_UTF8);
         System.out.println("## responsePayload: " + responsePayload);

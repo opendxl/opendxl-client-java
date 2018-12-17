@@ -39,7 +39,7 @@ public class BrokerRegistryQueryTest extends AbstractDxlTest {
             req.setPayload("{}".getBytes(Message.CHARSET_UTF8));
             final Response response = client.syncRequest(req);
             assertIsResponse(response);
-            System.out.println("## sourceBrokerGuid: " + response.getSourceBrokerGuid());
+            System.out.println("## sourceBrokerGuid: " + response.getSourceBrokerId());
             System.out.println("## sourceClientGuid: " + response.getSourceClientId());
             System.out.println(
                 new String(response.getPayload(), Message.CHARSET_UTF8));

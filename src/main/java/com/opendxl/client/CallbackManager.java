@@ -12,7 +12,6 @@ import com.opendxl.client.message.Event;
 import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
-import com.opendxl.client.util.DxlUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;

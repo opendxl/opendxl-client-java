@@ -13,32 +13,38 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
+/**
+ * Tests the registration of DXL services
+ */
 public class RegisterServiceTest extends AbstractDxlTest {
+    /** Delay after performing operation */
     private static final long POST_OP_DELAY = 1000L;
+    /** Wait time for registration/unregistration */
     private static final long REG_DELAY = 60 * 1000L;
 
+    /** The client */
     DxlClient client = null;
 
+    /** The registration callback */
     private final EventCounterCallback registerCallback = new EventCounterCallback();
+    /** The unregistration callback */
     private final EventCounterCallback unregisterCallback = new EventCounterCallback();
 
+    /** The service registration */
     private ServiceRegistrationInfo info = null;
+
+    /** The request callback */
     @SuppressWarnings("FieldCanBeLocal")
     private RequestCallback requestCallback = null;
 
+    /** {@inheritDoc} */
     @Before
     public void beforeTest() throws Exception {
         super.beforeTest();
 
         System.setProperty(Constants.SYSPROP_DEFAULT_WAIT, Long.toString(5 * 1000));
-
         client = DxlClientImplFactory.getDefaultInstance().newClientInstance();
 
         registerCallback.reset();
@@ -47,19 +53,16 @@ public class RegisterServiceTest extends AbstractDxlTest {
         client.addEventCallback(Constants.DXL_SERVICE_REGISTER_TOPIC, registerCallback);
         client.addEventCallback(Constants.DXL_SERVICE_UNREGISTER_TOPIC, unregisterCallback);
 
-        requestCallback = new RequestCallback() {
-            @Override
-            public void onRequest(final Request request) {
-                System.out.println(request.getDestinationTopic());
-                System.out.println(new String(request.getPayload()));
+        requestCallback = request -> {
+            System.out.println(request.getDestinationTopic());
+            System.out.println(new String(request.getPayload()));
 
-                Response response = new Response(client, request);
-                response.setPayload("Ok".getBytes());
-                try {
-                    client.sendResponse(response);
-                } catch (DxlException ex) {
-                    System.out.println("Failed to send response" + ex);
-                }
+            Response response = new Response(client, request);
+            response.setPayload("Ok".getBytes());
+            try {
+                client.sendResponse(response);
+            } catch (DxlException ex) {
+                System.out.println("Failed to send response" + ex);
             }
         };
 
@@ -72,6 +75,7 @@ public class RegisterServiceTest extends AbstractDxlTest {
         info.addTopic("/mcafee/service/JTI/cert/reputation/" + info.getServiceId(), requestCallback);
     }
 
+    /** {@inheritDoc} */
     @After
     public void afterTest() throws Exception {
         try {
@@ -81,6 +85,11 @@ public class RegisterServiceTest extends AbstractDxlTest {
         }
     }
 
+    /**
+     * Tests registering (async) a service prior to connect
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testRegisterServiceBeforeConnect() throws Exception {
         client.registerServiceAsync(info);
@@ -94,6 +103,11 @@ public class RegisterServiceTest extends AbstractDxlTest {
         assertEquals(1, unregisterCallback.get());
     }
 
+    /**
+     * Tests registering a service after connect
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testRegisterServiceAfterConnect() throws Exception {
         client.connect();
@@ -106,6 +120,11 @@ public class RegisterServiceTest extends AbstractDxlTest {
         assertEquals(1, unregisterCallback.get());
     }
 
+    /**
+     * Tests registering (async) a service but never connecting
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testRegisterServiceNeverConnect() throws Exception {
         client.registerServiceAsync(info);
@@ -117,6 +136,11 @@ public class RegisterServiceTest extends AbstractDxlTest {
         assertEquals(0, unregisterCallback.get());
     }
 
+    /**
+     * Tests registering (async) and unregistering a service before connecting
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testRegisterUnregisterServiceBeforeConnect() throws Exception {
         client.registerServiceAsync(info);
@@ -130,6 +154,11 @@ public class RegisterServiceTest extends AbstractDxlTest {
         assertEquals(0, unregisterCallback.get());
     }
 
+    /**
+     * Tests registering a service and sending a request
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testRegisterServiceAndSendRequest() throws Exception {
         client.registerServiceAsync(info);
@@ -147,63 +176,5 @@ public class RegisterServiceTest extends AbstractDxlTest {
         assertEquals("Ok", new String(response.getPayload()));
 
         client.unregisterServiceSync(info, REG_DELAY);
-    }
-
-    // @Test This is removed in other branches
-    public void testRegisterServiceWeakReferenceBeforeConnect() throws Exception {
-        ReferenceQueue<ServiceRegistrationInfo> queue = new ReferenceQueue<>();
-        WeakReference<ServiceRegistrationInfo> ref = new WeakReference<>(info, queue);
-
-        client.registerServiceAsync(info);
-
-        // Deleted the service registration
-        info = null;
-        // Enforce garbage collection
-        System.gc();
-        // Run finalization to be sure that the reference is enqueued
-        System.runFinalization();
-        // Weak reference should now be enqueued
-        assertTrue(ref.isEnqueued());
-        // Weak reference should now be null
-        assertNull(ref.get());
-
-        client.connect();
-        Thread.sleep(POST_OP_DELAY);
-
-        client.disconnect();
-        Thread.sleep(POST_OP_DELAY);
-
-        assertEquals(0, registerCallback.get());
-        assertEquals(0, unregisterCallback.get());
-    }
-
-    //@Test
-    public void testRegisterServiceWeakReferenceAfterConnect() throws Exception {
-        ReferenceQueue<ServiceRegistrationInfo> queue = new ReferenceQueue<>();
-        WeakReference<ServiceRegistrationInfo> ref = new WeakReference<>(info, queue);
-
-        client.registerServiceAsync(info);
-
-        client.connect();
-        Thread.sleep(POST_OP_DELAY);
-
-        // Deleted the service registration
-        info = null;
-        // Enforce garbage collection
-        System.gc();
-        // Run finalization to be sure that the reference is enqueued
-        System.runFinalization();
-        // Weak reference should now be enqueued
-        assertTrue(ref.isEnqueued());
-        // Weak reference should now be null
-        assertNull(ref.get());
-
-        client.disconnect();
-        Thread.sleep(POST_OP_DELAY);
-
-        assertEquals(1, registerCallback.get());
-
-        // TODO: Sometimes the unregister event does not get send; don't check for now
-        // assertEquals( 1, unregisterCallback.get() );
     }
 }

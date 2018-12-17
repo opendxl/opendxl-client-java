@@ -1,5 +1,17 @@
 #!/bin/bash
 
+###############################################################################
+# Script that runs a specified sample                                         #
+#                                                                             #
+# The argument must be the fully qualified sample class to execute            #
+#                                                                             #
+# runsample <sample-to-run>                                                   #
+#                                                                             #
+# For example:                                                                #
+#                                                                             #
+# runsample sample.basic.EventSample                                          #
+###############################################################################
+
 if [ -z "$1" ]
   then
     echo "Usage: runsample <sample-to-run>"

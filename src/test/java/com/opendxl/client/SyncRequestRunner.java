@@ -6,7 +6,6 @@ package com.opendxl.client;
 
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
-import com.opendxl.client.testutil.TestService;
 import com.opendxl.client.testutil.ThreadPerRunExecutor;
 import com.opendxl.client.util.UuidGenerator;
 
@@ -16,22 +15,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
+ * <P>
  * Tests the synchronous request methods of the {@link DxlClient}.
- * <p/>
+ * </P>
  * This test sends synchronous requests to a test service and ensures that all of the
  * requests are responded to appropriately.
  *
  * @see DxlClient#syncRequest(com.opendxl.client.message.Request, long);
  */
 public class SyncRequestRunner extends AbstractRunner {
+
     /**
      * The number of requests to send
      */
     private static final int REQUEST_COUNT = 5000;
+
     /**
      * Maximum time to wait for the test to complete
      */
     private static final int MAX_WAIT = 5 * 60 * 1000;
+
     /**
      * Maximum time to wait for a response
      */

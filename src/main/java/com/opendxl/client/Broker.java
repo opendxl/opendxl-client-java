@@ -6,7 +6,6 @@ package com.opendxl.client;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.opendxl.client.exception.MalformedBrokerException;
-import com.opendxl.client.util.ServerNameHelper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -141,7 +140,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
         StringBuilder sb = new StringBuilder();
         sb.append(SSL_PROTOCOL);
         sb.append("://");
-        String serverName = (ServerNameHelper.isValidIPv6Address(hostName)
+        String serverName = (BrokerHostNameHelper.isValidIPv6Address(hostName)
             ? "[" + hostName + "]"
             : hostName);
         sb.append(serverName);
@@ -162,11 +161,11 @@ public class Broker implements Comparable<Broker>, Cloneable {
         sb.append("://");
         String serverName;
         if (ipAddress != null && !ipAddress.isEmpty()) {
-            serverName = (ServerNameHelper.isValidIPv6Address(ipAddress)
+            serverName = (BrokerHostNameHelper.isValidIPv6Address(ipAddress)
                 ? "[" + ipAddress + "]"
                 : ipAddress);
         } else {
-            serverName = (ServerNameHelper.isValidIPv6Address(hostName)
+            serverName = (BrokerHostNameHelper.isValidIPv6Address(hostName)
                 ? "[" + hostName + "]"
                 : hostName);
         }
@@ -334,14 +333,14 @@ public class Broker implements Comparable<Broker>, Cloneable {
         broker.uniqueId = elements.get(0);
         // Remove brackets around IPv6 address
         broker.hostName = elements.get(2).replaceAll("[\\[\\]]", "");
-        if (!ServerNameHelper.isValidHostNameOrIPAddress(broker.hostName)) {
+        if (!BrokerHostNameHelper.isValidHostNameOrIPAddress(broker.hostName)) {
             throw new MalformedBrokerException("Invalid hostname");
         }
 
         if (elements.size() > 3) {
             // Remove brackets around IPv6 address
             broker.ipAddress = elements.get(3).replaceAll("[\\[\\]]", "");
-            if (!ServerNameHelper.isValidIPAddress(broker.ipAddress)) {
+            if (!BrokerHostNameHelper.isValidIPAddress(broker.ipAddress)) {
                 throw new MalformedBrokerException("Invalid IP address: " + broker.ipAddress);
             }
         }

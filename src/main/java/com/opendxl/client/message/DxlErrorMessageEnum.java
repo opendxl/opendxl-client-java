@@ -25,6 +25,7 @@ public enum DxlErrorMessageEnum {
      * The error code
      */
     private int errorCode;
+
     /**
      * The error message
      */
@@ -33,7 +34,7 @@ public enum DxlErrorMessageEnum {
     /**
      * Constructs the enumeration value
      *
-     * @param errorCode    The error code
+     * @param errorCode The error code
      * @param errorMessage The error message
      */
     DxlErrorMessageEnum(final int errorCode, final String errorMessage) {

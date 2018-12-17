@@ -5,6 +5,7 @@
 package com.opendxl.client.message;
 
 import com.opendxl.client.DxlClient;
+import com.opendxl.client.callback.ResponseCallback;
 import com.opendxl.client.util.UuidGenerator;
 import org.msgpack.MessagePack;
 import org.msgpack.packer.Packer;
@@ -19,18 +20,53 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Abstract base class for the concrete message types (request, response,
- * event, etc.)
+ * The base class for the different Data Exchange Layer (DXL) message types.
+ * <UL>
+ * <LI>{@link Event}</LI>
+ * <LI>{@link Request}</LI>
+ * <LI>{@link Response}</LI>
+ * <LI>{@link ErrorResponse}</LI>
+ * </UL>
+ * <P>
+ * Event messages are sent using the {@link DxlClient#sendEvent} method of a client instance. Event messages are sent
+ * by one publisher and received by one or more recipients that are currently subscribed to the
+ * {@link Message#getDestinationTopic()} associated with the event (otherwise known as one-to-many).
+ * </P>
+ * <P>
+ * Request messages are sent using the {@link DxlClient#syncRequest} and {@link DxlClient#asyncRequest} methods of a
+ * client instance. Request messages are used when invoking a method on a remote service. This communication is
+ * one-to-one where a client sends a request to a service instance and in turn receives a response.
+ * </P>
+ * <P>
+ * Response messages are sent by service instances upon receiving Request messages. Response messages are sent using
+ * the {@link DxlClient#sendResponse} method of a client instance. Clients that are invoking the service (sending a
+ * request) will receive the response as a return value of the {@link DxlClient#syncRequest} method of a client
+ * instance or via the {@link ResponseCallback} callback when invoking the asynchronous method,
+ * {@link DxlClient#asyncRequest}.
+ * </P>
+ * <P>
+ * {@link ErrorResponse} messages are sent by the DXL fabric itself or service instances upon receiving Request
+ * messages. The error response may indicate the inability to locate a service to handle the request or an internal
+ * error within the service itself. Error response messages are sent using the {@link DxlClient#sendResponse} method
+ * of a client instance.
+ * </P>
+ * <P>
+ * <B>NOTE</B>: Some services may chose to not send a Response message when receiving a Request. This typically occurs
+ * if the service is being used to simply collect information from remote clients. In this scenario, the client should
+ * use the asynchronous form for sending requests, {@link DxlClient#asyncRequest}.
+ * </P>
  *
  * @see Request
  * @see Response
  * @see Event
  */
 public abstract class Message {
+
     /**
      * ASCII character encoding
      */
     static final String CHARSET_ASCII = "US-ASCII";
+
     /**
      * UTF-8 character encoding
      */
@@ -61,19 +97,22 @@ public abstract class Message {
     private static final long MESSAGE_VERSION = 3;
 
     /**
-     * The numeric identifier for the request message type
+     * The numeric type identifier for the {@link Request} message type
      */
     public static final byte MESSAGE_TYPE_REQUEST = 0;
+
     /**
-     * The numeric identifier for the response message type
+     * The numeric type identifier for the {@link Response} message type
      */
     public static final byte MESSAGE_TYPE_RESPONSE = 1;
+
     /**
-     * The numeric identifier for the event message type
+     * The numeric type identifier for the {@link Event} message type
      */
     public static final byte MESSAGE_TYPE_EVENT = 2;
+
     /**
-     * The numeric identifier for the error message type
+     * The numeric type identifier for the {@link ErrorResponse} message type
      */
     public static final byte MESSAGE_TYPE_ERROR = 3;
 
@@ -91,47 +130,58 @@ public abstract class Message {
      * The version of the message
      */
     private long version;
+
     /**
      * The unique identifier for the message
      */
     private String messageId;
+
     /**
      * The identifier for the client that is the source of the message
      */
     private String sourceClientId;
+
     /**
-     * The instnace identifier for the client that is the source of the message
+     * The instance identifier for the client that is the source of the message
      */
     private String sourceClientInstanceId = "";
+
     /**
-     * The GUID for the broker that is the source of the message
+     * The identifier of the broker that is the source of the message
      */
     private String sourceBrokerGuid;
+
     /**
      * The topic that the message is published on
      */
     private String destinationTopic;
+
     /**
      * The payload to send with the message
      */
     private byte[] payload = emptyPayload;
+
     /**
-     * The set of broker GUIDs to deliver the message to
+     * The set of broker identifiers to deliver the message to
      */
     @SuppressWarnings("unchecked")
-    private Set<String> brokerGuids = Collections.EMPTY_SET;
+    private Set<String> brokerIds = Collections.EMPTY_SET;
+
     /**
-     * The set of client GUIDs to deliver the message to
+     * The set of client identifiers to deliver the message to
      */
     @SuppressWarnings("unchecked")
-    private Set<String> clientGuids = Collections.EMPTY_SET;
+    private Set<String> clientIds = Collections.EMPTY_SET;
+
     /**
-     * The set of tenant GUIDs to tenant
+     * The tenant identifier of the DXL client that sent the message (set by the broker that initially
+     * receives the message)
      */
     @SuppressWarnings("unchecked")
     private String sourceTenantGuid = "";
+
     /**
-     * The set of tenant GUIDs to deliver the message to
+     * The set of tenant identifiers that the message is to be routed to.
      */
     @SuppressWarnings("unchecked")
     private Set<String> destTenantGuids = Collections.EMPTY_SET;
@@ -143,35 +193,34 @@ public abstract class Message {
     private Map<String, String> otherFields = Collections.EMPTY_MAP;
 
     /**
-     * Constructs the message
+     * Private constructor
      */
-    Message() {
+    Message() { }
+
+    /**
+     * Constructor for {@link Message}
+     *
+     * @param client The client that will be sending this message
+     * @param destinationTopic The topic to publish the message to
+     */
+    public Message(final DxlClient client, final String destinationTopic) {
+        this(client.getUniqueId(), destinationTopic);
     }
 
     /**
-     * Constructs the message
+     * Constructor for {@link Message}
      *
-     * @param client             The client that will be sending this message.
-     * @param destinationChannel The channel to publish the message on.
+     * @param destinationTopic The topic to publish the message to
      */
-    public Message(final DxlClient client, final String destinationChannel) {
-        this(client.getUniqueId(), destinationChannel);
+    public Message(final String destinationTopic) {
+        this((String) null, destinationTopic);
     }
 
     /**
-     * Constructs the message
+     * Constructor for {@link Message}
      *
-     * @param destinationChannel The channel to publish the message on.
-     */
-    public Message(final String destinationChannel) {
-        this((String) null, destinationChannel);
-    }
-
-    /**
-     * Constructs the message
-     *
-     * @param sourceClientId     The ID of the client that will be sending this message.
-     * @param destinationTopic The topic to publish the message on.
+     * @param sourceClientId  The identifier of the client that will be sending this message
+     * @param destinationTopic The topic to publish the message to
      */
     public Message(final String sourceClientId, final String destinationTopic) {
         if (destinationTopic == null) {
@@ -188,18 +237,18 @@ public abstract class Message {
     }
 
     /**
-     * Sets the message version
+     * Sets the version of the DXL message (used to determine the features that are available)
      *
-     * @param version The message version
+     * @param version The version of the DXL message (used to determine the features that are available)
      */
     private void setVersion(final long version) {
         this.version = version;
     }
 
     /**
-     * Returns the message version
+     * Returns the version of the DXL message (used to determine the features that are available)
      *
-     * @return The message version
+     * @return The version of the DXL message (used to determine the features that are available)
      */
     public long getVersion() {
         return this.version;
@@ -213,36 +262,40 @@ public abstract class Message {
     public abstract byte getMessageType();
 
     /**
-     * Returns the unique identifier for the message
+     * Returns the unique identifier for the message (UUID)
      *
-     * @return The unique identifier for the message
+     * @return The unique identifier for the message (UUID)
      */
     public String getMessageId() {
         return this.messageId;
     }
 
     /**
-     * Returns the identifier for the client that is the source of the message
+     * Returns the identifier of the DXL client that sent the message (set by the broker that initially receives
+     * the message)
      *
-     * @return The identifier for the client that is the source of the message
+     * @return The identifier of the DXL client that sent the message (set by the broker that initially
+     * receives the message)
      */
     public String getSourceClientId() {
         return this.sourceClientId;
     }
 
     /**
-     * Sets the identifier for the client that is the source of the message
+     * Sets the identifier of the DXL client that sent the message (set by the broker that initially receives
+     * the message)
      *
-     * @param sourceClientId The identifier for the client that is the source of the message
+     * @param sourceClientId The identifier of the DXL client that sent the message (set by the broker that initially
+     *                       receives the message)
      */
     public void setSourceClientId(String sourceClientId) {
         this.sourceClientId = sourceClientId;
     }
 
     /**
-     * Sets the identifier for the client that is the source of the message
+     * Sets the instance identifier for the client that is the source of the message
      *
-     * @param sourceClientInstanceId The identifier for the client that is the source of the message
+     * @param sourceClientInstanceId The instance identifier for the client that is the source of the message
      */
     public void setSourceClientInstanceId(final String sourceClientInstanceId) {
         this.sourceClientInstanceId = sourceClientInstanceId;
@@ -259,27 +312,29 @@ public abstract class Message {
     }
 
     /**
-     * Returns the GUID for the broker that is the source of the message
+     * Returns the identifier of the DXL broker that the message's originating client is connected to (set by the
+     * initial broker)
      *
-     * @return The GUID for the broker that is the source of the message
+     * @return The identifier of the DXL broker that the message's originating client is connected to (set by the
+     *      initial broker)
      */
-    public String getSourceBrokerGuid() {
+    public String getSourceBrokerId() {
         return this.sourceBrokerGuid;
     }
 
     /**
-     * Returns the topic that the message is published on
+     * Returns the topic to publish the message to
      *
-     * @return The topic that the message is published on
+     * @return The topic to publish the message to
      */
     public String getDestinationTopic() {
         return this.destinationTopic;
     }
 
     /**
-     * Sets the topic that the message is published on
+     * Sets the topic to publish the message to
      *
-     * @param topic The topic that the message is published on
+     * @param topic The topic to publish the message to
      */
     public void setDestinationTopic(final String topic) {
         this.destinationTopic = topic;
@@ -295,99 +350,110 @@ public abstract class Message {
     }
 
     /**
-     * Returns the payload for the message
+     * Returns the application-specific payload of the message (bytes)
      *
-     * @return The payload for the message
+     * @return The application-specific payload of the message (bytes)
      */
     public byte[] getPayload() {
         return this.payload;
     }
 
     /**
-     * Sets the broker GUIDs to send the message to
+     * Sets the broker identifiers that the message is to be routed to. Setting this value will limit which brokers
+     * the message will be delivered to. This can be used in conjunction with {@link #setClientIds}.
      *
-     * @param brokerGuids The broker GUIDs to send the message to
+     * @param brokerIds The broker identifiers that the message is to be routed to
      */
-    public void setBrokerGuids(final Set<String> brokerGuids) {
-        this.brokerGuids = brokerGuids;
+    public void setBrokerIds(final Set<String> brokerIds) {
+        this.brokerIds = brokerIds;
     }
 
     /**
-     * Returns the set of broker GUIDs to send the message to
+     * Returns the broker identifiers that the message is to be routed to.
      *
-     * @return The set of broker GUIDs to send the message to
+     * @return The broker identifiers that the message is to be routed to
      */
-    public Set<String> getBrokerGuids() {
-        return this.brokerGuids;
+    public Set<String> getBrokerIds() {
+        return this.brokerIds;
     }
 
     /**
-     * Sets the client GUIDs to send the message to
+     * Sets the client identifiers that the message is to be routed to. Setting this value will limit which clients
+     * the message will be delivered to. This can be used in conjunction with {@link #setBrokerIds}.
      *
-     * @param clientGuids The client GUIDs to send the message to
+     * @param clientIds The client GUIDs to send the message to
      */
-    public void setClientGuids(final Set<String> clientGuids) {
-        this.clientGuids = clientGuids;
+    public void setClientIds(final Set<String> clientIds) {
+        this.clientIds = clientIds;
     }
 
     /**
-     * Returns the set of client GUIDs to send the message to
+     * Returns the client identifiers that the message is to be routed to
      *
-     * @return The set of client GUIDs to send the message to
+     * @return The client identifiers that the message is to be routed to
      */
-    public Set<String> getClientGuids() {
-        return this.clientGuids;
+    public Set<String> getClientIds() {
+        return this.clientIds;
     }
 
     /**
-     * Sets the other fields (name-value pairs)
+     * Sets a {@link Map} containing the set of additional fields associated with the message. These fields can be
+     * used to add "header" like values to the message without requiring modifications to be made to the payload.
      *
-     * @param otherFields The other fields (name-value pairs)
+     * @param otherFields A {@link Map} containing the set of additional fields associated with the message.
      */
     public void setOtherFields(final Map<String, String> otherFields) {
         this.otherFields = otherFields;
     }
 
     /**
-     * Returns the other fields (name-value pairs)
+     * Returns a {@link Map} containing the set of additional fields associated with the message. These fields can be
+     * used to add "header" like values to the message without requiring modifications to be made to the payload.
      *
-     * @return The other fields (name-value pairs)
+     * @return A {@link Map} containing the set of additional fields associated with the message.
      */
     public Map<String, String> getOtherFields() {
         return this.otherFields;
     }
 
     /**
-     * Returns the tenant GUID that is the source of the message
+     * Returns the tenant identifier of the DXL client that sent the message (set by the broker that initially
+     * receives the message)
      *
-     * @return The tenant GUID that is the source of the message
+     * @return The tenant identifier of the DXL client that sent the message (set by the broker that initially
+     *      receives the message)
      */
     public String getSourceTenantGuid() {
         return this.sourceTenantGuid;
     }
 
     /**
-     * Sets the tenant GUID that is the source of the message
+     * Sets the tenant identifier of the DXL client that sent the message (set by the broker that initially receives
+     * the message)
      *
-     * @param sourceTenantGuid The tenant GUID that is the source of the message
+     * @param sourceTenantGuid The tenant identifier of the DXL client that sent the message (set by the broker that
+     *                         initially receives the message)
      */
     public void setSourceTenantGuid(final String sourceTenantGuid) {
         this.sourceTenantGuid = sourceTenantGuid;
     }
 
     /**
-     * Returns the set of tenant GUIDs to send the message to
+     * Returns the set of tenant identifiers that the message is to be routed to.
      *
-     * @return The set of tenant GUIDs to send the message to
+     * @return The set of tenant identifiers that the message is to be routed to.
      */
     public Set<String> getDestTenantGuids() {
         return this.destTenantGuids;
     }
 
     /**
-     * Sets the tenant GUIDs to send the message to
+     * Sets the tenant identifiers that the message is to be routed to. Setting this value will limit which
+     * clients the message will be delivered to. This can be used in conjunction with {@link #setBrokerIds} and
+     * {@link #setClientIds}.
+
      *
-     * @param destTenantGuids The tenant GUIDs to send the message to
+     * @param destTenantGuids The set of tenant identifiers that the message is to be routed to.
      */
     public void setDestTenantGuids(Set<String> destTenantGuids) {
         this.destTenantGuids = destTenantGuids;
@@ -470,12 +536,12 @@ public abstract class Message {
      * @param packer The packer
      * @throws IOException If an IO exception occurs
      */
-    protected void packMessage(final Packer packer) throws IOException {
+    void packMessage(final Packer packer) throws IOException {
         packer.write(this.messageId.getBytes(CHARSET_ASCII));
         packer.write(this.sourceClientId.getBytes(CHARSET_ASCII));
         packer.write(this.sourceBrokerGuid.getBytes(CHARSET_ASCII));
-        packStringSet(packer, getBrokerGuids());
-        packStringSet(packer, getClientGuids());
+        packStringSet(packer, getBrokerIds());
+        packStringSet(packer, getClientIds());
         packer.write(this.payload);
     }
 
@@ -485,12 +551,12 @@ public abstract class Message {
      * @param unpacker The unpacker
      * @throws IOException If an IO exception occurs
      */
-    protected void unpackMessage(final BufferUnpacker unpacker) throws IOException {
+    void unpackMessage(final BufferUnpacker unpacker) throws IOException {
         this.messageId = new String(unpacker.readByteArray(), CHARSET_ASCII);
         this.sourceClientId = new String(unpacker.readByteArray(), CHARSET_ASCII);
         this.sourceBrokerGuid = new String(unpacker.readByteArray(), CHARSET_ASCII);
-        this.brokerGuids = unpackStringSet(unpacker);
-        this.clientGuids = unpackStringSet(unpacker);
+        this.brokerIds = unpackStringSet(unpacker);
+        this.clientIds = unpackStringSet(unpacker);
         this.payload = unpacker.readByteArray();
     }
 
@@ -579,8 +645,8 @@ public abstract class Message {
     }
 
     /**
-     * Converts the specified array of bytes to a concrete message instance
-     * (request, response, error, etc.) and returns it
+     * Converts the specified array of bytes to a concrete message instance (request, response, error, etc.)
+     * and returns it
      *
      * @param bytes The message as an array of bytes
      * @return The corresponding message

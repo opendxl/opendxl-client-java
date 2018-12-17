@@ -2,7 +2,7 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.util;
+package com.opendxl.client;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility methods for creating {@link Executor} instances.
  */
-public class Executors {
+class Executors {
 
     /** Private constructor */
     private Executors() {
@@ -22,12 +22,11 @@ public class Executors {
     }
 
     /**
-     * Creates a blocking queue executor that uses daemon threads. This executor differs from
-     * the standard Java implementation due to the fact that it will block instead of throwing
-     * an exception when the queue is full.
+     * Creates a blocking queue executor that uses daemon threads. This executor differs from the standard Java
+     * implementation due to the fact that it will block instead of throwing an exception when the queue is full.
      *
-     * @param poolSize         The pool size
-     * @param maxQueueSize     The maximum queue size
+     * @param poolSize The pool size
+     * @param maxQueueSize  The maximum queue size
      * @param threadNamePrefix The prefix for the thread name
      * @return A daemon {@link Executor}
      */
@@ -67,11 +66,10 @@ public class Executors {
     }
 
     /**
-     * Creates a blocking queue executor that uses daemon threads. This executor differs from
-     * the standard Java implementation due to the fact that it will block instead of throwing
-     * an exception when the queue is full.
+     * Creates a blocking queue executor that uses daemon threads. This executor differs from the standard Java
+     * implementation due to the fact that it will block instead of throwing an exception when the queue is full.
      *
-     * @param poolSize     The pool size
+     * @param poolSize The pool size
      * @param maxQueueSize The maximum queue size
      * @return A daemon {@link Executor}
      */

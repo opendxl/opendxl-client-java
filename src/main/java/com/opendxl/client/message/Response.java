@@ -5,6 +5,7 @@
 package com.opendxl.client.message;
 
 import com.opendxl.client.DxlClient;
+import com.opendxl.client.callback.ResponseCallback;
 import org.msgpack.packer.Packer;
 import org.msgpack.unpacker.BufferUnpacker;
 
@@ -12,9 +13,14 @@ import java.io.IOException;
 import java.util.Collections;
 
 /**
- * A response for a corresponding {@link Request} message.
+ * {@link Response} messages are sent by service instances upon receiving {@link Request} messages.
+ * {@link Response} messages are sent using the {@link DxlClient#sendResponse} method of a client instance. Clients
+ * that are invoking the service (sending a request) will receive the response as a return value of the
+ * {@link DxlClient#syncRequest} method of a client instance or via the {@link ResponseCallback} callback when
+ * invoking the asynchronous method, {@link DxlClient#asyncRequest}.
  */
 public class Response extends Message {
+
     /**
      * The identifier for the request message that this is a response for.
      */
@@ -26,68 +32,67 @@ public class Response extends Message {
     private Request request;
 
     /**
-     * The GUID of the service that processed the request
+     * The identifier of the service that processed the request
      */
-    private String serviceGuid;
+    private String serviceId;
 
     /**
-     * Constructs the response.
+     * Constructor for {@link Response}
      */
     Response() {
     }
 
     /**
-     * Constructs the response
+     * Constructor for {@link Response}
      *
-     * @param client  The client that will be sending this response
-     * @param request The request message that this will be a response for
+     * @param client The client that will be sending this response
+     * @param request The {@link Request} message that this is a response for
      */
     public Response(final DxlClient client, final Request request) {
         this(client.getUniqueId(), request);
     }
 
     /**
-     * Constructs the response
+     * Constructor for {@link Response}
      *
-     * @param request The request message that this will be a response for
+     * @param request The {@link Request} message that this is a response for
      */
     public Response(final Request request) {
         this((String) null, request);
     }
 
     /**
-     * Constructs the response
+     * Constructor for {@link Response}
      *
-     * @param sourceClientId The ID of the client that will be sending this message.
-     * @param request        The request message that this will be a response for
+     * @param sourceClientId The identifier of the client that will be sending this message.
+     * @param request The {@link Request} message that this is a response for
      */
     public Response(final String sourceClientId, final Request request) {
         this(sourceClientId, request.getReplyToTopic(), request.getMessageId(),
-            request.getServiceGuid(), request.getSourceClientInstanceId(), request.getSourceBrokerGuid());
+            request.getServiceId(), request.getSourceClientInstanceId(), request.getSourceBrokerId());
 
         this.request = request;
     }
 
     /**
-     * Constructs the response
+     * Constructor for {@link Response}
      *
-     * @param sourceClientId   The ID of the client that will be sending this message.
-     * @param replyToChannel   The channel to send the response to
+     * @param sourceClientId  The identifier of the client that will be sending this message.
+     * @param replyToTopic  The toipc to send the response to
      * @param requestMessageId The identifier of the request message
-     * @param serviceId        The service that handled the request
-     * @param destClientId     The identifier of the client to respond to
-     * @param destBrokerId     The identifier of the broker that the client being responded to
-     *                         is connected to.
+     * @param serviceId The service that handled the request
+     * @param destClientId The identifier of the client to respond to
+     * @param destBrokerId The identifier of the broker that the client being responded to is connected to.
      */
     protected Response(
-        final String sourceClientId, final String replyToChannel, final String requestMessageId,
+        final String sourceClientId, final String replyToTopic, final String requestMessageId,
         final String serviceId, final String destClientId, final String destBrokerId) {
-        super(sourceClientId, replyToChannel);
+        super(sourceClientId, replyToTopic);
 
         this.requestMessageId = requestMessageId;
-        this.serviceGuid = serviceId;
-        setClientGuids(Collections.singleton(destClientId));
-        setBrokerGuids(Collections.singleton(destBrokerId));
+        this.serviceId = serviceId;
+        setClientIds(Collections.singleton(destClientId));
+        setBrokerIds(Collections.singleton(destBrokerId));
     }
 
     /**
@@ -99,49 +104,53 @@ public class Response extends Message {
     }
 
     /**
-     * Returns the identifier for the request message that this is a response for.
+     * Returns the unique identifier (UUID) for the {@link Request} message that this message is a response for.
+     * This is used by the invoking {@link DxlClient} to correlate an incoming {@link Response} message with the
+     * {@link Request} message that was initially sent by the client.
      *
-     * @return The identifier for the request message that this is a response for.
+     * @return The unique identifier (UUID) for the {@link Request} message that this message is a response for.
      */
     public String getRequestMessageId() {
         return this.requestMessageId;
     }
 
     /**
-     * Returns the request (only available when sending the response)
+     * Returns the {@link Request} message that this is a response for
      *
-     * @return The request (only available when sending the response)
+     * @return The {@link Request} message that this is a response for
      */
     public Request getRequest() {
         return this.request;
     }
 
     /**
-     * Returns the GUID of the service that processed the request
+     * Returns the identifier of the service that sent this response (the service that the corresponding
+     * {@link Request} was routed to).
      *
-     * @return The GUID of the service that processed the request
+     * @return The identifier of the service that sent this response (the service that the corresponding
+     *      {@link Request} was routed to)
      */
-    public String getServiceGuid() {
-        return this.serviceGuid;
+    public String getServiceId() {
+        return this.serviceId;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void packMessage(final Packer packer) throws IOException {
+    void packMessage(final Packer packer) throws IOException {
         super.packMessage(packer);
         packer.write(this.requestMessageId.getBytes(CHARSET_ASCII));
-        packer.write(this.serviceGuid.getBytes(CHARSET_ASCII));
+        packer.write(this.serviceId.getBytes(CHARSET_ASCII));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void unpackMessage(final BufferUnpacker unpacker) throws IOException {
+    void unpackMessage(final BufferUnpacker unpacker) throws IOException {
         super.unpackMessage(unpacker);
         this.requestMessageId = new String(unpacker.readByteArray(), CHARSET_ASCII);
-        this.serviceGuid = new String(unpacker.readByteArray(), CHARSET_ASCII);
+        this.serviceId = new String(unpacker.readByteArray(), CHARSET_ASCII);
     }
 }

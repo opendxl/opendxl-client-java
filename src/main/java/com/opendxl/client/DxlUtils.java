@@ -2,14 +2,14 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.util;
+package com.opendxl.client;
 
 import com.opendxl.client.exception.DxlException;
 
 /**
  * Utility methods for use by the DXL-related classes
  */
-public class DxlUtils {
+class DxlUtils {
 
     /**
      * Private constructor
@@ -19,12 +19,11 @@ public class DxlUtils {
     }
 
     /**
-     * Wraps the specified exception as a {@link DxlException} with the specified message.
-     * If the incoming exception is already a {@link DxlException}, it is simply rethrown
-     * (no wrapping occurs).
+     * Wraps the specified exception as a {@link DxlException} with the specified message. If the incoming exception is
+     * already a {@link DxlException}, it is simply rethrown (no wrapping occurs).
      *
      * @param message The message for the exception
-     * @param ex      The exception to wrap
+     * @param ex The exception to wrap
      * @throws DxlException If a DXL exception occurs
      */
     public static void throwWrappedException(
@@ -37,9 +36,11 @@ public class DxlUtils {
 
     /**
      * Iterates the wildcards for the specified topic.
-     * NOTE: This only supports "#" wildcards (not "+").
+     * <P>
+     * <b>NOTE</b>: This only supports "#" wildcards (not "+").
+     * </P>
      *
-     * @param cb    The callback to invoke for each wildcard
+     * @param cb The callback to invoke for each wildcard
      * @param topic The topic
      */
     public static void iterateWildcards(final WildcardCallback cb, final String topic) {

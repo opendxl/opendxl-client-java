@@ -22,9 +22,10 @@ import static org.junit.Assert.fail;
 
 /**
  * Tests the events-related methods of the {@link DxlClient}.
- * <p/>
+ * <p>
  * This test sends events through the message broker and ensures that they arrive successfully at a client that is
  * listening for them.
+ * </p>
  *
  * @see DxlClient#sendEvent(com.opendxl.client.message.Event)
  * @see DxlClient#addEventCallback(String, com.opendxl.client.callback.EventCallback)
@@ -49,7 +50,7 @@ public class EventsRunner extends AbstractRunner {
 
             client.connect();
 
-            // Subscribe to the appropriate event channel
+            // Subscribe to the appropriate event topic
             final String topic = UuidGenerator.generateIdAsString();
 
             //

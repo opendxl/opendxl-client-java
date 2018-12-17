@@ -2,7 +2,7 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.util;
+package com.opendxl.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -12,7 +12,8 @@ import com.opendxl.client.exception.DxlException;
 /**
  * Json utility methods
  */
-public class JsonUtils {
+class JsonUtils {
+
     /**
      * The Jackson object mapper instance
      */
@@ -43,8 +44,8 @@ public class JsonUtils {
      * Returns an object corresponding to the specified JSON string
      *
      * @param string The JSON string
-     * @param clazz  The object type
-     * @param <T>    The object type
+     * @param clazz The object type
+     * @param <T> The object type
      * @return An object corresponding to the specified JSON string
      * @throws DxlException If a DXL exception occurs
      */
@@ -59,9 +60,9 @@ public class JsonUtils {
     /**
      * Use if you need a collection of things to be converted from a json string like a List or Set
      *
-     * @param string        The JSON string
+     * @param string The JSON string
      * @param typeReference TypeReference
-     * @param <T>           The object type
+     * @param <T> The object type
      * @return An Collection of objects corresponding to the specified JSON string
      * @throws DxlException If a DXL exception occurs
      */

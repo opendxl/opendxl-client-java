@@ -2,14 +2,17 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.util;
+package com.opendxl.client;
 
 import java.util.regex.Pattern;
 
-public class ServerNameHelper {
+/**
+ * Utility methods for validating the broker host name and IP address
+ */
+class BrokerHostNameHelper {
 
     /** Private constructor */
-    private ServerNameHelper() {
+    private BrokerHostNameHelper() {
         super();
     }
 
@@ -49,31 +52,73 @@ public class ServerNameHelper {
         "^(([a-zA-Z0-9]|[a-zA-Z0-9][^\\s,~:!@#$%\\^&'\\.\\(\\)\\{\\}_]*[^\\s,~:!@#$%\\^&'\\.\\(\\)\\{\\}_\\-])\\.)*"
             + "([a-zA-Z0-9]|[a-zA-Z0-9][^\\s,~:!@#$%\\^&'\\.\\(\\)\\{\\}_]*[^\\s,~:!@#$%\\^&'\\.\\(\\)\\{\\}_\\-])$");
 
+    /**
+     * Returns whether the specified IP address is valid
+     *
+     * @param ipAddress The IP address
+     * @return Whether the specified IP address is valid
+     */
     public static boolean isValidIPAddress(String ipAddress) {
         return (ipAddress != null && !ipAddress.isEmpty()
             && (isValidIPv4Address(ipAddress) || isValidIPv6Address(ipAddress)));
     }
 
+    /**
+     * Returns whether the specified IPv4 address is valid
+     *
+     * @param ipAddress The IPv4 address
+     * @return Whether the specified IPv4 address is valid
+     */
     private static boolean isValidIPv4Address(String ipAddress) {
         return (ipAddress != null && !ipAddress.isEmpty() && V4ADDR.matcher(ipAddress).matches());
     }
 
+    /**
+     * Returns whether the specified IPv6 address is valid
+     *
+     * @param ipAddress The IPv6 address
+     * @return Whether the specified IPv6 address is valid
+     */
     public static boolean isValidIPv6Address(String ipAddress) {
         return (ipAddress != null && !ipAddress.isEmpty() && V6ADDR.matcher(ipAddress).matches());
     }
 
+    /**
+     * Returns whether the specified net bios name is valid
+     *
+     * @param hostName The net bios name
+     * @return Whether the specified net bios name is valid
+     */
     private static boolean isValidNetBiosName(String hostName) {
         return (hostName != null && !hostName.isEmpty() && NETBIOS.matcher(hostName).matches());
     }
 
+    /**
+     * Returns whether the specified fully qualified domain name is valid
+     *
+     * @param hostName The fully qualified domain name
+     * @return Whether the specified fully qualified domain name is valid
+     */
     private static boolean isValidFQDN(String hostName) {
         return (hostName != null && !hostName.isEmpty() && FQDN.matcher(hostName).matches());
     }
 
+    /**
+     * Returns whether the specified host name is a valid host name or IPv4 address
+     *
+     * @param hostName The host name
+     * @return Whether the specified host name is a valid host name or IPv4 address
+     */
     public static boolean isValidHostNameOrIPv4Address(String hostName) {
         return (isValidIPv4Address(hostName) || isValidNetBiosName(hostName) || isValidFQDN(hostName));
     }
 
+    /**
+     * Returns whether the specified host name is a valid host name or IP address
+     *
+     * @param hostName The host name
+     * @return Whether the specified host name is a valid host name or IP address
+     */
     public static boolean isValidHostNameOrIPAddress(String hostName) {
         return (isValidIPv4Address(hostName) || isValidIPv6Address(hostName)
             || isValidNetBiosName(hostName) || isValidFQDN(hostName));

@@ -6,7 +6,6 @@ package com.opendxl.client;
 
 import com.opendxl.client.callback.ResponseCallback;
 import com.opendxl.client.message.Request;
-import com.opendxl.client.testutil.TestService;
 import com.opendxl.client.util.UuidGenerator;
 
 import java.util.Collections;
@@ -89,7 +88,7 @@ public class AsyncRequestRunner extends AbstractRunner {
                     responseLock.unlock();
                 }
             };
-            // Add a global response callback (not channel-specific)
+            // Add a global response callback (not topic-specific)
             client.addResponseCallback(null, responseCallback);
 
             for (int i = 0; i < REQ_COUNT; i++) {

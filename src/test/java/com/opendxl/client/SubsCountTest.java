@@ -16,13 +16,29 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Test to ensure subscription counts are accurate
+ */
 public class SubsCountTest extends AbstractDxlTest {
+
+    /**
+     * Creates a request for subscription count
+     *
+     * @param client The client
+     * @param topic The topic to get the subscription count for
+     * @return The {@link Request} corresponding to the subscription count query
+     */
     private Request createRequest(final DxlClient client, final String topic) {
         final Request req = new Request(client, "/mcafee/service/dxl/broker/subs");
         req.setPayload(("{\"topic\":\"" + topic + "\"}").getBytes());
         return req;
     }
 
+    /**
+     * Tests whether broker subscription counts are accurate
+     *
+     * @throws Exception If an error occurs
+     */
     @Test
     public void testSubCounts() throws Exception {
         final List<DxlClient> clients = new ArrayList<>();

@@ -7,8 +7,6 @@ package com.opendxl.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opendxl.client.callback.RequestCallback;
 import com.opendxl.client.exception.DxlException;
-import com.opendxl.client.json.JsonRegisterService;
-import com.opendxl.client.json.JsonUnregisterService;
 import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;

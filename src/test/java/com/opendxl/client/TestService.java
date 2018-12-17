@@ -2,14 +2,13 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.testutil;
+package com.opendxl.client;
 
 import com.opendxl.client.DxlClient;
 import com.opendxl.client.callback.RequestCallback;
 import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
-import com.opendxl.client.util.Executors;
 
 import java.util.concurrent.ExecutorService;
 

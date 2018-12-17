@@ -1,5 +1,18 @@
 @echo off
 
+REM ###########################################################################
+REM #  Script that runs a specified sample                                    #
+REM #                                                                         #
+REM #  The argument must be the fully qualified sample class to execute       #
+REM #                                                                         #
+REM #  runsample <sample-to-run>                                              #
+REM #                                                                         #
+REM #  For example:                                                           #
+REM #                                                                         #
+REM #  runsample sample.basic.EventSample                                     #
+REM ###########################################################################
+
+
 IF "%1"=="" GOTO help
 
 setLocal EnableDelayedExpansion

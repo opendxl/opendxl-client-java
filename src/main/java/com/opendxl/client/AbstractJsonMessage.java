@@ -2,7 +2,7 @@
  * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
  *---------------------------------------------------------------------------*/
 
-package com.opendxl.client.json;
+package com.opendxl.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,10 +10,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 /**
- * Abstract Json message for the Data Exchange Layer (DXL) fabric.
+ * Abstract JSON message for the Data Exchange Layer (DXL) fabric.
  */
-public abstract class AbstractJsonMessage {
+abstract class AbstractJsonMessage {
     /**
+     *
      * The Jackson object mapper instance
      */
     private static final ObjectMapper MAPPER = new ObjectMapper();

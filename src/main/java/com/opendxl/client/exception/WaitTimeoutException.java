@@ -8,6 +8,7 @@ package com.opendxl.client.exception;
  * Exception that indicates that a wait timeout has been exceeded
  */
 public class WaitTimeoutException extends DxlException {
+
     /**
      * Constructs the exception
      *

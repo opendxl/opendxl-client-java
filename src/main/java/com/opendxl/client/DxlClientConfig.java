@@ -5,8 +5,6 @@
 package com.opendxl.client;
 
 import com.opendxl.client.exception.DxlException;
-import com.opendxl.client.ssl.KeyStoreUtils;
-import com.opendxl.client.util.IniParser;
 import com.opendxl.client.util.UuidGenerator;
 import org.apache.log4j.Logger;
 

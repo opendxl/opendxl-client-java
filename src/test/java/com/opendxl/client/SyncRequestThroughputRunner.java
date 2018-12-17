@@ -5,7 +5,6 @@
 package com.opendxl.client;
 
 import com.opendxl.client.message.Request;
-import com.opendxl.client.testutil.TestService;
 import com.opendxl.client.testutil.ThreadPerRunExecutor;
 import com.opendxl.client.util.UuidGenerator;
 
@@ -23,26 +22,33 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * {@link DxlClient} test that creates a thread per client and sends a request
- * to a test service. Calculations such as request/second and average response
- * time are calculated.
+ * {@link DxlClient} test that creates a thread per client and sends a request to a test service. Calculations such
+ * as request/second and average response time are calculated.
  *
  * @see DxlClient#syncRequest(com.opendxl.client.message.Request, long);
  */
 public class SyncRequestThroughputRunner extends AbstractRunner {
+
+    /**
+     * The number of clients (thread per client)
+     */
+    private static final int THREAD_COUNT = 1000;
+
     /**
      * The number of requests to send
      */
-    private static final int THREAD_COUNT = 1000;
     private static final int REQUEST_COUNT = 10;
+
     /**
      * The maximum time for the test
      */
     private static final long MAX_TIME = 10 * 60 * 1000;
+
     /**
      * The maximum time to wait between connections
      */
     private static final int MAX_CONNECT_WAIT = 60 * 1000;
+
     /**
      * The number of times to try to connect to the broker
      */
