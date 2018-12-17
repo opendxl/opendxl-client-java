@@ -117,7 +117,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "provisionconfig", description = "Download and provision the DXL client configuration",
         mixinStandardHelpOptions = true)
-class ProvisionDxlClientSubcommand implements Subcommand {
+class ProvisionDxlClientSubcommand extends Subcommand {
 
     /**
      * The logger
@@ -184,21 +184,24 @@ class ProvisionDxlClientSubcommand implements Subcommand {
 
     /**
      * Method that either reads an existing CSR or generates a new CSR
-     *
-     * TODO think about renaming this
+     * <p>
      *
      * @return A CSR in PEM format as a string
-     * @throws IOException If there is an issue reading or writing a CSR
+     * @throws IOException                        If there is an issue reading or writing a CSR
      * @throws InvalidAlgorithmParameterException If there is an issue generating the private key
-     * @throws NoSuchAlgorithmException If there is an issue generating the private key
-     * @throws OperatorCreationException If there is an issue generating the key pair or CSR
+     * @throws NoSuchAlgorithmException           If there is an issue generating the private key
+     * @throws OperatorCreationException          If there is an issue generating the key pair or CSR
      */
     private String processCsrAndPrivateKey() throws IOException, InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, OperatorCreationException {
         if (StringUtils.isNotBlank(this.certRequestFile)) {
             return new String(Files.readAllBytes(Paths.get(commonOrCsrFileName)));
         } else {
-            return this.cryptoArgs.generateCsrAndPrivateKey(this.configDir, this.commonOrCsrFileName);
+            CsrAndPrivateKeyGenerator csrAndPrivateKeyGenerator =
+                    new CsrAndPrivateKeyGenerator(this.commonOrCsrFileName, this.cryptoArgs);
+            csrAndPrivateKeyGenerator.saveCsrAndPrivateKey(this.configDir);
+
+            return csrAndPrivateKeyGenerator.getCsrAsPemString();
         }
     }
 
@@ -250,7 +253,6 @@ class ProvisionDxlClientSubcommand implements Subcommand {
 
             // Create and save CSR and private key
             String csrAsString = processCsrAndPrivateKey();
-            System.out.println("Saved CSR and private key");
 
             // Get the CSR signed by the management service
             ManagementService managementService = new ManagementService(this.hostName, this.serverArgs.getPort(),
@@ -273,18 +275,20 @@ class ProvisionDxlClientSubcommand implements Subcommand {
 
             String brokerCaBundlePath = this.configDir + File.separatorChar + CommandLineInterface.CA_BUNDLE_FILE_NAME;
 
-            // Write config file
+            // Create DxlClientConfig object
             DxlClientConfig dxlClientConfig = new DxlClientConfig(brokerCaBundlePath,
-                    this.cryptoArgs.certFileName(this.configDir),
-                    this.cryptoArgs.privateKeyFileName(this.configDir), brokers);
+                    this.cryptoArgs.getCertFileName(this.configDir),
+                    this.cryptoArgs.getPrivateKeyFileName(this.configDir), brokers);
 
+            // Write DxlClientConfig as a config file to disk
             dxlClientConfig.write(this.configDir + File.separatorChar
                     + CommandLineInterface.DXL_CONFIG_FILE_NAME);
 
             // Save CA bundle
             CertUtils.writePemFile(brokerCaBundlePath, provisionCommandResultsArray[0]);
             // Save client certificate
-            CertUtils.writePemFile(this.cryptoArgs.certFileName(this.configDir), provisionCommandResultsArray[1]);
+            // TODO change how the cert file name is gotten
+            CertUtils.writePemFile(this.cryptoArgs.getCertFileName(this.configDir), provisionCommandResultsArray[1]);
         } catch (Exception ex) {
             logger.error("Error while provisioning DXL Client.", ex);
         }

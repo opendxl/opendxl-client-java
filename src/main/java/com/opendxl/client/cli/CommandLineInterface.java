@@ -18,22 +18,24 @@ import java.lang.invoke.MethodHandles;
  * There are three CLI commands for the OpenDXL Java Client:
  * </p>
  * <ul>
- *     <li>
- *         provisionconfig - provisioning a DXL client
- *     </li>
- *     <li>
- *         updateconfig - update the DXL client configuration
- *     </li>
- *     <li>
- *         generatecsr - generate a private key and CSR
- *     </li>
+ * <li>
+ * provisionconfig - provisioning a DXL client
+ * </li>
+ * <li>
+ * updateconfig - update the DXL client configuration
+ * </li>
+ * <li>
+ * generatecsr - generate a private key and CSR
+ * </li>
  * </ul>
+ *
+ * TODO add more comments here
  */
 @CommandLine.Command(description = "dxlclient", name = "dxlclient", mixinStandardHelpOptions = true,
         version = "dxlclient <VERSION>", subcommands = {GenerateCsrAndPrivateKeySubcommand.class,
         ProvisionDxlClientSubcommand.class, UpdateConfigSubcommand.class},
         versionProvider = CommandLineInterface.ManifestVersionProvider.class)
-public class CommandLineInterface implements Subcommand {
+public class CommandLineInterface extends Subcommand {
 
     /**
      * The logger
@@ -129,13 +131,13 @@ public class CommandLineInterface implements Subcommand {
         return readLine(format, args).toCharArray();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void execute(CommandLine.ParseResult parseResult) {
-        // Do nothing
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public void execute(CommandLine.ParseResult parseResult) {
+//        // Do nothing
+//    }
 
     public static void main(String[] args) {
         //create log4j appender

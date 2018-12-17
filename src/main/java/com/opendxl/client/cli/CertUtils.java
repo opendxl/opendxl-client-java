@@ -2,7 +2,6 @@ package com.opendxl.client.cli;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.bouncycastle.openssl.PEMEncryptor;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.util.io.pem.PemObject;
 
@@ -55,12 +54,11 @@ class CertUtils {
     /**
      * Method for writing a PEM file to disk.
      *
-     * @param fileName     The name of the file to write to disk. Can include an absolute path.
-     * @param pemObject    The PEM object to write to disk.
-     * @param pemEncryptor PEM encryption to use when writing the file to disk
+     * @param fileName  The name of the file to write to disk. Can include an absolute path.
+     * @param pemObject The PEM object to write to disk.
      * @throws IOException If there is an issue writing the file to disk
      */
-    static void writePemFile(String fileName, PemObject pemObject, PEMEncryptor pemEncryptor)
+    static void writePemFile(String fileName, PemObject pemObject)
             throws IOException {
         File file = new File(fileName.substring(0, fileName.lastIndexOf(File.separator)));
         if (!file.exists()) {
@@ -68,7 +66,7 @@ class CertUtils {
         }
 
         try (JcaPEMWriter pemWriter = new JcaPEMWriter(new FileWriter(fileName))) {
-            pemWriter.writeObject(pemObject, pemEncryptor);
+            pemWriter.writeObject(pemObject);
         }
     }
 

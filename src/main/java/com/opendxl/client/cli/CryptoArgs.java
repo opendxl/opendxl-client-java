@@ -1,12 +1,8 @@
 package com.opendxl.client.cli;
 
-import org.bouncycastle.operator.OperatorCreationException;
 import picocli.CommandLine;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 /**
@@ -78,49 +74,12 @@ class CryptoArgs {
     private String email;
 
     /**
-     * Method to generate a CSR and private key and return the CSR as a PEM formatted string
-     * TODO Not sure if I like this doing both generate and return as string?
-     *
-     * @param configDir  The configuration directory
-     * @param commonName The name to be used as the Common Name (CN) in the Subject DN of the CSR
-     * @return The CSR as a PEM formatted string
-     * @throws InvalidAlgorithmParameterException If there is an issue generating the private key
-     * @throws NoSuchAlgorithmException           If there is an issue generating the private key
-     * @throws OperatorCreationException          If there is an issue generating the key pair or CSR
-     * @throws IOException                        If there is an error saving the CSR or private key to disk
-     */
-    public String generateCsrAndPrivateKey(String configDir, String commonName)
-            throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, OperatorCreationException,
-            IOException {
-        CsrAndPrivateKeyGenerator csrAndPrivateKeyGenerator = new CsrAndPrivateKeyGenerator(
-                generateX509DistinguishedNames(commonName), this.subjectAlternativeNames);
-        csrAndPrivateKeyGenerator.saveCsrAndPrivateKey(csrFileName(configDir), privateKeyFileName(configDir),
-                this.passphrase);
-
-        return csrAndPrivateKeyGenerator.getCsrAsPemString();
-    }
-
-    /**
-     * Create the string containing the X509 distinguished names
-     *
-     * @param commonName The name to be used as the Common Name (CN) in the Subject DN of the CSR
-     * @return The string containing the X509 distinguished names
-     */
-    private String generateX509DistinguishedNames(String commonName) {
-        // CN=localhost, L=Beaverton, O=McAfee Inc., OU=Client, C=US
-        StringBuilder sb = new StringBuilder();
-        sb.append("CN=").append(commonName);
-        // TODO add other values
-        return sb.toString();
-    }
-
-    /**
      * Get the full private key file name including configuration directory and file prefix
      *
      * @param configDir The configuration directory
      * @return The full private key file name including configuration directory and file prefix
      */
-    String privateKeyFileName(String configDir) {
+    String getPrivateKeyFileName(String configDir) {
         return configDir + File.separatorChar + this.filePrefix + ".key";
     }
 
@@ -130,7 +89,7 @@ class CryptoArgs {
      * @param configDir The configuration directory
      * @return The full CSR file name including configuration directory and file prefix
      */
-    String csrFileName(String configDir) {
+    String getCsrFileName(String configDir) {
         return configDir + File.separatorChar + this.filePrefix + ".csr";
     }
 
@@ -140,7 +99,7 @@ class CryptoArgs {
      * @param configDir The configuration directory
      * @return The full certificate file name including configuration directory and file prefix
      */
-    String certFileName(String configDir) {
+    String getCertFileName(String configDir) {
         return configDir + File.separatorChar + this.filePrefix + ".crt";
     }
 

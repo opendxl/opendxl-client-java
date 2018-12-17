@@ -3,9 +3,9 @@ package com.opendxl.client.cli;
 import picocli.CommandLine;
 
 /**
- * Subcommand interface for all CLI subcommands
+ * Subcommand abstract class for all CLI subcommands
  */
-interface Subcommand {
+abstract class Subcommand {
 
     /**
      * Execution entry point for the subcommand. This method is called when the name of the implementing subcommand
@@ -13,5 +13,7 @@ interface Subcommand {
      *
      * @param parseResult The input CLI arguments
      */
-    void execute(CommandLine.ParseResult parseResult);
+    void execute(CommandLine.ParseResult parseResult) {
+        // Do nothing
+    }
 }

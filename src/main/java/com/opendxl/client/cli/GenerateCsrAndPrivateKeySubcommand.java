@@ -10,7 +10,7 @@ import java.lang.invoke.MethodHandles;
  */
 @CommandLine.Command(name = "generatecsr", description = "Generate CSR and private key",
         mixinStandardHelpOptions = true)
-class GenerateCsrAndPrivateKeySubcommand implements Subcommand {
+class GenerateCsrAndPrivateKeySubcommand extends Subcommand {
 
     /**
      * The logger
@@ -45,7 +45,9 @@ class GenerateCsrAndPrivateKeySubcommand implements Subcommand {
     @Override
     public void execute(CommandLine.ParseResult parseResult) {
         try {
-            this.cryptoArgs.generateCsrAndPrivateKey(this.configDir, this.commonName);
+            CsrAndPrivateKeyGenerator csrAndPrivateKeyGenerator =
+                    new CsrAndPrivateKeyGenerator(this.commonName, this.cryptoArgs);
+            csrAndPrivateKeyGenerator.saveCsrAndPrivateKey(this.configDir);
         } catch (Exception e) {
             logger.error("Error creating private key and CSR.", e);
         }

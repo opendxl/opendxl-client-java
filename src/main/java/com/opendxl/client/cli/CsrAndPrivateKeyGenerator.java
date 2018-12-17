@@ -1,7 +1,20 @@
 package com.opendxl.client.cli;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.bouncycastle.openssl.PEMEncryptor;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
+import org.bouncycastle.asn1.x509.ExtensionsGenerator;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.asn1.x509.KeyPurposeId;
+import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -11,7 +24,6 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 
-import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.invoke.MethodHandles;
@@ -22,6 +34,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.RSAKeyGenParameterSpec;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,8 +46,6 @@ class CsrAndPrivateKeyGenerator {
      * The logger
      */
     private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
-
-    // TODO could this just be moved to another class and the CertUtils class?
 
     /**
      * SHA 256 with RSA indicator
@@ -60,18 +71,25 @@ class CsrAndPrivateKeyGenerator {
     private PKCS10CertificationRequest csr;
 
     /**
+     * The CLI input crypto arguments
+     */
+    private CryptoArgs cryptoArgs;
+
+    /**
      * Constructor that generates a key pair and CSR
      *
-     * @param x509DistinguishedNames  The string containing X509 distinguished names
-     * @param subjectAlternativeNames A list of certificate subject alternative names
+     * @param commonName The name to be used as the Common Name (CN) in the Subject DN of the CSR
+     * @param cryptoArgs The CLI input crypto related arguments
      * @throws InvalidAlgorithmParameterException If there is an issue generating the key pair
      * @throws NoSuchAlgorithmException           If there is an issue generating the key pair
      * @throws OperatorCreationException          If there is an issue generating the key pair or CSR
      */
-    CsrAndPrivateKeyGenerator(String x509DistinguishedNames, List<String> subjectAlternativeNames)
-            throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, OperatorCreationException {
+    CsrAndPrivateKeyGenerator(String commonName, CryptoArgs cryptoArgs)
+            throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, OperatorCreationException,
+            IOException {
+        this.cryptoArgs = cryptoArgs;
         this.keyPair = generateKeyPair();
-        this.csr = generateCSR(x509DistinguishedNames, this.keyPair, subjectAlternativeNames);
+        this.csr = generateCSR(commonName, this.keyPair);
     }
 
     /**
@@ -92,45 +110,108 @@ class CsrAndPrivateKeyGenerator {
     /**
      * Method  to generate a CSR
      *
-     * @param x509distinguishedNames  The string containing X509 distinguished names
-     * @param keyPair                 The key pair containing the private and public keys used to generate the CSR
-     * @param subjectAlternativeNames A list of certificate subject alternative names
+     * @param commonName The name to be used as the Common Name (CN) in the Subject DN of the CSR
+     * @param keyPair    The key pair containing the private and public keys used to generate the CSR
      * @return A CSR
      * @throws OperatorCreationException If there is an issue generating the CSR
+     * @throws IOException               If there is an issue generating the extensions object
      */
-    private PKCS10CertificationRequest generateCSR(String x509distinguishedNames, KeyPair keyPair,
-                                                   List<String> subjectAlternativeNames)
-            throws OperatorCreationException {
-
-        // TODO add code to set SAN's and other items he sets in python
-        // The certificate subject format string
-        final X500Principal subject = new X500Principal(x509distinguishedNames);
-
+    private PKCS10CertificationRequest generateCSR(String commonName, KeyPair keyPair)
+            throws OperatorCreationException, IOException {
         // Switch to X509v3CertificateBuilder ???
-        final PKCS10CertificationRequestBuilder crBuilder =
-                new JcaPKCS10CertificationRequestBuilder(subject, keyPair.getPublic());
+        final PKCS10CertificationRequestBuilder crBuilder = new JcaPKCS10CertificationRequestBuilder(
+                generateX509DistinguishedNames(commonName), keyPair.getPublic());
+        // Add the extensions to the CSR builder
+        crBuilder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, generateCsrExtensions());
         final JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(SHA256_WITH_RSA);
         final ContentSigner signer = csBuilder.build(keyPair.getPrivate());
         return crBuilder.build(signer);
     }
 
     /**
+     * Method to generate the CSR extensions object
+     *
+     * @return CSR extensions object
+     * @throws IOException If there is an issue generating the extensions object
+     */
+    private Extensions generateCsrExtensions() throws IOException {
+        // Create CSR extensions
+        ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
+        // basic constraints extension
+        extensionsGenerator.addExtension(Extension.basicConstraints, false,
+                new BasicConstraints(false));
+        // key usage extension
+        extensionsGenerator.addExtension(Extension.keyUsage, true,
+                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
+        // Extended key usage extension
+        extensionsGenerator.addExtension(Extension.extendedKeyUsage, false,
+                new ExtendedKeyUsage(KeyPurposeId.id_kp_clientAuth));
+
+        //Subject Alternative Name extensions
+        if (this.cryptoArgs.getSubjectAlternativeNames() != null
+                && !this.cryptoArgs.getSubjectAlternativeNames().isEmpty()) {
+            List<GeneralName> sanGeneralNames = new ArrayList<>();
+            for (String san : this.cryptoArgs.getSubjectAlternativeNames()) {
+                sanGeneralNames.add(new GeneralName(GeneralName.dNSName, san));
+            }
+            extensionsGenerator.addExtension(Extension.subjectAlternativeName, false,
+                    new GeneralNames(sanGeneralNames.toArray(new GeneralName[sanGeneralNames.size()])));
+        }
+
+        return extensionsGenerator.generate();
+    }
+
+    /**
+     * Create the string containing the X509 distinguished names
+     *
+     * @param commonName The name to be used as the Common Name (CN) in the Subject DN of the CSR
+     * @return The string containing the X509 distinguished names
+     */
+    private X500Name generateX509DistinguishedNames(String commonName) {
+        X500NameBuilder nameBuilder = new X500NameBuilder(X500Name.getDefaultStyle());
+        nameBuilder.addRDN(BCStyle.CN, commonName);
+        if (StringUtils.isNotBlank(this.cryptoArgs.getOrganizationalUnit())) {
+            nameBuilder.addRDN(BCStyle.OU, this.cryptoArgs.getOrganizationalUnit());
+        }
+        if (StringUtils.isNotBlank(this.cryptoArgs.getOrganization())) {
+            nameBuilder.addRDN(BCStyle.O, this.cryptoArgs.getOrganization());
+        }
+        if (StringUtils.isNotBlank(this.cryptoArgs.getLocality())) {
+            nameBuilder.addRDN(BCStyle.L, this.cryptoArgs.getLocality());
+        }
+        if (StringUtils.isNotBlank(this.cryptoArgs.getStateOrProvince())) {
+            nameBuilder.addRDN(BCStyle.ST, this.cryptoArgs.getStateOrProvince());
+        }
+        if (StringUtils.isNotBlank(this.cryptoArgs.getCountry())) {
+            nameBuilder.addRDN(BCStyle.C, this.cryptoArgs.getCountry());
+        }
+        if (StringUtils.isNotBlank(this.cryptoArgs.getEmail())) {
+            nameBuilder.addRDN(BCStyle.EmailAddress, this.cryptoArgs.getEmail());
+        }
+
+        return nameBuilder.build();
+    }
+
+    /**
      * Method to save the CSR and private key to disk
      *
-     * @param csrFileName        The CSR file name
-     * @param privateKeyFileName The private key file name
-     * @param passphrase         Encryption to use when saving the private key
+     * @param configDir The configuration directory
      * @throws IOException If there is an error saving the CSR or private key to disk
      */
-    void saveCsrAndPrivateKey(String csrFileName, String privateKeyFileName, String passphrase)
+    void saveCsrAndPrivateKey(String configDir)
             throws IOException {
-        PEMEncryptor pemEncryptor = null; // TODO deal with encryption
-        logger.info("Saving csr file to " + csrFileName);
-        CertUtils.writePemFile(privateKeyFileName, new PemObject(CertUtils.PRIVATE_KEY_OBJECT_TYPE_STRING,
-                this.keyPair.getPrivate().getEncoded()), pemEncryptor);
+        String csrFileName = this.cryptoArgs.getCsrFileName(configDir);
+        String privateKeyFileName = this.cryptoArgs.getPrivateKeyFileName(configDir);
+
+        // Save private key
         logger.info("Saving private key file to " + privateKeyFileName);
+        CertUtils.writePemFile(privateKeyFileName, new PemObject(CertUtils.PRIVATE_KEY_OBJECT_TYPE_STRING,
+                this.keyPair.getPrivate().getEncoded()));
+
+        // Save CSR
+        logger.info("Saving csr file to " + csrFileName);
         CertUtils.writePemFile(csrFileName, new PemObject(CertUtils.CERTIFICATE_REQUEST_OBJECT_TYPE_STRING,
-                this.csr.getEncoded()), null);
+                this.csr.getEncoded()));
     }
 
     /**

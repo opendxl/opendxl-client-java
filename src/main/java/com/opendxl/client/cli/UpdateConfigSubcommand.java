@@ -101,7 +101,7 @@ import java.util.List;
  */
 @CommandLine.Command(name = "updateconfig", description = "Update the DXL client configuration",
         mixinStandardHelpOptions = true)
-class UpdateConfigSubcommand implements Subcommand {
+class UpdateConfigSubcommand extends Subcommand {
 
     /**
      * The logger
