@@ -13,7 +13,7 @@ Introduction
 	features
 	integrationtypes
 
-Java SDK Prerequisites and Overview
+Java SDK Overview and Prerequisites
 -----------------------------------
 
 .. toctree::

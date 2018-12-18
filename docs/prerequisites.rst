@@ -1,4 +1,4 @@
-SDK Prerequisites and Overview
+SDK Overview and Prerequisites
 ==============================
 
 Prerequisites
@@ -38,4 +38,24 @@ Java SDK Contents
 | sample       |                                  | Directory containing samples used to test the DXL client.         |
 +--------------+----------------------------------+-------------------------------------------------------------------+
 
+Maven Repository
+****************
 
+Visit the `OpenDXL Java Client Maven Repository <https://mvnrepository.com/artifact/com.opendxl/dxlclient>`_
+access to all released versions including the appropriate dependency syntax for a large number of management
+systems (Maven, Gradle, SBT, Ivy, Grape, etc.).
+
+Maven:
+
+    .. code-block:: xml
+
+        <dependency>
+          <groupId>com.opendxl</groupId>
+          <artifactId>dxlclient</artifactId>
+          <version>0.1.0</version>
+        </dependency>
+or Gradle:
+
+    .. code-block:: groovy
+
+        compile 'com.opendxl:dxlclient:0.1.0'

@@ -226,11 +226,32 @@ publishing {
     }
 }
 
+task replaceVersionInREADME() {
+    if (!version.endsWith('SNAPSHOT')) {
+        // Maven
+        ant.replaceregexp(match: '<version>(.+)</version>', replace: "<version>${version}</version>", flags: 'g', byline: true) {
+            fileset(dir: '.', includes: 'README.md')
+        }
+        ant.replaceregexp(match: '<version>(.+)</version>', replace: "<version>${version}</version>", flags: 'g', byline: true) {
+            fileset(dir: 'docs', includes: 'prerequisites.rst')
+        }
+        // Gradle
+        ant.replaceregexp(match: "com\\.opendxl\\:dxlclient\\:(.+)", replace: "com.opendxl:dxlclient:${version}'", flags: 'g', byline: true) {
+            fileset(dir: '.', includes: 'README.md')
+        }
+        ant.replaceregexp(match: "com\\.opendxl\\:dxlclient\\:(.+)", replace: "com.opendxl:dxlclient:${version}'", flags: 'g', byline: true) {
+            fileset(dir: 'docs', includes: 'prerequisites.rst')
+        }
+    }
+}
+
 signing {sign publishing.publications.maven}
 
 distZip.dependsOn javadocJar
 distZip.dependsOn sourceJar
 sphinx.dependsOn(versionFile)
+assemble.dependsOn(replaceVersionInREADME)
+
 
 test {
     systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"

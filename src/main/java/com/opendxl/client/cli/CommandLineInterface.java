@@ -1,3 +1,7 @@
+/*---------------------------------------------------------------------------*
+ * Copyright (c) 2018 McAfee, LLC - All Rights Reserved.                     *
+ *---------------------------------------------------------------------------*/
+
 package com.opendxl.client.cli;
 
 import org.apache.commons.lang3.StringUtils;

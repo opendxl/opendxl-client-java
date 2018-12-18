@@ -24,6 +24,26 @@ To start using the OpenDXL Java client:
   * The `README` links to the SDK documentation which includes installation instructions, API details, and samples.
   * The SDK documentation is also available on-line [here](https://opendxl.github.io/opendxl-client-java/doc).
 
+## Maven Repository
+
+Visit the [OpenDXL Java Client Maven Repository](https://mvnrepository.com/artifact/com.opendxl/dxlclient) for 
+access to all released versions including the appropriate dependency syntax for a large number of management 
+systems (Maven, Gradle, SBT, Ivy, Grape, etc.).
+
+Maven:
+
+```xml
+<dependency>
+  <groupId>com.opendxl</groupId>
+  <artifactId>dxlclient</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+or Gradle:
+```groovy
+compile 'com.opendxl:dxlclient:0.1.0'
+```
+
 ## Bugs and Feedback
 
 For bugs, questions and discussions please use the [Github Issues](https://github.com/opendxl/opendxl-client-java/issues).
