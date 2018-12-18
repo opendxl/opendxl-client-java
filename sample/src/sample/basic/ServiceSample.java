@@ -89,7 +89,7 @@ public class ServiceSample {
                 // Extract information from the response (Check for errors)
                 if (res.getMessageType() != Message.MESSAGE_TYPE_ERROR) {
                     System.out.println("Client received response payload: "
-                        + new String(res.getPayload(), Message.CHARSET_UTF8) + ", " + res.getServiceId());
+                        + new String(res.getPayload(), Message.CHARSET_UTF8));
                 } else {
                     System.out.println("Error: " + ((ErrorResponse) res).getErrorMessage());
                 }
