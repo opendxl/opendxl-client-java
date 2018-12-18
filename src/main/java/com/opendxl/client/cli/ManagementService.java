@@ -292,25 +292,22 @@ class ManagementService {
         } else {
             cm = new PoolingHttpClientConnectionManager();
         }
-        cm.setMaxTotal(DEFAULT_CONN_POOL_MAX_TOTAL); // TODO change these values to be lower????
+        cm.setMaxTotal(DEFAULT_CONN_POOL_MAX_TOTAL);
         cm.setDefaultMaxPerRoute(DEFAULT_CONN_POOL_MAX_PER_ROUTE);
         return cm;
     }
 
     /**
      * Invoke the input command name on the Management Service via an HTTPS request and return the response
-     * as an instance of the specified return type class.
+     * string.
      *
-     * @param commandName     The command name to be invoked on the Management Service
-     * @param parameters      A list of parameters to pass to the command to be invoked on the Management Services
-     * @param returnTypeClass The type class of the object to be returned by this method.
-     * @param <T>  The type of the object to return from the invoked command
-     * @return The response from invoking the command on the Management Service as an instance of the specified
-     * return type class.
+     * @param commandName The command name to be invoked on the Management Service
+     * @param parameters  A list of parameters to pass to the command to be invoked on the Management Services
+     * @return The response string from invoking the command on the Management Service
      * @throws URISyntaxException If there is an issue creating the Management Service URL with the input command name
      * @throws IOException        If the response from invoked command is invalid
      */
-    <T> T invokeCommand(String commandName, List<NameValuePair> parameters, Class<T> returnTypeClass)
+    String invokeCommand(String commandName, List<NameValuePair> parameters)
             throws URISyntaxException,
             IOException {
         HttpGet request = new HttpGet(this.baseUrl + "/" + commandName);
@@ -346,7 +343,11 @@ class ManagementService {
                         this.baseUrl + "/" + commandName, httpStatus, responseDetail));
             }
 
-            return new ObjectMapper().readValue(responseDetail, returnTypeClass);
+            if (responseDetail.startsWith("\"") && responseDetail.endsWith("\"")) {
+                return new ObjectMapper().readValue(responseDetail, String.class);
+            } else {
+                return responseDetail;
+            }
         }
     }
 }

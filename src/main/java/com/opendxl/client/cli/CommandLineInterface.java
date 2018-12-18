@@ -28,7 +28,7 @@ import java.lang.invoke.MethodHandles;
  * </ul>
  */
 @CommandLine.Command(description = "dxlclient", name = "dxlclient", mixinStandardHelpOptions = true,
-        version = "dxlclient <VERSION>", subcommands = {GenerateCsrAndPrivateKeySubcommand.class,
+        subcommands = {GenerateCsrAndPrivateKeySubcommand.class,
         ProvisionDxlClientSubcommand.class, UpdateConfigSubcommand.class},
         versionProvider = CommandLineInterface.ManifestVersionProvider.class)
 public class CommandLineInterface extends Subcommand {
@@ -137,13 +137,12 @@ public class CommandLineInterface extends Subcommand {
         ConsoleAppender console = new ConsoleAppender();
         //configure the appender
         console.setLayout(new PatternLayout(LOGGING_PATTERN));
-        console.setThreshold(Level.INFO); // TODO allow the user to set the log level via CLI argument??
         console.activateOptions();
         //add appender to any Logger (here is root)
         Logger.getRootLogger().addAppender(console);
 
         // Set up the parser
-        CommandLine commandLine = new CommandLine(new CommandLineInterface());
+        CommandLine commandLine = new CommandLine(new CommandLineInterface()); // TODO add headings and correct usage
         CommandLine.Model.CommandSpec commandSpec = commandLine.getCommandSpec();
         commandSpec.parser().collectErrors(true);
 
@@ -172,7 +171,7 @@ public class CommandLineInterface extends Subcommand {
 
         if (!parseResult.errors().isEmpty() && (!parseResult.matchedOptions().isEmpty()
                 || !parseResult.matchedPositionals().isEmpty())) {
-            parseResult.errors().forEach(error -> System.out.println(error.getMessage()));
+            parseResult.errors().forEach(error -> logger.error(error.getMessage(), error));
             exit = true;
         }
 
@@ -181,6 +180,8 @@ public class CommandLineInterface extends Subcommand {
         }
 
         Subcommand parsedCommand = parseResult.commandSpec().commandLine().getCommand();
+        // set the log level TODO should this be higher???
+        console.setThreshold(parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
         parsedCommand.execute(parseResult);
     }
 

@@ -167,14 +167,14 @@ class UpdateConfigSubcommand extends Subcommand {
 
             // Invoke the broker cert chain command on the management service
             String brokerCertChainResponse = managementService.invokeCommand(BROKER_CERT_CHAIN_COMMAND,
-                    null, String.class);
+                    Collections.EMPTY_LIST);
 
             // Save broker cert chain response to disk
             logger.info("Updating certs in " + dxlClientConfig.getBrokerCaBundlePath());
             CertUtils.writePemFile(dxlClientConfig.getBrokerCaBundlePath(), brokerCertChainResponse);
 
             String brokerListCommandResultsAsString = managementService.invokeCommand(BROKER_LIST_COMMAND,
-                    Collections.EMPTY_LIST, String.class);
+                    Collections.EMPTY_LIST);
 
             BrokerListCommandResults brokerListCommandResults =
                     new ObjectMapper().readValue(brokerListCommandResultsAsString, BrokerListCommandResults.class);

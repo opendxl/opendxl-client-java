@@ -262,8 +262,7 @@ class ProvisionDxlClientSubcommand extends Subcommand {
             ManagementService managementService = new ManagementService(this.hostName, this.serverArgs.getPort(),
                     this.serverArgs.getUser(), this.serverArgs.getPassword(), this.serverArgs.getTrustStoreFile());
             String provisionCommandResults = managementService.invokeCommand(PROVISION_COMMAND,
-                    Collections.singletonList(new BasicNameValuePair(CSR_STRING_PARAMETER_NAME, csrAsString)),
-                    String.class);
+                    Collections.singletonList(new BasicNameValuePair(CSR_STRING_PARAMETER_NAME, csrAsString)));
 
             String[] provisionCommandResultsArray = provisionCommandResults.split(PROVISION_COMMAND_RESULTS_DELIMITER);
 
@@ -278,10 +277,9 @@ class ProvisionDxlClientSubcommand extends Subcommand {
             List<Broker> brokers = brokersForConfig(provisionCommandResultsArray[2]);
 
             String brokerCaBundlePath = this.configDir + File.separatorChar + CommandLineInterface.CA_BUNDLE_FILE_NAME;
-
+            String certFileName = configDir + File.separatorChar + this.cryptoArgs.getFilePrefix() + ".crt";
             // Create DxlClientConfig object
-            DxlClientConfig dxlClientConfig = new DxlClientConfig(brokerCaBundlePath,
-                    this.cryptoArgs.getCertFileName(this.configDir),
+            DxlClientConfig dxlClientConfig = new DxlClientConfig(brokerCaBundlePath, certFileName,
                     this.cryptoArgs.getPrivateKeyFileName(this.configDir), brokers);
 
             // Write DxlClientConfig as a config file to disk
@@ -291,8 +289,7 @@ class ProvisionDxlClientSubcommand extends Subcommand {
             // Save CA bundle
             CertUtils.writePemFile(brokerCaBundlePath, provisionCommandResultsArray[0]);
             // Save client certificate
-            // TODO change how the cert file name is gotten
-            CertUtils.writePemFile(this.cryptoArgs.getCertFileName(this.configDir), provisionCommandResultsArray[1]);
+            CertUtils.writePemFile(certFileName, provisionCommandResultsArray[1]);
         } catch (Exception ex) {
             logger.error("Error while provisioning DXL Client.", ex);
         }
