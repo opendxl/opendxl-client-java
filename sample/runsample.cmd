@@ -12,7 +12,6 @@ REM #                                                                         #
 REM #  runsample sample.basic.EventSample                                     #
 REM ###########################################################################
 
-
 IF "%1"=="" GOTO help
 
 setLocal EnableDelayedExpansion
