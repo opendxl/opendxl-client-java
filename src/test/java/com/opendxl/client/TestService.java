@@ -4,7 +4,6 @@
 
 package com.opendxl.client;
 
-import com.opendxl.client.DxlClient;
 import com.opendxl.client.callback.RequestCallback;
 import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Request;
