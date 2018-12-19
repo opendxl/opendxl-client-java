@@ -10,11 +10,28 @@ import picocli.CommandLine;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Subcommand for generating a certificate signing request and private key and storing each to a file.
+ * CLI command for generating a certificate signing request and private key, storing each to a file.
+ * <p>
+ * The provision DXL Client command requires three CLI arguments:
+ * </p>
+ * <ul>
+ * <li>
+ * CONFIGDIR - The path to the configuration directory where the CSR and private key will be saved
+ * </li>
+ * <li>
+ * COMMON_NAME - The Common Name (CN) to use in the CSR's Subject DN
+ * </li>
+ * </ul>
+ * <p>
+ * An example usage of this command is the following:
+ * </p>
+ * <pre>
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar generatecsr config dxlclient1
+ * </pre>
  */
 @CommandLine.Command(name = "generatecsr", description = "Generate CSR and private key",
         mixinStandardHelpOptions = true)
-class GenerateCsrAndPrivateKeySubcommand extends Subcommand {
+class GenerateCsrAndPrivateKeySubcommand extends DxlCliCommand {
 
     /**
      * The logger
@@ -47,7 +64,7 @@ class GenerateCsrAndPrivateKeySubcommand extends Subcommand {
      * {@inheritDoc}
      */
     @Override
-    public void execute(CommandLine.ParseResult parseResult) {
+    public void execute() {
         try {
             CsrAndPrivateKeyGenerator csrAndPrivateKeyGenerator =
                     new CsrAndPrivateKeyGenerator(this.commonName, this.cryptoArgs);

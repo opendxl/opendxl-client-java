@@ -7,20 +7,19 @@ package com.opendxl.client.cli;
 import picocli.CommandLine;
 
 /**
- * Subcommand abstract class for all CLI subcommands
+ * DxlCliCommand abstract class for all CLI subcommands
  */
-abstract class Subcommand {
+abstract class DxlCliCommand {
 
-    @CommandLine.Option(names = "--verbose",    description = "Verbose mode. Increases the log level to DEBUG")
+    @CommandLine.Option(names = "--verbose", description = "Verbose mode. Increases the log level to DEBUG")
     private boolean verbose;
 
     /**
      * Execution entry point for the subcommand. This method is called when the name of the implementing subcommand
      * is entered in the CLI arguments.
      *
-     * @param parseResult The input CLI arguments
      */
-    void execute(CommandLine.ParseResult parseResult) {
+    void execute() {
         // Do nothing
     }
 

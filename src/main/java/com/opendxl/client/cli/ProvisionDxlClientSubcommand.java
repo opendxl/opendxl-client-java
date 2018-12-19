@@ -25,9 +25,9 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * CLI subcommand for provisioning a DXL client.
+ * CLI command for provisioning a DXL client.
  * <p>
- * This subcommand performs the following steps:
+ * This command performs the following steps:
  * </p>
  * <ul>
  * <li>
@@ -92,13 +92,13 @@ import java.util.List;
  * </li>
  * </ul>
  * <p>
- * To invoke this CLI subcommand, the first argument must be <i>provisionconfig</i>. For example:
+ * To invoke this CLI command, the first argument must be <i>provisionconfig</i>. For example:
  * </p>
  * <pre>
- *     $&gt; dxlclient-0.1.0-all.jar provisionconfig ...
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar provisionconfig ...
  * </pre>
  * <p>
- * The provision DXL Client subcommand requires three CLI arguments:
+ * The provision DXL Client command requires three CLI arguments:
  * </p>
  * <ul>
  * <li>
@@ -113,15 +113,15 @@ import java.util.List;
  * </li>
  * </ul>
  * <p>
- * An example usage of this subcommand is the following:
+ * An example usage of this command is the following:
  * </p>
  * <pre>
- *     $&gt; dxlclient-0.1.0-all.jar provisionconfig config myserver dxlclient1
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar provisionconfig config myserver dxlclient1
  * </pre>
  */
 @CommandLine.Command(name = "provisionconfig", description = "Download and provision the DXL client configuration",
         mixinStandardHelpOptions = true)
-class ProvisionDxlClientSubcommand extends Subcommand {
+class ProvisionDxlClientSubcommand extends DxlCliCommand {
 
     /**
      * The logger
@@ -249,7 +249,7 @@ class ProvisionDxlClientSubcommand extends Subcommand {
      * {@inheritDoc}
      */
     @Override
-    public void execute(CommandLine.ParseResult parseResult) {
+    public void execute() {
 
         try {
             // Get server username and pass if missing
@@ -283,13 +283,15 @@ class ProvisionDxlClientSubcommand extends Subcommand {
                     this.cryptoArgs.getPrivateKeyFileName(this.configDir), brokers);
 
             // Write DxlClientConfig as a config file to disk
-            dxlClientConfig.write(this.configDir + File.separatorChar
-                    + CommandLineInterface.DXL_CONFIG_FILE_NAME);
+            String dxlClientCongigPath = this.configDir + File.separatorChar
+                    + CommandLineInterface.DXL_CONFIG_FILE_NAME;
+            logger.info("Saving DXL config file to " + dxlClientCongigPath);
+            dxlClientConfig.write(dxlClientCongigPath);
 
             // Save CA bundle
-            CertUtils.writePemFile(brokerCaBundlePath, provisionCommandResultsArray[0]);
+            CertUtils.writePemFile(brokerCaBundlePath, "ca bundle", provisionCommandResultsArray[0]);
             // Save client certificate
-            CertUtils.writePemFile(certFileName, provisionCommandResultsArray[1]);
+            CertUtils.writePemFile(certFileName, "client certificate", provisionCommandResultsArray[1]);
         } catch (Exception ex) {
             logger.error("Error while provisioning DXL Client.", ex);
         }

@@ -12,26 +12,243 @@ import org.apache.log4j.PatternLayout;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.net.URISyntaxException;
 
 /**
  * Main class for the OpenDXL Java Client CLI commands.
  * <p>
  * There are three CLI commands for the OpenDXL Java Client:
  * </p>
+ * <table summary="List of CLI commands for OpenDXL Java Client" border="0" cellpadding="8" cellspacing="0">
+ * <tr align="left" style="background-color: #CCCCFF;">
+ * <th align="left" id="commandName" style="white-space: nowrap;">Command Name</th>
+ * <th align="left" id="commandInfo">Command Information</th>
+ * </tr>
+ * <tr>
+ * <th style="vertical-align: top;">provisionconfig</th>
+ * <td style="vertical-align: top;">
+ * This command is for provisioning a DXL Client and performs the following steps:
  * <ul>
- * <li>provisionconfig - provisioning a DXL client</li>
- * <li>updateconfig - update the DXL client configuration</li>
- * <li>generatecsr - generate a private key and CSR</li>
+ * <li>
+ * Either generates a certificate signing request and private key, storing
+ * each to a file, (the default) or reads the certificate signing request
+ * from a file (if the "-r" argument is specified).
+ * </li>
+ * <li>
+ * Sends the certificate signing request to a signing endpoint on a
+ * management server. The HTTP response payload for this request should look
+ * like the following:
+ * </li>
  * </ul>
+ * <br>
+ * <pre>
+ *     OK:
+ *     "[ca bundle],[signed client cert],[broker config]"
+ * </pre>
+ * <p>
+ * Sections of the response include:
+ * </p>
+ * <ul>
+ * <li>
+ * A line with the text "OK:" if the request was successful, else
+ * "ERROR &lt;code&gt;:" on failure.
+ * </li>
+ * <li>A JSON-encoded string with a double-quote character at the beginning
+ * and end and with the following parts, comma-delimited:
+ * <ul>
+ * <li>
+ * [ca bundle] - a concatenation of one or more PEM-encoded CA
+ * certificates
+ * </li>
+ * <li>
+ * [signed client cert] - a PEM-encoded certificate signed from the
+ * certificate request
+ * </li>
+ * <li>[broker config] - zero or more lines, each delimited by a line feed
+ * character, for each of the brokers known to the management service.
+ * Each line contains a key and value, delimited by an equal sign. The
+ * key contains a broker guid. The value contains other metadata for the
+ * broker, e.g., the broker guid, port, hostname, and ip address. For
+ * example: "[guid1]=[guid1];8883;broker;10.10.1.1\n[guid2]=[guid2]...".
+ * </li>
+ * </ul>
+ * </li>
+ * <li>
+ * Saves the [ca bundle] and [signed client cert] to separate files.
+ * </li>
+ * <li>
+ * Creates a "dxlclient.config" file with the following sections:
+ * <ul>
+ * <li>
+ * A "Certs" section with certificate configuration which refers to the
+ * locations of the private key, ca bundle, and certificate files.
+ * </li>
+ * <li>
+ * A "Brokers" section with the content of the [broker config] provided
+ * by the management service.
+ * </li>
+ * </ul>
+ * </li>
+ * </ul>
+ * <p>
+ * To invoke this CLI command, the first argument must be <i>provisionconfig</i>. For example:
+ * </p>
+ * <pre>
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar provisionconfig ...
+ * </pre>
+ * <p>
+ * The provision DXL Client command requires three CLI arguments:
+ * </p>
+ * <ul>
+ * <li>
+ * CONFIGDIR - The path to the configuration directory
+ * </li>
+ * <li>
+ * HOSTNAME - The hostname where the management service resides
+ * </li>
+ * <li>
+ * COMMON_OR_CSRFILE_NAME - The Common Name (CN) in the Subject DN for a new csr or the filename for a
+ * pre-existing csr if the <i>-r</i> option is also used as CLI argument
+ * </li>
+ * </ul>
+ * <p>
+ * An example usage of this command is the following:
+ * </p>
+ * <pre>
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar provisionconfig config myserver dxlclient1
+ * </pre>
+ * </td>
+ * </tr>
+ * <tr>
+ * <th style="vertical-align: top;">updateconfig</th>
+ * <td style="vertical-align: top;">
+ * This command is for updating the DXL client configuration in the dxlclient.config file, specifically the
+ * ca bundle and broker configuration.
+ * <p>
+ * This command performs the following steps:
+ * </p>
+ * <ul>
+ * <li>
+ * Sends a request to a management server endpoint for the latest ca bundle
+ * information. The HTTP response payload for this request should look
+ * like the following:
+ * <br>
+ * <pre>
+ *     OK:
+ *     "[ca bundle]"
+ * </pre>
+ * Sections of the response include:
+ * <ul>
+ * <li>
+ * A line with the text "OK:" if the request was successful, else
+ * "ERROR [code]:" on failure.
+ * </li>
+ * <li>
+ * A JSON-encoded string with a double-quote character at the beginning
+ * and end. The string contains a concatenation of one or more PEM-encoded
+ * CA certificates.
+ * </li>
+ * </ul>
+ * </li>
+ * <li>
+ * Saves the [ca bundle] to the file at the location specified in the
+ * "BrokerCertChain" setting in the "Certs" section of the dxlclient.config
+ * file.
+ * </li>
+ * <li>
+ * Sends a request to a management server endpoint for the latest broker
+ * configuration. The HTTP response payload for this request should look
+ * like the following:
+ * <pre>
+ *     OK:
+ *     "[broker config]"
+ * </pre>
+ * Sections of the response include:
+ * <ul>
+ * <li>
+ * A line with the text "OK:" if the request was successful, else
+ * "ERROR [code]:" on failure.
+ * </li>
+ * <li>
+ * A JSON-encoded string with a double-quote character at the beginning
+ * and end. The string should contain a JSON document which looks similar
+ * to the following:
+ * <pre>
+ *     {
+ *         "brokers": [
+ *             {
+ *                 "guid": "{2c5b107c-7f51-11e7-0ebf-0800271cfa58}",
+ *                 "hostName": "broker1",
+ *                 "ipAddress": "10.10.100.100",
+ *                 "port": 8883
+ *             },
+ *             {
+ *                 "guid": "{e90335b2-8dc8-11e7-1bc3-0800270989e4}",
+ *                 "hostName": "broker2",
+ *                 "ipAddress": "10.10.100.101",
+ *                 "port": 8883
+ *             },
+ *             ...
+ *         ],
+ *         "certVersion": 0
+ *     }
+ * </pre>
+ * </li>
+ * </ul>
+ * </li>
+ * <li>
+ * Saves the [broker config] to the "Brokers" section of the
+ * dxlclient.config file.
+ * </li>
+ * </ul>
+ * <p>
+ * Updates to the dxlclient.config file do not attempt to preserve comments in the
+ * file. If a broker listed in the config file on disk is no longer known to the management server, the
+ * broker's config entry and any comments directly above it are removed from
+ * the config file.
+ * <p>
+ * An example usage of this command is the following:
+ * </p>
+ * <pre>
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar updateconfig config myserver
+ * </pre>
+ * </td>
+ * </tr>
+ * <tr>
+ * <th style="vertical-align: top;">generatecsr</th>
+ * <td style="vertical-align: top;">
+ * This command is for generating a private key and CSR
+ * <p>
+ * The provision DXL Client command requires three CLI arguments:
+ * </p>
+ * <ul>
+ * <li>
+ * CONFIGDIR - The path to the configuration directory where the CSR and private key will be saved
+ * </li>
+ * <li>
+ * COMMON_NAME - The Common Name (CN) to use in the CSR's Subject DN
+ * </li>
+ * </ul>
+ * <p>
+ * An example usage of this command is the following:
+ * </p>
+ * <pre>
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar generatecsr config dxlclient1
+ * </pre>
+ * </td>
+ * </tr>
+ * </table>
  */
-@CommandLine.Command(description = "dxlclient", name = "dxlclient", mixinStandardHelpOptions = true,
+@CommandLine.Command(name = "dxlclient", mixinStandardHelpOptions = true,
         subcommands = {GenerateCsrAndPrivateKeySubcommand.class,
-        ProvisionDxlClientSubcommand.class, UpdateConfigSubcommand.class},
-        versionProvider = CommandLineInterface.ManifestVersionProvider.class)
-public class CommandLineInterface extends Subcommand {
+                ProvisionDxlClientSubcommand.class, UpdateConfigSubcommand.class},
+        versionProvider = CommandLineInterface.ManifestVersionProvider.class,
+        helpCommand = true)
+public class CommandLineInterface extends DxlCliCommand {
 
     /**
      * The logger
@@ -55,6 +272,15 @@ public class CommandLineInterface extends Subcommand {
      * The name of the dxl client configuration file
      */
     static final String DXL_CONFIG_FILE_NAME = "dxlclient.config";
+    /**
+     * The command parameter list heading
+     */
+    static final String COMMAND_PARAMETER_LIST_HEADING = "\npositional arguments:\n";
+
+    /**
+     * The command options list heading
+     */
+    static final String COMMAND_OPTION_LIST_HEADING = "\noptional arguments:\n";
 
     /**
      * Private constructor
@@ -142,47 +368,69 @@ public class CommandLineInterface extends Subcommand {
         Logger.getRootLogger().addAppender(console);
 
         // Set up the parser
-        CommandLine commandLine = new CommandLine(new CommandLineInterface()); // TODO add headings and correct usage
+        CommandLine commandLine = new CommandLine(new CommandLineInterface());
+        try {
+            commandLine.setCommandName("java -jar " + new File(
+                    CommandLineInterface.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getName());
+        } catch (URISyntaxException e) {
+            logger.error("Error setting the usage name to be the name of the executing jar file", e);
+            return;
+        }
         CommandLine.Model.CommandSpec commandSpec = commandLine.getCommandSpec();
+        // Collect any errors from the root command instead of throwing them
         commandSpec.parser().collectErrors(true);
-
+        // Collect any errors in subcommands instead of throwing them
         commandLine.getSubcommands().forEach((k, v) -> v.getCommandSpec().parser().collectErrors(true));
 
-        CommandLine parser = new CommandLine(commandSpec);
-        CommandLine.ParseResult parseResult = parser.parseArgs(args);
+        // Set the parameter list and option list heading values for all commands
+        commandSpec.usageMessage().parameterListHeading(COMMAND_PARAMETER_LIST_HEADING);
+        commandSpec.usageMessage().optionListHeading(COMMAND_OPTION_LIST_HEADING);
+        commandLine.getSubcommands().forEach((k, v) ->
+                v.getCommandSpec().usageMessage().parameterListHeading(COMMAND_PARAMETER_LIST_HEADING));
+        commandLine.getSubcommands().forEach((k, v) ->
+                v.getCommandSpec().usageMessage().optionListHeading(COMMAND_OPTION_LIST_HEADING));
 
-        if (parseResult.hasSubcommand()) {
-            parseResult = parseResult.subcommand(); // Set parseResult to the subcommand
+        CommandLine parser = new CommandLine(commandSpec);
+        CommandLine.ParseResult rootParseResult = parser.parseArgs(args);
+
+        // Set parseResult to the subcommand if one was specified
+        CommandLine.ParseResult parseResult;
+        if (rootParseResult.hasSubcommand()) {
+            parseResult = rootParseResult.subcommand();
+        } else {
+            parseResult = rootParseResult;
         }
 
-        boolean exit = false;
+        // Show version info
+        if (parseResult.isVersionHelpRequested()) {
+            rootParseResult.commandSpec().commandLine().printVersionHelp(System.out);
+            return;
+        }
 
+        // Get the DXL ClI command object
+        DxlCliCommand parsedCommand = parseResult.commandSpec().commandLine().getCommand();
+        // set the log level
+        console.setThreshold(parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
+
+        // show help message
         if (parseResult.isUsageHelpRequested() || !parseResult.errors().isEmpty() || (!parseResult.hasSubcommand()
                 && parseResult.matchedOptions().isEmpty()
                 && parseResult.matchedPositionals().isEmpty())) {
             parseResult.commandSpec().commandLine().usage(System.out);
-            exit = true;
+            // Exit if there are no errors
+            if (parseResult.errors().isEmpty()) {
+                return;
+            }
         }
 
-        if (parseResult.isVersionHelpRequested()) {
-            parseResult.commandSpec().commandLine().printVersionHelp(System.out);
-            exit = true;
-        }
-
-        if (!parseResult.errors().isEmpty() && (!parseResult.matchedOptions().isEmpty()
-                || !parseResult.matchedPositionals().isEmpty())) {
-            parseResult.errors().forEach(error -> logger.error(error.getMessage(), error));
-            exit = true;
-        }
-
-        if (exit) {
+        // show first error message
+        if (!parseResult.errors().isEmpty()) {
+            logger.error(parseResult.errors().get(0).getMessage());
             return;
         }
 
-        Subcommand parsedCommand = parseResult.commandSpec().commandLine().getCommand();
-        // set the log level TODO should this be higher???
-        console.setThreshold(parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
-        parsedCommand.execute(parseResult);
+        // Execute the command
+        parsedCommand.execute();
     }
 
     /**

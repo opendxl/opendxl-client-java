@@ -16,10 +16,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Subcommand for updating the DXL client configuration in the dxlclient.config file, specifically the
+ * CLI command for updating the DXL client configuration in the dxlclient.config file, specifically the
  * ca bundle and broker configuration.
  * <p>
- * This subcommand performs the following steps:
+ * This command performs the following steps:
  * </p>
  * <ul>
  * <li>
@@ -96,16 +96,20 @@ import java.util.List;
  * </li>
  * </ul>
  * <p>
- * Updates to the dxlclient.config file attempt to preserve comments in the
- * file, when possible. Any comments listed above a broker entry should be
- * preserved if the broker continues to be registered. If a broker listed in
- * the config file on disk is no longer known to the management server, the
- * broker"s config entry and any comments directly above it are removed from
+ * Updates to the dxlclient.config file do not attempt to preserve comments in the
+ * file. If a broker listed in the config file on disk is no longer known to the management server, the
+ * broker's config entry and any comments directly above it are removed from
  * the config file.
+ * <p>
+ * An example usage of this command is the following:
+ * </p>
+ * <pre>
+ *     $&gt; java -jar dxlclient-0.1.0-all.jar updateconfig config myserver
+ * </pre>
  */
 @CommandLine.Command(name = "updateconfig", description = "Update the DXL client configuration",
         mixinStandardHelpOptions = true)
-class UpdateConfigSubcommand extends Subcommand {
+class UpdateConfigSubcommand extends DxlCliCommand {
 
     /**
      * The logger
@@ -145,7 +149,7 @@ class UpdateConfigSubcommand extends Subcommand {
      * {@inheritDoc}
      */
     @Override
-    public void execute(CommandLine.ParseResult parseResult) {
+    public void execute() {
 
         try {
             // Get server username and pass if missing

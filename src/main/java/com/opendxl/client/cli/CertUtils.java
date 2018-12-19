@@ -78,12 +78,15 @@ class CertUtils {
      * Method for writing a certificate chain to single file on disk
      *
      * @param fileName  The name of the file to write to disk. Can include an absolute path.
+     * @param description The description of the file to be saved
      * @param certChain The certificate chain of certificates to write to a single file.
      * @throws IOException If there is an issue writing the file to disk
      */
-    static void writePemFile(String fileName, Collection<? extends Certificate> certChain) throws IOException {
-        File file = new File(fileName);
-        logger.info(String.format("Saving %s file to %s", file.getName(), file.getParent()));
+    static void writePemFile(String fileName, String description, Collection<? extends Certificate> certChain)
+            throws IOException {
+        if (StringUtils.isNotBlank(description)) {
+            logger.info(String.format("Saving %s file to %s", description, fileName));
+        }
 
         StringBuilder sb = new StringBuilder();
         for (Certificate certificate : certChain) {
@@ -104,10 +107,11 @@ class CertUtils {
      * to PEM format in a single file on disk.
      *
      * @param fileName   The name of the file to write to disk. Can include an absolute path.
+     * @param description The description of the file to be saved
      * @param certString The string containing one or more certificates
      * @throws Exception If there is an issue converting the input certificate string to one or more certificates
      */
-    static void writePemFile(String fileName, String certString) throws Exception {
+    static void writePemFile(String fileName, String description, String certString) throws Exception {
         if (StringUtils.isBlank(certString)) {
             throw new Exception("Cert string is blank");
         }
@@ -124,6 +128,18 @@ class CertUtils {
                     + certString);
         }
 
-        CertUtils.writePemFile(fileName, certChain);
+        CertUtils.writePemFile(fileName, description, certChain);
+    }
+
+    /**
+     * Method for writing a certificate string to disk. The method writes all certificates in the input string
+     * to PEM format in a single file on disk.
+     *
+     * @param fileName   The name of the file to write to disk. Can include an absolute path.
+     * @param certString The string containing one or more certificates
+     * @throws Exception If there is an issue converting the input certificate string to one or more certificates
+     */
+    static void writePemFile(String fileName, String certString) throws Exception {
+        CertUtils.writePemFile(fileName, null, certString);
     }
 }

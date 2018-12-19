@@ -207,15 +207,15 @@ class CsrAndPrivateKeyGenerator {
         String csrFileName = this.cryptoArgs.getCsrFileName(configDir);
         String privateKeyFileName = this.cryptoArgs.getPrivateKeyFileName(configDir);
 
-        // Save private key
-        logger.info("Saving private key file to " + privateKeyFileName);
-        CertUtils.writePemFile(privateKeyFileName, new PemObject(CertUtils.PRIVATE_KEY_OBJECT_TYPE_STRING,
-                this.keyPair.getPrivate().getEncoded()));
-
         // Save CSR
         logger.info("Saving csr file to " + csrFileName);
         CertUtils.writePemFile(csrFileName, new PemObject(CertUtils.CERTIFICATE_REQUEST_OBJECT_TYPE_STRING,
                 this.csr.getEncoded()));
+
+        // Save private key
+        logger.info("Saving private key file to " + privateKeyFileName);
+        CertUtils.writePemFile(privateKeyFileName, new PemObject(CertUtils.PRIVATE_KEY_OBJECT_TYPE_STRING,
+                this.keyPair.getPrivate().getEncoded()));
     }
 
     /**
