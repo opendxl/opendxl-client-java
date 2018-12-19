@@ -160,7 +160,7 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
     /**
      * The common name for a new CSR or the CSR file name
      */
-    @CommandLine.Parameters(index = "2", paramLabel = "COMMON_OR_CSRFILE_NAME",
+    @CommandLine.Parameters(index = "2", paramLabel = "COMMON_OR_CSRFILE_NAME", arity = "0",
             description = "If \"-r\" is specified, interpret as the filename for a pre-existing csr. If \"-r\" is not "
                     + "specified, use as the Common Name (CN) in the Subject DN for a new csr.")
     private String commonOrCsrFileName;
@@ -199,7 +199,7 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
     private String processCsrAndPrivateKey() throws IOException, InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, OperatorCreationException {
         if (StringUtils.isNotBlank(this.certRequestFile)) {
-            return new String(Files.readAllBytes(Paths.get(commonOrCsrFileName)));
+            return new String(Files.readAllBytes(Paths.get(certRequestFile)));
         } else {
             CsrAndPrivateKeyGenerator csrAndPrivateKeyGenerator =
                     new CsrAndPrivateKeyGenerator(this.commonOrCsrFileName, this.cryptoArgs);
@@ -281,6 +281,12 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
             // Create DxlClientConfig object
             DxlClientConfig dxlClientConfig = new DxlClientConfig(brokerCaBundlePath, certFileName,
                     this.cryptoArgs.getPrivateKeyFileName(this.configDir), brokers);
+
+            // create config dir if it does not exist
+            File configDirFile = new File(this.configDir);
+            if (!configDirFile.exists()) {
+                configDirFile.mkdirs();
+            }
 
             // Write DxlClientConfig as a config file to disk
             String dxlClientCongigPath = this.configDir + File.separatorChar
