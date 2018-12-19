@@ -4,8 +4,9 @@ SDK Overview and Prerequisites
 Prerequisites
 *************
 
-* DXL Brokers (3.0.1 or later) deployed within an ePO managed environment
-* DXL Extensions (3.0.1 or later)
+* One or more DXL Brokers:
+ - `OpenDXL Broker <https://github.com/opendxl/opendxl-broker>`_
+ - DXL Brokers (3.0.1 or later) deployed within an ePO managed environment
 * Java Development Kit 8 (JDK 8) or later
 
 Java SDK Contents

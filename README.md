@@ -22,7 +22,7 @@ To start using the OpenDXL Java client:
 * Extract the release .zip (Windows) or .tar (Linux) file
 * View the `README.html` file located at the root of the extracted files.
   * The `README` links to the SDK documentation which includes installation instructions, API details, and samples.
-  * The SDK documentation is also available on-line [here](https://opendxl.github.io/opendxl-client-java/doc).
+  * The SDK documentation is also available on-line [here](https://opendxl.github.io/opendxl-client-java/docs).
 
 ## Maven Repository
 
