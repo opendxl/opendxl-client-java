@@ -1,0 +1,6 @@
+com.opendxl.client
+com.opendxl.client.callback
+com.opendxl.client.cli
+com.opendxl.client.exception
+com.opendxl.client.message
+com.opendxl.client.util

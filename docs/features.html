@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Features &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Integration Types" href="integrationtypes.html" />
+    <link rel="prev" title="Architecture" href="architecture.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenDXL Java SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0-SNAPSHOT
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Data Exchange Layer (DXL) Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Features</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#location-unaware">Location Unaware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#persistent-connection">Persistent Connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-communication-models">Multiple communication models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#secure-communication">Secure Communication</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="integrationtypes.html">Integration Types</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">SDK Overview and Prerequisites</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="provisioningoverview.html">Provisioning Overview</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiccliprovisioning.html">Command Line Provisioning (Basic)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedcliprovisioning.html">Command Line Provisioning (Advanced)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updatingconfigfromcli.html">Client Configuration Update via Command Line</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openconsoleprovisioning.html">OpenDXL Broker Management Console Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="epoexternalcertissuance.html">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiceventsample.html">Basic Event Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basicserviceexample.html">Basic Service Sample</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenDXL Java SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Features</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="features">
+<h1>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="location-unaware">
+<h2>Location Unaware<a class="headerlink" href="#location-unaware" title="Permalink to this headline">¶</a></h2>
+<p>Communication between clients on the DXL fabric is based on sending “messages” to a “topic”. Clients are unaware
+of the location of the other DXL clients they are communicating with (its hostname, IP address, etc.).</p>
+<p>For example, if a client wanted to determine the reputation for a file, it could send a request message to the topic
+<code class="docutils literal notranslate"><span class="pre">/mcafee/service/tie/file/reputation</span></code>. A service would receive the request and send a response with the appropriate
+reputation information. All of this communication occurs without either party knowing the location of the other
+(they could be in the same building or on the other side of the world).</p>
+</div>
+<div class="section" id="persistent-connection">
+<h2>Persistent Connection<a class="headerlink" href="#persistent-connection" title="Permalink to this headline">¶</a></h2>
+<p>Connections are established from a DXL client to a DXL broker. These connections are persistent and allow for
+bi-directional communication. The benefits to this style of connection include:</p>
+<ul>
+<li><p class="first">Firewall Friendly</p>
+<blockquote>
+<div><p>Clients are responsible for establishing the connection to brokers (never from a
+broker to a client). Therefore, we can communicate with clients that were previously unreachable.
+For example, a mobile client can connect to a broker exposed in a demilitarized zone (DMZ). Since
+the communication is bi-directional, we can now communicate with the client from products
+also connected to the fabric (sending an agent wakeup for cloud ePO, etc.).</p>
+</div></blockquote>
+</li>
+<li><p class="first">Near Real-Time Communication</p>
+<blockquote>
+<div><p>Communication on the DXL fabric is extremely efficient because the
+expense of continually establishing connections is eliminated.</p>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="multiple-communication-models">
+<h2>Multiple communication models<a class="headerlink" href="#multiple-communication-models" title="Permalink to this headline">¶</a></h2>
+<p>DXL Supports two different models of communication. A service-based model with point-to-point (request/response)
+communication and a publish/subscribe event-based model.</p>
+<ul>
+<li><p class="first">Service-based</p>
+<blockquote>
+<div><p>The DXL fabric allows for “services” to be registered and exposed that respond to requests
+sent by invoking clients. This communication is point-to-point (one-to-one), meaning the communication is
+solely between an invoking client and the service that is being invoked. It is important to note that in
+this model the client actively invokes the service by sending it requests.</p>
+<p>For example, the Threat Intelligence Exchange service is exposed via DXL allowing for DXL clients to request
+reputations for files and certificates.</p>
+</div></blockquote>
+</li>
+<li><p class="first">Event-based</p>
+<blockquote>
+<div><p>The DXL fabric also allows for event-based communication. This model is typically referred to as
+“publish/subscribe” wherein clients register interest by subscribing to a particular topic and publishers
+periodically send events to that topic. The event is delivered by the DXL fabric to all of the currently
+subscribed clients for the topic. Therefore, a single event sent can reach multiple clients (one-to-many).
+It is important to note that in this model the client passively receives events when they are sent by a publisher.</p>
+<p>For example, Advanced Threat Defense (ATD) servers send events to the topic <code class="docutils literal notranslate"><span class="pre">/mcafee/event/atd/file/report</span></code> when
+they have successfully determined the reputation for a file. Any clients currently subscribed to this topic will
+receive the report (Threat Intelligence Exchange Server and the Enterprise Security Manager currently subscribe
+to this topic).</p>
+</div></blockquote>
+</li>
+</ul>
+</div>
+<div class="section" id="secure-communication">
+<h2>Secure Communication<a class="headerlink" href="#secure-communication" title="Permalink to this headline">¶</a></h2>
+<p>Communication over the DXL fabric is secured via TLS version 1.2 and PKI mutual authentication.</p>
+<p>The fabric also supports topic-level authorization wherein individual topics can be restricted in terms of
+which clients can publish messages to and which clients can receive messages on a particular topic.</p>
+<p>For example, the DXL clients embedded in the Threat Intelligence Exchange servers are the only ones
+authorized to publish reputation change events to the topic <code class="docutils literal notranslate"><span class="pre">/mcafee/event/tie/file/repchange</span></code>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="integrationtypes.html" class="btn btn-neutral float-right" title="Integration Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="architecture.html" class="btn btn-neutral" title="Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, McAfee LLC
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

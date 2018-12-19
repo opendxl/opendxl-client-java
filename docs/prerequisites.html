@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>SDK Overview and Prerequisites &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Provisioning Overview" href="provisioningoverview.html" />
+    <link rel="prev" title="Integration Types" href="integrationtypes.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenDXL Java SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0-SNAPSHOT
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Data Exchange Layer (DXL) Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrationtypes.html">Integration Types</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">SDK Overview and Prerequisites</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#java-sdk-contents">Java SDK Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#maven-repository">Maven Repository</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="provisioningoverview.html">Provisioning Overview</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiccliprovisioning.html">Command Line Provisioning (Basic)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedcliprovisioning.html">Command Line Provisioning (Advanced)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updatingconfigfromcli.html">Client Configuration Update via Command Line</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openconsoleprovisioning.html">OpenDXL Broker Management Console Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="epoexternalcertissuance.html">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiceventsample.html">Basic Event Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basicserviceexample.html">Basic Service Sample</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenDXL Java SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>SDK Overview and Prerequisites</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="sdk-overview-and-prerequisites">
+<h1>SDK Overview and Prerequisites<a class="headerlink" href="#sdk-overview-and-prerequisites" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>One or more DXL Brokers:</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference external" href="https://github.com/opendxl/opendxl-broker">OpenDXL Broker</a></li>
+<li>DXL Brokers (3.0.1 or later) deployed within an ePO managed environment</li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li>Java Development Kit 8 (JDK 8) or later</li>
+</ul>
+</div>
+<div class="section" id="java-sdk-contents">
+<h2>Java SDK Contents<a class="headerlink" href="#java-sdk-contents" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="30%" />
+<col width="58%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Directory</td>
+<td>File</td>
+<td>Description</td>
+</tr>
+<tr class="row-even"><td>doc</td>
+<td>&#160;</td>
+<td>Documentation for the Java Client SDK.</td>
+</tr>
+<tr class="row-odd"><td>lib</td>
+<td>&#160;</td>
+<td>Directory containing the DXL client libraries.</td>
+</tr>
+<tr class="row-even"><td>&#160;</td>
+<td>dxlclient-0.1.0-SNAPSHOT-all.jar</td>
+<td><p class="first">The <code class="docutils literal notranslate"><span class="pre">all</span></code> version of the DXL client library.</p>
+<p>This library includes all classes from the required third party
+libraries in a single <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file.</p>
+<p class="last">This version of the library should be
+used with the Java <code class="docutils literal notranslate"><span class="pre">-jar</span></code> argument to execute the DXL client
+command line (for provisioning the client, etc.).</p>
+</td>
+</tr>
+<tr class="row-odd"><td>&#160;</td>
+<td>dxlclient-0.1.0-SNAPSHOT.jar</td>
+<td>The standard version of the DXL client library (does not include
+classes from third party libraries).</td>
+</tr>
+<tr class="row-even"><td>lib/3rdparty</td>
+<td>&#160;</td>
+<td>Directory containing the third party libraries that are
+required by the DXL client library.</td>
+</tr>
+<tr class="row-odd"><td>sample</td>
+<td>&#160;</td>
+<td>Directory containing samples used to test the DXL client.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="maven-repository">
+<h2>Maven Repository<a class="headerlink" href="#maven-repository" title="Permalink to this headline">¶</a></h2>
+<p>Visit the <a class="reference external" href="https://mvnrepository.com/artifact/com.opendxl/dxlclient">OpenDXL Java Client Maven Repository</a>
+access to all released versions including the appropriate dependency syntax for a large number of management
+systems (Maven, Gradle, SBT, Ivy, Grape, etc.).</p>
+<p>Maven:</p>
+<blockquote>
+<div><div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>com.opendxl<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>dxlclient<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;version&gt;</span>0.1.0<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>or Gradle:</p>
+<blockquote>
+<div><div class="highlight-groovy notranslate"><div class="highlight"><pre><span></span><span class="n">compile</span> <span class="s1">&#39;com.opendxl:dxlclient:0.1.0&#39;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="provisioningoverview.html" class="btn btn-neutral float-right" title="Provisioning Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="integrationtypes.html" class="btn btn-neutral" title="Integration Types" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, McAfee LLC
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

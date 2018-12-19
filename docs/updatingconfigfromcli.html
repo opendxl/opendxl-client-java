@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Client Configuration Update via Command Line &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OpenDXL Broker Management Console Provisioning" href="openconsoleprovisioning.html" />
+    <link rel="prev" title="Command Line Provisioning (Advanced)" href="advancedcliprovisioning.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenDXL Java SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0-SNAPSHOT
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Data Exchange Layer (DXL) Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrationtypes.html">Integration Types</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">SDK Overview and Prerequisites</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="provisioningoverview.html">Provisioning Overview</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basiccliprovisioning.html">Command Line Provisioning (Basic)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedcliprovisioning.html">Command Line Provisioning (Advanced)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Client Configuration Update via Command Line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#basic-example">Basic Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-options">Additional Options</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openconsoleprovisioning.html">OpenDXL Broker Management Console Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="epoexternalcertissuance.html">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiceventsample.html">Basic Event Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basicserviceexample.html">Basic Service Sample</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenDXL Java SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Client Configuration Update via Command Line</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="client-configuration-update-via-command-line">
+<h1>Client Configuration Update via Command Line<a class="headerlink" href="#client-configuration-update-via-command-line" title="Permalink to this headline">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">updateconfig</span></code> command line operation can be used to update a previously
+provisioned client with the latest information from a management server
+(ePO or OpenDXL Broker).</p>
+<p><cite>NOTE: ePO-managed environments must have 4.0 (or newer) versions of
+DXL ePO extensions installed.</cite></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">updateconfig</span></code> operation performs the following:</p>
+<ul class="simple">
+<li>Retrieves the latest CA certificate bundle from the server and stores it
+at the file referenced by the <code class="docutils literal notranslate"><span class="pre">BrokerCertChain</span></code> setting in the <code class="docutils literal notranslate"><span class="pre">[Certs]</span></code>
+section of the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file.</li>
+<li>Retrieves the latest broker information and updates the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code>
+section of the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file with that information.</li>
+</ul>
+<div class="section" id="basic-example">
+<h2>Basic Example<a class="headerlink" href="#basic-example" title="Permalink to this headline">¶</a></h2>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar updateconfig config myserver
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+<p>For this example, <code class="docutils literal notranslate"><span class="pre">config</span></code> is the name of the directory in which the
+<code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file resides and <code class="docutils literal notranslate"><span class="pre">myserver</span></code> is the hostname or
+IP address of ePO or an OpenDXL Broker.</p>
+<p>When prompted, provide credentials for the OpenDXL Broker Management Console
+or ePO (the ePO user must be an administrator):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Enter</span> <span class="n">server</span> <span class="n">username</span><span class="p">:</span>
+<span class="n">Enter</span> <span class="n">server</span> <span class="n">password</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>If the operation is successful, output similar to the following
+should be displayed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INFO</span><span class="p">:</span> <span class="n">Updating</span> <span class="n">certs</span> <span class="ow">in</span> <span class="n">config</span><span class="o">/</span><span class="n">ca</span><span class="o">-</span><span class="n">bundle</span><span class="o">.</span><span class="n">crt</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Updating</span> <span class="n">DXL</span> <span class="n">config</span> <span class="n">file</span> <span class="n">at</span> <span class="n">config</span><span class="o">/</span><span class="n">dxlclient</span><span class="o">.</span><span class="n">config</span>
+</pre></div>
+</div>
+<p>To avoid the username and password prompts, supply the appropriate
+command line options (<code class="docutils literal notranslate"><span class="pre">-u</span></code> and <code class="docutils literal notranslate"><span class="pre">-p</span></code>):</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar updateconfig config myserver -u myuser -p mypass
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="additional-options">
+<h2>Additional Options<a class="headerlink" href="#additional-options" title="Permalink to this headline">¶</a></h2>
+<p>The update operation assumes that the default web server port is 8443,
+the default port under which the ePO web interface and OpenDXL Broker Management
+Console is hosted.</p>
+<p>A custom port can be specified via the <code class="docutils literal notranslate"><span class="pre">-t</span></code> option.</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar updateconfig config myserver -t 443
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+<p>If the management server’s CA certificate is stored in a local CA truststore
+file – one or more PEM-formatted certificates concatenated together into a
+single file – the update operation can be configured to validate
+the management server’s certificate against that truststore during TLS session
+negotiation by supplying the <code class="docutils literal notranslate"><span class="pre">-e</span></code> option.</p>
+<p>The name of the truststore file should be supplied along with the option:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar updateconfig config myserver -e config/ca-bundle.crt
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="openconsoleprovisioning.html" class="btn btn-neutral float-right" title="OpenDXL Broker Management Console Provisioning" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="advancedcliprovisioning.html" class="btn btn-neutral" title="Command Line Provisioning (Advanced)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, McAfee LLC
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

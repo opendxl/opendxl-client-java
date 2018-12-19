@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Basic Service Sample &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Basic Event Sample" href="basiceventsample.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenDXL Java SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0-SNAPSHOT
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Data Exchange Layer (DXL) Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrationtypes.html">Integration Types</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">SDK Overview and Prerequisites</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="provisioningoverview.html">Provisioning Overview</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiccliprovisioning.html">Command Line Provisioning (Basic)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedcliprovisioning.html">Command Line Provisioning (Advanced)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updatingconfigfromcli.html">Client Configuration Update via Command Line</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openconsoleprovisioning.html">OpenDXL Broker Management Console Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="epoexternalcertissuance.html">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basiceventsample.html">Basic Event Sample</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Basic Service Sample</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenDXL Java SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Basic Service Sample</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="basic-service-sample">
+<h1>Basic Service Sample<a class="headerlink" href="#basic-service-sample" title="Permalink to this headline">¶</a></h1>
+<p>This sample demonstrates how to register a DXL service to receive <a class="reference external" href="javadoc/index.html?com/opendxl/client/message/Request.html">Request</a>
+messages and send <a class="reference external" href="javadoc/index.html?com/opendxl/client/message/Response.html">Response</a> messages back to an invoking
+<a class="reference external" href="javadoc/index.html?com/opendxl/client/DxlClient.html">DxlClient</a>.</p>
+<p>Prior to running this sample make sure you have completed the samples configuration step (<a class="reference internal" href="sampleconfig.html"><span class="doc">Samples Configuration</span></a>).</p>
+<p>To run this sample execute the <code class="docutils literal notranslate"><span class="pre">sample\runsample</span></code> script as follows:</p>
+<blockquote>
+<div><pre class="literal-block">
+c:\dxlclient-java-sdk-0.1.0-SNAPSHOT&gt;sample\runsample sample.basic.ServiceSample
+</pre>
+</div></blockquote>
+<p>The output should appear similar to the following:</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Service</span> <span class="n">received</span> <span class="n">request</span> <span class="n">payload</span><span class="p">:</span> <span class="n">ping</span>
+<span class="n">Client</span> <span class="n">received</span> <span class="n">response</span> <span class="n">payload</span><span class="p">:</span> <span class="n">pong</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The code for the sample is broken into two main sections.</p>
+<p>The first section is responsible for creating a <a class="reference external" href="javadoc/index.html?com/opendxl/client/callback/RequestCallback.html">RequestCallback</a> that will be
+invoked for a specific topic associated with the service. The callback will send back a
+messages and send <a class="reference external" href="javadoc/index.html?com/opendxl/client/message/Response.html">Response</a> message with a payload of <code class="docutils literal notranslate"><span class="pre">pong</span></code> for any
+<a class="reference external" href="javadoc/index.html?com/opendxl/client/message/Request.html">Request</a> messages that are received.</p>
+<p>It then creates a <a class="reference external" href="javadoc/index.html?com/opendxl/client/ServiceRegistrationInfo.html">ServiceRegistrationInfo</a> instance and registers the request
+callback with it via the <a class="reference external" href="javadoc/com/opendxl/client/ServiceRegistrationInfo.html#addTopic-java.lang.String-com.opendxl.client.callback.RequestCallback-">ServiceRegistrationInfo.addTopic()</a> method.</p>
+<p>Finally it registers the service with the fabric via the <a class="reference external" href="javadoc/com/opendxl/client/DxlClient.html#registerServiceSync-com.opendxl.client.ServiceRegistrationInfo-long-">DxlClient.registerServiceSync()</a>
+method of the <a class="reference external" href="javadoc/index.html?com/opendxl/client/DxlClient.html">DxlClient</a>.</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">//</span>
+<span class="c1">// Register the service</span>
+<span class="c1">//</span>
+
+<span class="c1">// Create incoming request callback</span>
+<span class="kd">final</span> <span class="n">RequestCallback</span> <span class="n">myRequestCallback</span> <span class="o">=</span>
+    <span class="n">request</span> <span class="o">-&gt;</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Service received request payload: &quot;</span>
+                <span class="o">+</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">request</span><span class="o">.</span><span class="na">getPayload</span><span class="o">(),</span> <span class="n">Message</span><span class="o">.</span><span class="na">CHARSET_UTF8</span><span class="o">));</span>
+
+            <span class="kd">final</span> <span class="n">Response</span> <span class="n">res</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Response</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+            <span class="n">res</span><span class="o">.</span><span class="na">setPayload</span><span class="o">(</span><span class="s">&quot;pong&quot;</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="n">Message</span><span class="o">.</span><span class="na">CHARSET_UTF8</span><span class="o">));</span>
+
+            <span class="n">client</span><span class="o">.</span><span class="na">sendResponse</span><span class="o">(</span><span class="n">res</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">};</span>
+
+<span class="c1">// Create service registration object</span>
+<span class="kd">final</span> <span class="n">ServiceRegistrationInfo</span> <span class="n">info</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ServiceRegistrationInfo</span><span class="o">(</span><span class="n">client</span><span class="o">,</span> <span class="s">&quot;myService&quot;</span><span class="o">);</span>
+
+<span class="c1">// Add a topic for the service to respond to</span>
+<span class="n">info</span><span class="o">.</span><span class="na">addTopic</span><span class="o">(</span><span class="n">SERVICE_TOPIC</span><span class="o">,</span> <span class="n">myRequestCallback</span><span class="o">);</span>
+
+<span class="c1">// Register the service with the fabric (wait up to 10 seconds for registration to complete)</span>
+<span class="n">client</span><span class="o">.</span><span class="na">registerServiceSync</span><span class="o">(</span><span class="n">info</span><span class="o">,</span> <span class="n">TIMEOUT</span><span class="o">);</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>The second section sends a <a class="reference external" href="javadoc/index.html?com/opendxl/client/message/Request.html">Request</a> message to the service
+that contains a payload of <code class="docutils literal notranslate"><span class="pre">ping</span></code> via the <a class="reference external" href="javadoc/com/opendxl/client/DxlClient.html#syncRequest-com.opendxl.client.message.Request-long-">DxlClient.syncRequest()</a>
+method of the <a class="reference external" href="javadoc/index.html?com/opendxl/client/DxlClient.html">DxlClient</a>.</p>
+<p>The payloads of the <a class="reference external" href="javadoc/index.html?com/opendxl/client/message/Request.html">Request</a> and
+<a class="reference external" href="javadoc/index.html?com/opendxl/client/message/Response.html">Response</a> messages are printed.</p>
+<blockquote>
+<div><div class="highlight-java notranslate"><div class="highlight"><pre><span></span><span class="c1">//</span>
+<span class="c1">// Invoke the service (send a request)</span>
+<span class="c1">//</span>
+
+<span class="c1">// Create the request message</span>
+<span class="kd">final</span> <span class="n">Request</span> <span class="n">req</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Request</span><span class="o">(</span><span class="n">SERVICE_TOPIC</span><span class="o">);</span>
+
+<span class="c1">// Populate the request payload</span>
+<span class="n">req</span><span class="o">.</span><span class="na">setPayload</span><span class="o">(</span><span class="s">&quot;ping&quot;</span><span class="o">.</span><span class="na">getBytes</span><span class="o">(</span><span class="n">Message</span><span class="o">.</span><span class="na">CHARSET_UTF8</span><span class="o">));</span>
+
+<span class="c1">// Send the request and wait for a response (synchronous)</span>
+<span class="kd">final</span> <span class="n">Response</span> <span class="n">res</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="na">syncRequest</span><span class="o">(</span><span class="n">req</span><span class="o">);</span>
+
+<span class="c1">// Extract information from the response (Check for errors)</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">getMessageType</span><span class="o">()</span> <span class="o">!=</span> <span class="n">Message</span><span class="o">.</span><span class="na">MESSAGE_TYPE_ERROR</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Client received response payload: &quot;</span>
+        <span class="o">+</span> <span class="k">new</span> <span class="n">String</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">getPayload</span><span class="o">(),</span> <span class="n">Message</span><span class="o">.</span><span class="na">CHARSET_UTF8</span><span class="o">));</span>
+<span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Error: &quot;</span> <span class="o">+</span> <span class="o">((</span><span class="n">ErrorResponse</span><span class="o">)</span> <span class="n">res</span><span class="o">).</span><span class="na">getErrorMessage</span><span class="o">());</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="basiceventsample.html" class="btn btn-neutral" title="Basic Event Sample" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, McAfee LLC
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

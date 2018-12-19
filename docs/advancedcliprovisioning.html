@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Command Line Provisioning (Advanced) &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Client Configuration Update via Command Line" href="updatingconfigfromcli.html" />
+    <link rel="prev" title="Command Line Provisioning (Basic)" href="basiccliprovisioning.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenDXL Java SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0-SNAPSHOT
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Data Exchange Layer (DXL) Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrationtypes.html">Integration Types</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">SDK Overview and Prerequisites</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="provisioningoverview.html">Provisioning Overview</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="basiccliprovisioning.html">Command Line Provisioning (Basic)</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Provisioning (Advanced)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#additional-certificate-signing-request-csr-information">Additional Certificate Signing Request (CSR) Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#additional-options">Additional Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-the-csr-separately-from-signing-the-certificate">Generating the CSR Separately from Signing the Certificate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="updatingconfigfromcli.html">Client Configuration Update via Command Line</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openconsoleprovisioning.html">OpenDXL Broker Management Console Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="epoexternalcertissuance.html">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiceventsample.html">Basic Event Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basicserviceexample.html">Basic Service Sample</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenDXL Java SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Command Line Provisioning (Advanced)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-line-provisioning-advanced">
+<h1>Command Line Provisioning (Advanced)<a class="headerlink" href="#command-line-provisioning-advanced" title="Permalink to this headline">¶</a></h1>
+<p>This page contain details regarding the advanced usage of the
+<code class="docutils literal notranslate"><span class="pre">provisionconfig</span></code> operation.</p>
+<p>Refer to <a class="reference internal" href="basiccliprovisioning.html"><span class="doc">Command Line Provisioning (Basic)</span></a> for basic usage details.</p>
+<div class="section" id="additional-certificate-signing-request-csr-information">
+<span id="subject-attributes-label"></span><h2>Additional Certificate Signing Request (CSR) Information<a class="headerlink" href="#additional-certificate-signing-request-csr-information" title="Permalink to this headline">¶</a></h2>
+<p>Attributes other than the Common Name (CN) may also optionally be provided for
+the CSR subject.</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver client1 --country US --state-or-province Oregon --locality Hillsboro --organization Engineering --organizational-unit &quot;DXL Team&quot; --email-address <a class="reference external" href="mailto:dxl&#37;&#52;&#48;mcafee&#46;com">dxl<span>&#64;</span>mcafee<span>&#46;</span>com</a>
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+<p>By default, the CSR does not include any Subject Alternative Names. To include
+one or more entries of type <code class="docutils literal notranslate"><span class="pre">DNS</span> <span class="pre">Name</span></code>, provide the <code class="docutils literal notranslate"><span class="pre">-s</span></code> option.</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver client1 -s client1.myorg.com client1.myorg.net
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="additional-options">
+<h2>Additional Options<a class="headerlink" href="#additional-options" title="Permalink to this headline">¶</a></h2>
+<p>The provision operation assumes that the default web server port is 8443,
+the default port under which the ePO web interface and OpenDXL Broker Management
+Console is hosted.</p>
+<p>A custom port can be specified via the <code class="docutils literal notranslate"><span class="pre">-t</span></code> option.</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver client1 -t 443
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+<p>The provision operation stores each of the certificate artifacts (private key, CSR,
+certificate, etc.) with a base name of <code class="docutils literal notranslate"><span class="pre">client</span></code> by default. To use an
+alternative base name for the stored files, use the <code class="docutils literal notranslate"><span class="pre">-f</span></code> option.</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver client1 -f theclient
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+<p>The output of the command above should appear similar to the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">csr</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">theclient</span><span class="o">.</span><span class="n">csr</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">private</span> <span class="n">key</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">theclient</span><span class="o">.</span><span class="n">key</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">DXL</span> <span class="n">config</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">dxlclient</span><span class="o">.</span><span class="n">config</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">ca</span> <span class="n">bundle</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">ca</span><span class="o">-</span><span class="n">bundle</span><span class="o">.</span><span class="n">crt</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">client</span> <span class="n">certificate</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">theclient</span><span class="o">.</span><span class="n">crt</span>
+</pre></div>
+</div>
+<p>If the management server’s CA certificate is stored in a local CA truststore
+file – one or more PEM-formatted certificates concatenated together into a
+single file – the provision operation can be configured to validate
+the management server’s certificate against that truststore during TLS session
+negotiation by supplying the <code class="docutils literal notranslate"><span class="pre">-e</span></code> option.</p>
+<p>The name of the truststore file should be supplied along with the option:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar config myserver -e config/ca-bundle.crt
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+</div>
+<div class="section" id="generating-the-csr-separately-from-signing-the-certificate">
+<h2>Generating the CSR Separately from Signing the Certificate<a class="headerlink" href="#generating-the-csr-separately-from-signing-the-certificate" title="Permalink to this headline">¶</a></h2>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">provisionconfig</span></code> command generates a CSR and immediately
+sends it to a management server for signing. Certificate generation and signing
+could alternatively be performed as separate steps – for example, to enable a
+workflow where the CSR is signed by a certificate authority at a later time.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">generatecsr</span></code> operation can be used to generate the CSR and private
+key without sending the CSR to the server.</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar generatecsr config client1
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+<p>The output of the command above should appear similar to the following:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">csr</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">client</span><span class="o">.</span><span class="n">csr</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">private</span> <span class="n">key</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">client</span><span class="o">.</span><span class="n">key</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">generatecsr</span></code> operation has options similar to those available
+in the <code class="docutils literal notranslate"><span class="pre">provisionconfig</span></code> operation for including additional subject attributes
+and/or subject alternative names in the generated CSR.</p>
+<p>See the <a class="reference internal" href="#subject-attributes-label"><span class="std std-ref">Additional Certificate Signing Request (CSR) Information</span></a> for more information.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">provisionconfig</span></code> operation includes a <code class="docutils literal notranslate"><span class="pre">-r</span></code> option, the
+<code class="docutils literal notranslate"><span class="pre">COMMON_OR_CSRFILE_NAME</span></code> argument is interpreted as the name of a
+CSR file to load from disk rather than the Common Name to insert into a new
+CSR file.</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver -r config/client.csr
+</pre>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
+</div>
+</div></blockquote>
+<p>In this case, the command line output shows that the certificate and
+configuration-related files received from the server are stored but no
+new private key or CSR file is generated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">DXL</span> <span class="n">config</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">dxlclient</span><span class="o">.</span><span class="n">config</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">ca</span> <span class="n">bundle</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">ca</span><span class="o">-</span><span class="n">bundle</span><span class="o">.</span><span class="n">crt</span>
+<span class="n">INFO</span><span class="p">:</span> <span class="n">Saving</span> <span class="n">client</span> <span class="n">certificate</span> <span class="n">file</span> <span class="n">to</span> <span class="n">config</span><span class="o">/</span><span class="n">client</span><span class="o">.</span><span class="n">crt</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="updatingconfigfromcli.html" class="btn btn-neutral float-right" title="Client Configuration Update via Command Line" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="basiccliprovisioning.html" class="btn btn-neutral" title="Command Line Provisioning (Basic)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, McAfee LLC
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

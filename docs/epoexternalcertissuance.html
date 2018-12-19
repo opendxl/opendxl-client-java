@@ -1,0 +1,331 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>External Certificate Authority (CA) Provisioning &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Samples Configuration" href="sampleconfig.html" />
+    <link rel="prev" title="OpenDXL Broker Management Console Provisioning" href="openconsoleprovisioning.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> OpenDXL Java SDK
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0-SNAPSHOT
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Data Exchange Layer (DXL) Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="integrationtypes.html">Integration Types</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="prerequisites.html">SDK Overview and Prerequisites</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="provisioningoverview.html">Provisioning Overview</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiccliprovisioning.html">Command Line Provisioning (Basic)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advancedcliprovisioning.html">Command Line Provisioning (Advanced)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="updatingconfigfromcli.html">Client Configuration Update via Command Line</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="openconsoleprovisioning.html">OpenDXL Broker Management Console Provisioning</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="basiceventsample.html">Basic Event Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basicserviceexample.html">Basic Service Sample</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">OpenDXL Java SDK</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>External Certificate Authority (CA) Provisioning</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="external-certificate-authority-ca-provisioning">
+<h1>External Certificate Authority (CA) Provisioning<a class="headerlink" href="#external-certificate-authority-ca-provisioning" title="Permalink to this headline">¶</a></h1>
+<p id="epoexternalcertissuance">This page describes how to provision a client that uses certificates
+signed by an externally managed Certificate Authority (CA) with an ePO-based
+DXL fabric.</p>
+<p>This is in contrast to certificates that are signed by the internal ePO
+Certificate Authority (CA).</p>
+<p><cite>NOTE: While using an external Certificate Authority (CA) is technically
+possible with an OpenDXL Broker, the actual steps are outside the scope
+of this documentation.</cite></p>
+<p>The following steps walk through the creation of an external Certificate Authority (CA),
+generation of a client key-pair, and export of broker-related information from ePO:</p>
+<ul class="simple">
+<li>Create a Certificate Authority (CA) and Client Certificate Files (<a class="reference internal" href="certcreation.html"><span class="doc">Certificate Files Creation (PKI)</span></a>)</li>
+<li>Import Certificate Authority (CA) into ePO (<a class="reference internal" href="epocaimport.html"><span class="doc">ePO Certificate Authority (CA) Import</span></a>)</li>
+<li>Export the Broker Certificates (<a class="reference internal" href="epobrokercertsexport.html"><span class="doc">ePO Broker Certificates Export</span></a>)</li>
+<li>Export the list of DXL Brokers (<a class="reference internal" href="epobrokerlistexport.html"><span class="doc">ePO Broker List Export</span></a>)</li>
+</ul>
+<p>The final step is to populate the contents of a <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file. In this particular case, the
+<code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file that is located in the <code class="docutils literal notranslate"><span class="pre">sample</span></code> sub-directory of the Java DXL SDK
+will be populated.</p>
+<p>The following steps walk through the process of populating this file:</p>
+<ol class="arabic">
+<li><p class="first">Open the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file located in the <code class="docutils literal notranslate"><span class="pre">sample</span></code> sub-directory of the Java DXL SDK.</p>
+<p>The contents should appear as follows:</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Certs</span><span class="p">]</span>
+<span class="n">BrokerCertChain</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">cabundle</span><span class="o">&gt;</span>
+<span class="n">CertFile</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">dxlcert</span><span class="o">&gt;</span>
+<span class="n">PrivateKey</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">dxlprivatekey</span><span class="o">&gt;</span>
+
+<span class="p">[</span><span class="n">Brokers</span><span class="p">]</span>
+<span class="n">unique_broker_id_1</span><span class="o">=</span><span class="n">broker_id_1</span><span class="p">;</span><span class="n">broker_port_1</span><span class="p">;</span><span class="n">broker_hostname_1</span><span class="p">;</span><span class="n">broker_ip_1</span>
+<span class="n">unique_broker_id_2</span><span class="o">=</span><span class="n">broker_id_2</span><span class="p">;</span><span class="n">broker_port_2</span><span class="p">;</span><span class="n">broker_hostname_2</span><span class="p">;</span><span class="n">broker_ip_2</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p class="first">Update the <code class="docutils literal notranslate"><span class="pre">CertFile</span></code> and <code class="docutils literal notranslate"><span class="pre">PrivateKey</span></code> values to point to the certificate file (<code class="docutils literal notranslate"><span class="pre">client.crt</span></code>) and
+private key file (<code class="docutils literal notranslate"><span class="pre">client.key</span></code>) that were created during the certificate provisioning steps.</p>
+<p>See the <a class="reference internal" href="certcreation.html"><span class="doc">Certificate Files Creation (PKI)</span></a> section for more information on the creation of client key-pairs.</p>
+<p>After completing this step the contents of the configuration file should look similar to:</p>
+<blockquote>
+<div><pre class="literal-block">
+[Certs]
+BrokerCertChain=&lt;path-to-cabundle&gt;
+CertFile=c:\certificates\client.crt
+PrivateKey=c:\certificates\client.key
+
+[Brokers]
+unique_broker_id_1=broker_id_1;broker_port_1;broker_hostname_1;broker_ip_1
+unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
+</pre>
+</div></blockquote>
+</li>
+<li><p class="first">Update the <code class="docutils literal notranslate"><span class="pre">BrokerCertChain</span></code> value to point to the Broker Certificates file (<code class="docutils literal notranslate"><span class="pre">brokercerts.crt</span></code>)
+that was created when exporting the Broker Certificates.</p>
+<p>See the <a class="reference internal" href="epobrokercertsexport.html"><span class="doc">ePO Broker Certificates Export</span></a> section for more information on exporting Broker Certificates.</p>
+<p>After completing this step the contents of the configuration file should look similar to:</p>
+<blockquote>
+<div><pre class="literal-block">
+[Certs]
+BrokerCertChain=c:\certificates\brokercerts.crt
+CertFile=c:\certificates\client.crt
+PrivateKey=c:\certificates\client.key
+
+[Brokers]
+unique_broker_id_1=broker_id_1;broker_port_1;broker_hostname_1;broker_ip_1
+unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
+</pre>
+</div></blockquote>
+</li>
+</ol>
+<ol class="arabic" start="3">
+<li><p class="first">Update the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section to include the contents of the broker list file (<code class="docutils literal notranslate"><span class="pre">brokerlist.properties</span></code>)
+that was created when exporting the Broker List.</p>
+<p>See the <a class="reference internal" href="epobrokerlistexport.html"><span class="doc">ePO Broker List Export</span></a> section for more information on exporting the Broker List.</p>
+<p>After completing this step the contents of the configuration file should look similar to:</p>
+<blockquote>
+<div><pre class="literal-block">
+[Certs]
+BrokerCertChain=c:\certificates\brokercerts.crt
+CertFile=c:\certificates\client.crt
+PrivateKey=c:\certificates\client.key
+
+[Brokers]
+{5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};8883;mybroker.mcafee.com;192.168.1.12
+{24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};8883;mybroker2.mcafee.com;192.168.1.13
+</pre>
+</div></blockquote>
+</li>
+<li><p class="first">At this point you can run the samples included with the Java SDK.</p>
+</li>
+</ol>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="sampleconfig.html" class="btn btn-neutral float-right" title="Samples Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="openconsoleprovisioning.html" class="btn btn-neutral" title="OpenDXL Broker Management Console Provisioning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, McAfee LLC
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
