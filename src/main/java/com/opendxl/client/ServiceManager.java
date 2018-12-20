@@ -221,8 +221,6 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     public void onRequest(final Request request) {
         String serviceInstanceId = request.getServiceId();
 
-        // If no instance ID available, send to all registered instances
-        //Bug 1228290 - SIA Partner Extension Tycon Rapid Query hangs indefinitely on check-in
         if (serviceInstanceId == null || serviceInstanceId.isEmpty()) {
             for (ServiceRegistrationHandler service : clonedServices.values()) {
                 commonOnRequest(service, request);
