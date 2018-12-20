@@ -745,7 +745,7 @@ public class DxlClientConfig {
      * </pre>
      *
      * @param fileName Path to the configuration file
-     * @return A {@link }DxlClientConfig} object corresponding to the specified configuration file
+     * @return A {@link DxlClientConfig} object corresponding to the specified configuration file
      * @throws DxlException If an error occurs
      */
     public static DxlClientConfig createDxlConfigFromFile(final String fileName) throws DxlException {

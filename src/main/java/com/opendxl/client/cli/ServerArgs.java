@@ -15,10 +15,6 @@ import java.io.IOException;
  */
 class ServerArgs {
 
-//    @CommandLine.Parameters(index = "${sys:hostNameParamIndex}", paramLabel = "HOSTNAME",
-//            description = "Hostname where the management service resides")
-//    private String hostName;
-
     /**
      * User registered at the management service
      */

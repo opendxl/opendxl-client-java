@@ -125,9 +125,6 @@ class UpdateConfigSubcommand extends DxlCliCommand {
      */
     private static final String BROKER_LIST_COMMAND = "DxlClientMgmt.getBrokerList";
 
-//    @CommandLine.Mixin
-//    private ConfigDirArg configDirArg;
-
     /**
      * The path to the config directory
      */
@@ -142,6 +139,9 @@ class UpdateConfigSubcommand extends DxlCliCommand {
             description = "Hostname where the management service resides")
     private String hostName;
 
+    /**
+     * The management service related CLI arguments
+     */
     @CommandLine.Mixin
     private ServerArgs serverArgs;
 

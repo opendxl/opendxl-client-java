@@ -38,8 +38,6 @@ class GenerateCsrAndPrivateKeySubcommand extends DxlCliCommand {
      */
     private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
 
-//    @CommandLine.Mixin
-//    private ConfigDirArg configDirArg;
     /**
      * The path to the config directory
      */
