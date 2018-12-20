@@ -9,6 +9,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.varia.LevelRangeFilter;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -359,23 +360,41 @@ public class CommandLineInterface extends DxlCliCommand {
      * @param args The command line arguments
      */
     public static void main(String[] args) {
-        //create log4j appender
-        ConsoleAppender console = new ConsoleAppender();
-        //configure the appender
-        console.setLayout(new PatternLayout(LOGGING_PATTERN));
-        console.activateOptions();
+        // create info/debug log4j appender
+        ConsoleAppender nonErrorConsole = new ConsoleAppender(new PatternLayout(LOGGING_PATTERN),
+                ConsoleAppender.SYSTEM_OUT);
+        LevelRangeFilter levelRangeFilter = new LevelRangeFilter();
+        levelRangeFilter.setLevelMax(Level.INFO);
+        levelRangeFilter.setLevelMin(Level.DEBUG);
+        nonErrorConsole.addFilter(levelRangeFilter);
+
+        // create error log4j appender
+        ConsoleAppender errorConsole = new ConsoleAppender(new PatternLayout(LOGGING_PATTERN),
+                ConsoleAppender.SYSTEM_ERR);
+        errorConsole.setThreshold(Level.ERROR);
+
+        // Remove all existing log4j appenders
+        Logger.getRootLogger().removeAllAppenders();
+
         //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(console);
+        Logger.getRootLogger().addAppender(nonErrorConsole);
+        Logger.getRootLogger().addAppender(errorConsole);
 
         // Set up the parser
         CommandLine commandLine = new CommandLine(new CommandLineInterface());
         try {
-            commandLine.setCommandName("java -jar " + new File(
-                    CommandLineInterface.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getName());
+            String jarName = new File(
+                    CommandLineInterface.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getName();
+            if (!jarName.endsWith(".jar")) {
+                jarName = "dxlclient-all.jar";
+            }
+            commandLine.setCommandName("java -jar " + jarName);
         } catch (URISyntaxException e) {
             logger.error("Error setting the usage name to be the name of the executing jar file", e);
             return;
         }
+
+        // Get the command spec
         CommandLine.Model.CommandSpec commandSpec = commandLine.getCommandSpec();
         // Collect any errors from the root command instead of throwing them
         commandSpec.parser().collectErrors(true);
@@ -409,8 +428,8 @@ public class CommandLineInterface extends DxlCliCommand {
 
         // Get the DXL ClI command object
         DxlCliCommand parsedCommand = parseResult.commandSpec().commandLine().getCommand();
-        // set the log level
-        console.setThreshold(parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
+        // set the log level on non error console
+        nonErrorConsole.setThreshold(parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
 
         // show help message
         if (parseResult.isUsageHelpRequested() || !parseResult.errors().isEmpty() || (!parseResult.hasSubcommand()

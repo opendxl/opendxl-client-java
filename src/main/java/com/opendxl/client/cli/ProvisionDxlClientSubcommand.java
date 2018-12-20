@@ -160,7 +160,7 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
     /**
      * The common name for a new CSR or the CSR file name
      */
-    @CommandLine.Parameters(index = "2", paramLabel = "COMMON_OR_CSRFILE_NAME", arity = "0",
+    @CommandLine.Parameters(index = "2", paramLabel = "COMMON_OR_CSRFILE_NAME", defaultValue = "",
             description = "If \"-r\" is specified, interpret as the filename for a pre-existing csr. If \"-r\" is not "
                     + "specified, use as the Common Name (CN) in the Subject DN for a new csr.")
     private String commonOrCsrFileName;

@@ -40,7 +40,7 @@ class CertUtils {
     public static final String PRIVATE_KEY_OBJECT_TYPE_STRING = "PRIVATE KEY";
 
     /**
-     * Denotes a certiface
+     * Denotes a certificate
      */
     public static final String CERTIFICATE_OBJECT_TYPE_STRING = "CERTIFICATE";
 
