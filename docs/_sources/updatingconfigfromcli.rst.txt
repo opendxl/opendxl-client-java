@@ -5,8 +5,9 @@ The ``updateconfig`` command line operation can be used to update a previously
 provisioned client with the latest information from a management server
 (ePO or OpenDXL Broker).
 
-`NOTE: ePO-managed environments must have 4.0 (or newer) versions of
-DXL ePO extensions installed.`
+    .. note::
+    
+        ePO-managed environments must have 4.0 (or newer) versions of DXL ePO extensions installed.
 
 The ``updateconfig`` operation performs the following:
 

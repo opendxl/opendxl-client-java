@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Certificate Files Creation (PKI) &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  <title>Certificate Files Creation (PKI) &mdash; OpenDXL Java SDK 0.1.0 documentation</title>
   
 
   
@@ -57,7 +57,7 @@
             
             
               <div class="version">
-                0.1.0-SNAPSHOT
+                0.1.0
               </div>
             
           
@@ -187,8 +187,8 @@ DXL fabric.</p>
 <li><p class="first">Download from the following location:</p>
 <blockquote>
 <div><p><a class="reference external" href="http://www.slproweb.com/products/Win32OpenSSL.html">http://www.slproweb.com/products/Win32OpenSSL.html</a></p>
-</div></blockquote>
 <p>Select the Win32 OpenSSL Light or Win64 OpenSSL Light package, depending on your architecture (32-bit or 64-bit).</p>
+</div></blockquote>
 </li>
 <li><p class="first">If a message occurs during setup indicating <code class="docutils literal notranslate"><span class="pre">...critical</span> <span class="pre">component</span> <span class="pre">is</span> <span class="pre">missing:</span> <span class="pre">Microsoft</span> <span class="pre">Visual</span> <span class="pre">C++</span> <span class="pre">2008</span>
 <span class="pre">Redistributables</span></code>, cancel the setup and download one of the following packages (based on your architecture)</p>
@@ -218,7 +218,10 @@ DXL fabric.</p>
 <span class="n">C</span><span class="p">:</span>\<span class="o">&gt;</span><span class="nb">set</span> <span class="n">OPENSSL_CONF</span><span class="o">=%</span><span class="n">OPENSSL_BIN</span><span class="o">%</span>\<span class="n">openssl</span><span class="o">.</span><span class="n">cfg</span>
 </pre></div>
 </div>
-<p><em>These environment variables could also be permanently defined in your computer settings.</em></p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">These environment variables could also be permanently defined in your computer settings.</p>
+</div>
 </li>
 <li><p class="first">The following steps must take place in this command prompt.</p>
 </li>
@@ -287,7 +290,7 @@ certificates).</li>
 </ul>
 </div></blockquote>
 <ol class="arabic simple" start="5">
-<li>Provision a key-pair for a DXL Client (Python)</li>
+<li>Provision a key-pair for a DXL Client</li>
 </ol>
 <blockquote>
 <div><ul>
@@ -309,7 +312,7 @@ certificates).</li>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Fill out the required information</p>
+<li><p class="first">Fill out the required information:</p>
 <p>The “challenge password” can be blank (the default)</p>
 <p><strong>NOTE: The “Organizational Unit Name” entered must not be the same as the “Organizational Unit Name” entered in
 Step #4 (Create Certificate Authority)</strong>:</p>

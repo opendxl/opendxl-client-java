@@ -12,9 +12,10 @@ As part of the provisioning process, a remote call will be made to a
 provisioning server (ePO or OpenDXL Broker) which contains the
 Certificate Authority (CA) that will sign the client's certificate.
 
-`NOTE: ePO-managed environments must have 4.0 (or newer) versions of
-DXL ePO extensions installed.`
+    .. note::
 
+        ePO-managed environments must have 4.0 (or newer) versions of DXL ePO extensions installed.
+        
 Here is an example usage of ``provisionconfig`` operation:
 
     .. parsed-literal::
@@ -35,10 +36,13 @@ The parameters are as follows:
 * ``client1`` is the value for the Common Name (CN) attribute stored in the
   subject of the client's certificate.
 
-`NOTE:` If a non-standard port (not 8443) is being used for ePO or the
-management interface of the OpenDXL Broker, an additional "port" argument
-must be specified. For example ``-t 443`` could be specified as part of the
-provision operation to connect to the server on port 443.
+
+  .. note::
+
+      If a non-standard port (not 8443) is being used for ePO or the management interface
+      of the OpenDXL Broker, an additional "port" argument must be specified. For example
+      ``-t 443`` could be specified as part of the provision operation to connect to the
+      server on port 443.
 
 When prompted, provide credentials for the OpenDXL Broker Management Console
 or ePO (the ePO user must be an administrator)::

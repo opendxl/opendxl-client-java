@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command Line Provisioning (Basic) &mdash; OpenDXL Java SDK 0.1.0-SNAPSHOT documentation</title>
+  <title>Command Line Provisioning (Basic) &mdash; OpenDXL Java SDK 0.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.1.0-SNAPSHOT
+                0.1.0
               </div>
             
           
@@ -183,12 +183,16 @@ information).</p>
 <p>As part of the provisioning process, a remote call will be made to a
 provisioning server (ePO or OpenDXL Broker) which contains the
 Certificate Authority (CA) that will sign the client’s certificate.</p>
-<p><cite>NOTE: ePO-managed environments must have 4.0 (or newer) versions of
-DXL ePO extensions installed.</cite></p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">ePO-managed environments must have 4.0 (or newer) versions of DXL ePO extensions installed.</p>
+</div>
+</div></blockquote>
 <p>Here is an example usage of <code class="docutils literal notranslate"><span class="pre">provisionconfig</span></code> operation:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver client1
+java -jar dxlclient-0.1.0-all.jar provisionconfig config myserver client1
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -196,18 +200,24 @@ java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver clien
 </div>
 </div></blockquote>
 <p>The parameters are as follows:</p>
-<ul class="simple">
-<li><code class="docutils literal notranslate"><span class="pre">config</span></code> is the directory to contain the results of the provisioning
-operation.</li>
-<li><code class="docutils literal notranslate"><span class="pre">myserver</span></code> is the host name or IP address of the server (ePO or OpenDXL
-Broker) that will be used to provision the client.</li>
-<li><code class="docutils literal notranslate"><span class="pre">client1</span></code> is the value for the Common Name (CN) attribute stored in the
-subject of the client’s certificate.</li>
+<ul>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">config</span></code> is the directory to contain the results of the provisioning
+operation.</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">myserver</span></code> is the host name or IP address of the server (ePO or OpenDXL
+Broker) that will be used to provision the client.</p>
+</li>
+<li><p class="first"><code class="docutils literal notranslate"><span class="pre">client1</span></code> is the value for the Common Name (CN) attribute stored in the
+subject of the client’s certificate.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If a non-standard port (not 8443) is being used for ePO or the management interface
+of the OpenDXL Broker, an additional “port” argument must be specified. For example
+<code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">443</span></code> could be specified as part of the provision operation to connect to the
+server on port 443.</p>
+</div>
+</li>
 </ul>
-<p><cite>NOTE:</cite> If a non-standard port (not 8443) is being used for ePO or the
-management interface of the OpenDXL Broker, an additional “port” argument
-must be specified. For example <code class="docutils literal notranslate"><span class="pre">-t</span> <span class="pre">443</span></code> could be specified as part of the
-provision operation to connect to the server on port 443.</p>
 <p>When prompted, provide credentials for the OpenDXL Broker Management Console
 or ePO (the ePO user must be an administrator):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Enter</span> <span class="n">server</span> <span class="n">username</span><span class="p">:</span>
@@ -226,7 +236,7 @@ or ePO (the ePO user must be an administrator):</p>
 specified via command line options:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.1.0-SNAPSHOT-all.jar provisionconfig config myserver client1 -u myuser -p mypass
+java -jar dxlclient-0.1.0-all.jar provisionconfig config myserver client1 -u myuser -p mypass
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

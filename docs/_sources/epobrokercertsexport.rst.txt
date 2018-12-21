@@ -19,19 +19,21 @@ The following steps walk through the process to export the DXL Broker certificat
 
     .. image:: serversettings-certs.png
 
-2. Click the **Edit** button in the lower right corner (as shown in the image above)
+2. Click the **Edit** button in the lower right corner (as shown in the image above).
 
     .. image:: editdxlcerts-save.png
 
-3. Click the **Export All** button in the **Broker Certificates** section (as shown in the image above)
+3. Click the **Export All** button in the **Broker Certificates** section (as shown in the image above).
+
+    ..
 
 4. The exported file, ``brokercerts.crt``, will be saved locally.
 
-   This file is specified as the ``broker_ca_bundle`` parameter when constructing a
-   `DxlClientConfig <javadoc/index.html?com/opendxl/client/DxlClientConfig.html>`_ instance.
-
-   This file can also be specified via a configuration file used to instantiate a
-   `DxlClientConfig <javadoc/index.html?com/opendxl/client/DxlClientConfig.html>`_ instance.
-
-   See the `DxlClientConfig.createDxlConfigFromFile() <javadoc/com/opendxl/client/DxlClientConfig.html#createDxlConfigFromFile-java.lang.String->`_ method for more information.
+    This file is specified as the ``broker_ca_bundle`` parameter when constructing a
+    `DxlClientConfig <javadoc/index.html?com/opendxl/client/DxlClientConfig.html>`_ instance.
+    
+    This file can also be specified via a configuration file used to instantiate a
+    `DxlClientConfig <javadoc/index.html?com/opendxl/client/DxlClientConfig.html>`_ instance.
+    
+    See the `DxlClientConfig.createDxlConfigFromFile() <javadoc/com/opendxl/client/DxlClientConfig.html#createDxlConfigFromFile-java.lang.String->`_ method for more information.
 

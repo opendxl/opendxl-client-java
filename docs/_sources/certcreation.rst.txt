@@ -15,8 +15,8 @@ Windows
 
         http://www.slproweb.com/products/Win32OpenSSL.html
 
-    Select the Win32 OpenSSL Light or Win64 OpenSSL Light package, depending on your architecture (32-bit or 64-bit).
-
+        Select the Win32 OpenSSL Light or Win64 OpenSSL Light package, depending on your architecture (32-bit or 64-bit).
+    
   * If a message occurs during setup indicating ``...critical component is missing: Microsoft Visual C++ 2008
     Redistributables``, cancel the setup and download one of the following packages (based on your architecture)
 
@@ -40,7 +40,9 @@ Windows
 
         C:\>set OPENSSL_CONF=%OPENSSL_BIN%\openssl.cfg
 
-    *These environment variables could also be permanently defined in your computer settings.*
+    .. note::
+    
+        These environment variables could also be permanently defined in your computer settings.
 
   * The following steps must take place in this command prompt.
 
@@ -60,7 +62,7 @@ Windows
 
         c:\certificates>openssl req -new -x509 -days 365 -extensions v3_ca -keyout ca.key -out ca.crt
 
-  * Fill out the required information::
+  * Fill out the required information: ::
 
         Generating a 2048 bit RSA private key
         ..............................................................+++
@@ -91,7 +93,7 @@ Windows
       certificates).
     * *Protect* the Certificate Authority private key (``ca.key``).
 
-5. Provision a key-pair for a DXL Client (Python)
+5. Provision a key-pair for a DXL Client
 
   * Generate a Private Key for the client::
 
@@ -108,7 +110,7 @@ Windows
 
         c:\certificates>openssl req -out client.csr -key client.key -new
 
-  * Fill out the required information
+  * Fill out the required information:
 
     The "challenge password" can be blank (the default)
 
