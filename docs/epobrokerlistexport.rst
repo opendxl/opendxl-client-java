@@ -17,16 +17,18 @@ The following steps walk through the process to export the list of all DXL broke
 
     .. image:: serversettings-certs.png
 
-2. Click the **Edit** button in the lower right corner (as shown in the image above)
+2. Click the **Edit** button in the lower right corner (as shown in the image above).
 
     .. image:: editdxlcerts-save.png
 
-3. Click the **Export All** button in the **Broker List** section (as shown in the image above)
+3. Click the **Export All** button in the **Broker List** section (as shown in the image above).  
+
+    ..
 
 4. The exported file, ``brokerlist.properties``, will be saved locally.
 
-   The contents of this file can be copied into the ``[Brokers]`` section of a configuration file used to
-   instantiate a `DxlClientConfig <javadoc/index.html?com/opendxl/client/DxlClientConfig.html>`_ instance.
+    The contents of this file can be copied into the ``[Brokers]`` section of a configuration file used to
+    instantiate a `DxlClientConfig <javadoc/index.html?com/opendxl/client/DxlClientConfig.html>`_ instance.
 
-   See the `DxlClientConfig.createDxlConfigFromFile() <javadoc/com/opendxl/client/DxlClientConfig.html#createDxlConfigFromFile-java.lang.String->`_ method for more information.
+    See the `DxlClientConfig.createDxlConfigFromFile() <javadoc/com/opendxl/client/DxlClientConfig.html#createDxlConfigFromFile-java.lang.String->`_ method for more information.
 

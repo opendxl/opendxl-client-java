@@ -24,33 +24,31 @@ Java SDK Overview and Prerequisites
 Provisioning
 ------------
 
-.. toctree::
-    :maxdepth: 1
+Overview
+    .. toctree::
+        :maxdepth: 1
 
-    provisioningoverview
+        provisioningoverview
 
-Command Line Interface (CLI) - `(Requires 4.0 or newer client)`
+Command Line Interface (CLI)
+    .. toctree::
+        :maxdepth: 1
 
-.. toctree::
-    :maxdepth: 1
-
-    basiccliprovisioning
-    advancedcliprovisioning
-    updatingconfigfromcli
+        basiccliprovisioning
+        advancedcliprovisioning
+        updatingconfigfromcli
 
 OpenDXL Broker Management Console
+    .. toctree::
+        :maxdepth: 1
 
-.. toctree::
-    :maxdepth: 1
-
-    openconsoleprovisioning
+        openconsoleprovisioning
 
 External Certificate Authority (CA)
+    .. toctree::
+        :maxdepth: 1
 
-.. toctree::
-    :maxdepth: 1
-
-    epoexternalcertissuance
+        epoexternalcertissuance
 
 API Documentation
 -----------------
@@ -61,16 +59,14 @@ Samples
 -------
 
 Configuration
+    .. toctree::
+	    :maxdepth: 1
 
-.. toctree::
-	:maxdepth: 1
-
-	sampleconfig
+	    sampleconfig
 
 Basic
+    .. toctree::
+	    :maxdepth: 1
 
-.. toctree::
-	:maxdepth: 1
-
-	basiceventsample
-	basicserviceexample
+	    basiceventsample
+	    basicserviceexample

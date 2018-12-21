@@ -10,9 +10,10 @@ DXL fabric.
 This is in contrast to certificates that are signed by the internal ePO
 Certificate Authority (CA).
 
-`NOTE: While using an external Certificate Authority (CA) is technically
-possible with an OpenDXL Broker, the actual steps are outside the scope
-of this documentation.`
+    .. note::
+    
+        While using an external Certificate Authority (CA) is technically possible with an OpenDXL Broker, 
+        the actual steps are outside the scope of this documentation.`
 
 The following steps walk through the creation of an external Certificate Authority (CA),
 generation of a client key-pair, and export of broker-related information from ePO:

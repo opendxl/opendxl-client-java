@@ -21,23 +21,23 @@ The steps to import the CA certificate into ePO are listed below:
 
     .. image:: serversettings.png
 
-2. Click the **Edit** button in the lower right corner (as shown in the image above)
+2. Click the **Edit** button in the lower right corner (as shown in the image above).
 
     .. image:: editdxlcerts.png
 
-3. Click the **Import** button in the **Client Certificates** section (as shown in the image above)
+3. Click the **Import** button in the **Client Certificates** section (as shown in the image above).
 
     .. image:: editdxlcerts-selectca.png
 
 4. Select the Certificate (For example, ``ca.crt``) for the Certificate Authority (CA) that was created previously.
 
-   See the :doc:`certcreation` section for information on creating a Certificate Authority (CA)
+    See the :doc:`certcreation` section for information on creating a Certificate Authority (CA).
 
-5. Click the **OK** button in the lower right corner (as shown in the image above)
+5. Click the **OK** button in the lower right corner (as shown in the image above).
 
     .. image:: editdxlcerts-save.png
 
-6. Click the **Save** button in the lower right corner (as shown in the image above)
+6. Click the **Save** button in the lower right corner (as shown in the image above).
 
-   The imported Certificate Authority (CA) information will propagate to the DXL brokers. This process can take
-   several minutes to complete.
+    The imported Certificate Authority (CA) information will propagate to the DXL brokers. This process can take
+    several minutes to complete.

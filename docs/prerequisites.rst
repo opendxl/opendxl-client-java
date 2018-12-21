@@ -42,7 +42,7 @@ Java SDK Contents
 Maven Repository
 ****************
 
-Visit the `OpenDXL Java Client Maven Repository <https://mvnrepository.com/artifact/com.opendxl/dxlclient>`_
+Visit the `OpenDXL Java Client Maven Repository <https://mvnrepository.com/artifact/com.opendxl/dxlclient>`_ for
 access to all released versions including the appropriate dependency syntax for a large number of management
 systems (Maven, Gradle, SBT, Ivy, Grape, etc.).
 
