@@ -26,7 +26,7 @@ To start using the OpenDXL Java client:
 
 ## Maven Repository
 
-Visit the [OpenDXL Java Client Maven Repository](https://mvnrepository.com/artifact/com.opendxl/dxlclient) for
+Visit the [OpenDXL Java Client Maven Repository](https://search.maven.org/artifact/com.opendxl/dxlclient) for
 access to all released versions including the appropriate dependency syntax for a large number of management 
 systems (Maven, Gradle, SBT, Ivy, Grape, etc.).
 
