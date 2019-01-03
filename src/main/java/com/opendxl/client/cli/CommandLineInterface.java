@@ -24,14 +24,15 @@ import java.net.URISyntaxException;
  * <p>
  * There are three CLI commands for the OpenDXL Java Client:
  * </p>
- * <table summary="List of CLI commands for OpenDXL Java Client" border="0" cellpadding="8" cellspacing="0">
- * <tr align="left" style="background-color: #CCCCFF;">
- * <th align="left" id="commandName" style="white-space: nowrap;">Command Name</th>
- * <th align="left" id="commandInfo">Command Information</th>
+ * <table style="border-spacing: 0px;">
+ * <caption>List of CLI commands for OpenDXL Java Client</caption>
+ * <tr style="background-color: #CCCCFF;">
+ * <th id="commandName" style="text-align: left; white-space: nowrap; padding: 8px;">Command Name</th>
+ * <th id="commandInfo" style="text-align: left; padding: 8px;">Command Information</th>
  * </tr>
  * <tr>
- * <th style="vertical-align: top;">provisionconfig</th>
- * <td style="vertical-align: top;">
+ * <th style="vertical-align: top; padding: 8px;">provisionconfig</th>
+ * <td style="vertical-align: top; padding: 8px;">
  * This command is for provisioning a DXL Client and performs the following steps:
  * <ul>
  * <li>
@@ -125,8 +126,8 @@ import java.net.URISyntaxException;
  * </td>
  * </tr>
  * <tr>
- * <th style="vertical-align: top;">updateconfig</th>
- * <td style="vertical-align: top;">
+ * <th style="vertical-align: top; padding: 8px;">updateconfig</th>
+ * <td style="vertical-align: top; padding: 8px;">
  * This command is for updating the DXL client configuration in the dxlclient.config file, specifically the
  * ca bundle and broker configuration.
  * <p>
@@ -220,8 +221,8 @@ import java.net.URISyntaxException;
  * </td>
  * </tr>
  * <tr>
- * <th style="vertical-align: top;">generatecsr</th>
- * <td style="vertical-align: top;">
+ * <th style="vertical-align: top; padding: 8px;">generatecsr</th>
+ * <td style="vertical-align: top; padding: 8px;">
  * This command is for generating a private key and CSR
  * <p>
  * The provision DXL Client command requires three CLI arguments:
