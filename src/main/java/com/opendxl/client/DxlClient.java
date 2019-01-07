@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
@@ -175,6 +177,11 @@ public class DxlClient implements AutoCloseable {
      * Service to handle incoming messages
      */
     private ExecutorService messageExecutor;
+
+    /**
+     * ExecutorService for the mqttClient
+     */
+    private ScheduledExecutorService mqttClientExecutor;
 
     /**
      * The thread interrupt flag
@@ -1161,7 +1168,7 @@ public class DxlClient implements AutoCloseable {
      * @throws MqttException An MQTT exception
      */
     private void resetClient(final String serverUri) throws MqttException {
-        this.client = new MqttClient(serverUri, this.getUniqueId(), new MemoryPersistence());
+        this.client = new MqttClient(serverUri, this.getUniqueId(), new MemoryPersistence(), mqttClientExecutor);
 
         // This is a global operation timeout
         this.client.setTimeToWait(getConfig().getOperationTimeToWait());
@@ -1184,6 +1191,18 @@ public class DxlClient implements AutoCloseable {
 
         try {
             this.socketFactory = SSLValidationSocketFactory.newInstance(ks, DxlClientConfig.KS_PASS);
+
+            //
+            // Each thread is a daemon thread.
+            //
+            this.mqttClientExecutor = java.util.concurrent.Executors.newScheduledThreadPool(10,
+                    new ThreadFactory() {
+                        public Thread newThread(Runnable r) {
+                            Thread t = java.util.concurrent.Executors.defaultThreadFactory().newThread(r);
+                            t.setDaemon(true);
+                            return t;
+                        }
+                    });
 
             // Use the first broker in the list for initialization. This will be overwritten before connect.
             Broker broker = config.getBrokerList().get(0);
@@ -1222,6 +1241,9 @@ public class DxlClient implements AutoCloseable {
                     try {
                         if (this.messageExecutor != null) {
                             this.messageExecutor.shutdown();
+                        }
+                        if (this.mqttClientExecutor != null) {
+                            this.mqttClientExecutor.shutdown();
                         }
                     } finally {
                         this.requestManager.close();
