@@ -10,5 +10,5 @@ public interface DisconnectedStrategy {
      *
      * @param client The DXL client
      */
-    void onDisconnect(final DxlClient client);
+    void onDisconnect(DxlClient client);
 }
