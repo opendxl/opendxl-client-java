@@ -195,7 +195,7 @@ public abstract class Message {
     /**
      * Private constructor
      */
-    Message() { }
+    public Message() { }
 
     /**
      * Constructor for {@link Message}

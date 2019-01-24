@@ -39,7 +39,7 @@ public class Response extends Message {
     /**
      * Constructor for {@link Response}
      */
-    Response() {
+    public Response() {
     }
 
     /**

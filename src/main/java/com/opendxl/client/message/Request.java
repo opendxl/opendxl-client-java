@@ -31,7 +31,7 @@ public class Request extends Message {
     /**
      * Constructor for {@link Request}
      */
-    Request() { }
+    public Request() { }
 
     /**
      * Constructor for {@link Request}

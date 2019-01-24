@@ -19,7 +19,7 @@ public class Event extends Message {
     /**
      * Constructor for {@link Event} message
      */
-    Event() {
+    public Event() {
     }
 
     /**
