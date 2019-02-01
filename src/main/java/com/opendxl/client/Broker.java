@@ -69,7 +69,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
     /**
      * Constructor for the {@link Broker}
      */
-    private Broker() { }
+    public Broker() { }
 
     /**
      * Constructor for the {@link Broker}
@@ -195,12 +195,30 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
+     * Sets the unique identifier for the broker, used to identify the broker in log messages, etc.
+     *
+     * @param uniqueId The unique identifier for the broker, used to identify the broker in log messages, etc.
+     */
+    public void setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+
+    /**
      * Returns the host name or IP address of the broker
      *
      * @return The host name or IP address of the broker
      */
     public String getHostName() {
         return hostName;
+    }
+
+    /**
+     * Sets the host name or IP address of the broker
+     *
+     * @param hostName The host name or IP address of the broker
+     */
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
     }
 
     /**
@@ -214,6 +232,15 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
+     * Sets the IP address for the broker
+     *
+     * @param ipAddress The IP address for the broker
+     */
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    /**
      * Returns the port of the broker
      *
      * @return The port of the broker
@@ -223,11 +250,20 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
+     * Set the port of the broker
+     *
+     * @param port The port of the broker
+     */
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    /**
      * Sets the response time for the broker (essentially the ping time)
      *
      * @param responseTime The response time for the broker (essentially the ping time)
      */
-    void setResponseTime(Long responseTime) {
+    public void setResponseTime(Long responseTime) {
         this.responseTime = responseTime;
     }
 
@@ -236,7 +272,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *
      * @return The response time for the broker (essentially the ping time)
      */
-    Long getResponseTime() {
+    public Long getResponseTime() {
         return this.responseTime;
     }
 
@@ -245,7 +281,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *
      * @param responseFromIpAddress Whether the response time is for the broker's IP address
      */
-    void setResponseFromIpAddress(boolean responseFromIpAddress) {
+    public void setResponseFromIpAddress(boolean responseFromIpAddress) {
         this.responseFromIpAddress = responseFromIpAddress;
     }
 
@@ -254,7 +290,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *
      * @return Whether the response time is for the broker's IP address
      */
-    boolean isResponseFromIpAddress() {
+    public boolean isResponseFromIpAddress() {
         return responseFromIpAddress;
     }
 

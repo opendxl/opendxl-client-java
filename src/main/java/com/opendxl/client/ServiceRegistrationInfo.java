@@ -341,7 +341,7 @@ public class ServiceRegistrationInfo {
      * @param waitTime The amount of time to wait
      * @param isRegister Whether we are waiting for a register or unregister notification
      */
-    private void waitForRegistrationNotification(final long waitTime, final boolean isRegister)
+    protected void waitForRegistrationNotification(final long waitTime, final boolean isRegister)
         throws DxlException {
         synchronized (registrationSync) {
             if (waitTime > 0) {

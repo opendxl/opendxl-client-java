@@ -12,6 +12,7 @@ import com.opendxl.client.message.Event;
 import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
+import com.opendxl.client.util.UuidGenerator;
 import org.apache.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -251,7 +252,7 @@ public class DxlClient implements AutoCloseable {
      *
      * @throws DxlException Thrown if the client has not been initialized
      */
-    private void checkInitialized() throws DxlException {
+    protected void checkInitialized() throws DxlException {
         if (!this.init) {
             throw new DxlException("The client has not been initialized.");
         }
@@ -268,8 +269,10 @@ public class DxlClient implements AutoCloseable {
 
     /**
      * Initializes the state of the client
+     *
+     * @throws DxlException If there is an error initializing the client
      */
-    private synchronized void init() throws DxlException {
+    protected synchronized void init() throws DxlException {
         if (!this.init) {
             doInit();
 
@@ -357,7 +360,7 @@ public class DxlClient implements AutoCloseable {
      * @param reconnect whether this is a reconnect or not (retry counts are ignored on a reconnect)
      * @throws DxlException If a DXL exception occurs
      */
-    private void connect(boolean reconnect) throws DxlException {
+    protected void connect(boolean reconnect) throws DxlException {
         this.connectingLock.lock();
         try {
             //check if already attempting to connect
@@ -568,7 +571,7 @@ public class DxlClient implements AutoCloseable {
      *
      * @param broker The current broker
      */
-    private synchronized void setCurrentBroker(final Broker broker) {
+    protected synchronized void setCurrentBroker(final Broker broker) {
         this.currentBroker = broker;
     }
 
@@ -1017,6 +1020,25 @@ public class DxlClient implements AutoCloseable {
     }
 
     /**
+     * Unregisters (removes) a DXL service with from the fabric asynchronously. The specified
+     * service id of a service will be removed.
+     * <P>
+     * This method differs from {@link #unregisterServiceSync} due to the fact that it returns to the caller
+     * immediately after sending the unregistration message to the DXL fabric (It does not wait for
+     * unregistration confirmation before returning).
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
+     *
+     * @param serviceId The service id of a service to be removed
+     * @throws DxlException If an error occurs
+     */
+    public void unregisterServiceAsync(final String serviceId) throws DxlException {
+        this.serviceManager.removeService(UuidGenerator.normalize(serviceId));
+    }
+
+    /**
      * Fires the specified {@link Event} to {@link EventCallback} listeners currently registered with the client.
      *
      * @param event The {@link Event} to fire.
@@ -1072,6 +1094,15 @@ public class DxlClient implements AutoCloseable {
      */
     public void setDisconnectedStrategy(final DisconnectedStrategy strategy) {
         this.disconnectStrategy = strategy;
+    }
+
+    /**
+     * Sets the SSL socket factory
+     *
+     * @param socketFactory The SSL socket factory
+     */
+    public void setSocketFactory(SSLSocketFactory socketFactory) {
+        this.socketFactory = socketFactory;
     }
 
     /**
@@ -1139,8 +1170,18 @@ public class DxlClient implements AutoCloseable {
      * @return The name of the "reply-to" topic to use for communicating back to this client
      * (responses to requests).
      */
-    private String getReplyToTopic() {
+    public String getReplyToTopic() {
         return this.replyToTopic;
+    }
+
+    /**
+     * Set the name of the "reply-to" topic to use for communicating back to this client
+     *      * (responses to requests).
+     *
+     * @param replyToTopic The name of the "reply-to" topic to use for communicating back to this client
+     */
+    public void setReplyToTopic(String replyToTopic) {
+        this.replyToTopic = replyToTopic;
     }
 
     /**
@@ -1157,7 +1198,7 @@ public class DxlClient implements AutoCloseable {
      *
      * @return Whether the invoking thread as the "incoming message" thread
      */
-    boolean isIncomingMessageThread() {
+    protected boolean isIncomingMessageThread() {
         return Thread.currentThread().getName().startsWith(this.messagePoolPrefix);
     }
 
@@ -1449,7 +1490,7 @@ public class DxlClient implements AutoCloseable {
      *
      * @return The count of async callbacks that are waiting for a response
      */
-    int getAsyncCallbackCount() {
+    protected int getAsyncCallbackCount() {
         return this.requestManager.getAsyncCallbackCount();
     }
 
