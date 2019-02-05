@@ -333,16 +333,10 @@ public class Broker implements Comparable<Broker>, Cloneable {
         broker.uniqueId = elements.get(0);
         // Remove brackets around IPv6 address
         broker.hostName = elements.get(2).replaceAll("[\\[\\]]", "");
-        if (!BrokerHostNameHelper.isValidHostNameOrIPAddress(broker.hostName)) {
-            throw new MalformedBrokerException("Invalid hostname");
-        }
 
         if (elements.size() > 3) {
             // Remove brackets around IPv6 address
             broker.ipAddress = elements.get(3).replaceAll("[\\[\\]]", "");
-            if (!BrokerHostNameHelper.isValidIPAddress(broker.ipAddress)) {
-                throw new MalformedBrokerException("Invalid IP address: " + broker.ipAddress);
-            }
         }
 
         try {

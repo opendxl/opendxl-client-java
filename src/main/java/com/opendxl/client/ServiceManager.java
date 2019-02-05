@@ -100,7 +100,11 @@ class ServiceManager implements RequestCallback, AutoCloseable {
             for (String topic : newTopics) {
                 if (!isUpdate || !oldTopics.contains(topic)) {
                     client.addRequestCallback(topic, this);
-                    client.subscribe(topic);
+                    try {
+                        client.subscribe(topic);
+                    } catch (Exception ex) {
+                        log.error("Exception during subscribe in service registration for channel:" + topic, ex);
+                    }
                 }
             }
 
@@ -110,12 +114,23 @@ class ServiceManager implements RequestCallback, AutoCloseable {
 
                 for (final String topicToRemove : removedTopics) {
                     client.removeRequestCallback(topicToRemove, this);
-                    client.unsubscribe(topicToRemove);
+                    try {
+                        client.unsubscribe(topicToRemove);
+                    } catch (Exception ex) {
+                        log.error("Exception during unsubscribe in service registration for channel:"
+                                + topicToRemove, ex);
+                    }
                 }
 
                 try {
                     if (client.isConnected()) {
-                        serviceHandler.sendRegisterServiceRequest();
+                        try {
+                            serviceHandler.sendRegisterServiceRequest();
+                        } catch (Exception ex) {
+                            log.error(
+                                    "Exception during sendRegisterServiceRequest in service registration for service:"
+                                            + service.getServiceType(), ex);
+                        }
                     }
                 } catch (Exception ex) {
                     log.error("Error sending service registration request", ex);
@@ -123,7 +138,12 @@ class ServiceManager implements RequestCallback, AutoCloseable {
             } else {
                 // Start the TTL timer if the client is currently connected
                 if (client.isConnected()) {
-                    serviceHandler.startTimer();
+                    try {
+                        serviceHandler.startTimer();
+                    } catch (Exception ex) {
+                        log.error("Exception during startTimer in service registration for service:"
+                                + service.getServiceType(), ex);
+                    }
                 }
             }
         } finally {
@@ -159,7 +179,11 @@ class ServiceManager implements RequestCallback, AutoCloseable {
                 // the services would unregister them all.  Hence, we need to check for
                 // the topic not being in use otherwise.
                 if (!hasActiveTopic(topic)) {
-                    client.unsubscribe(topic);
+                    try {
+                        client.unsubscribe(topic);
+                    } catch (Exception ex) {
+                        log.error("Exception during unsubscribe in service unregistration for channel:" + topic, ex);
+                    }
                     client.removeRequestCallback(topic, this);
                 }
             }

@@ -276,11 +276,12 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
             // Create brokers list
             List<Broker> brokers = brokersForConfig(provisionCommandResultsArray[2]);
 
-            String brokerCaBundlePath = this.configDir + File.separatorChar + CommandLineInterface.CA_BUNDLE_FILE_NAME;
-            String certFileName = configDir + File.separatorChar + this.cryptoArgs.getFilePrefix() + ".crt";
+            String certFileName = this.cryptoArgs.getFilePrefix() + ".crt";
+            String certKeyName = this.cryptoArgs.getFilePrefix() + ".key";
+
             // Create DxlClientConfig object
-            DxlClientConfig dxlClientConfig = new DxlClientConfig(brokerCaBundlePath, certFileName,
-                    this.cryptoArgs.getPrivateKeyFileName(this.configDir), brokers);
+            DxlClientConfig dxlClientConfig = new DxlClientConfig(CommandLineInterface.CA_BUNDLE_FILE_NAME,
+                    certFileName, certKeyName, brokers);
 
             // create config dir if it does not exist
             File configDirFile = new File(this.configDir);
@@ -294,10 +295,12 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
             logger.info("Saving DXL config file to " + dxlClientCongigPath);
             dxlClientConfig.write(dxlClientCongigPath);
 
+            String brokerCaBundlePath = this.configDir + File.separatorChar + CommandLineInterface.CA_BUNDLE_FILE_NAME;
+            String certFilePath = configDir + File.separatorChar + certFileName;
             // Save CA bundle
             CertUtils.writePemFile(brokerCaBundlePath, "ca bundle", provisionCommandResultsArray[0]);
             // Save client certificate
-            CertUtils.writePemFile(certFileName, "client certificate", provisionCommandResultsArray[1]);
+            CertUtils.writePemFile(certFilePath, "client certificate", provisionCommandResultsArray[1]);
         } catch (Exception ex) {
             logger.error("Error while provisioning DXL Client.", ex);
         }

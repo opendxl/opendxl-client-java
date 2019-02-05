@@ -1266,7 +1266,6 @@ public class DxlClient implements AutoCloseable {
 
         try {
             doDisconnectQuietly();
-
             this.client.setCallback(new DxlMqttCallback());
 
             final MqttConnectOptions connectOps = new MqttConnectOptions();
@@ -1274,6 +1273,8 @@ public class DxlClient implements AutoCloseable {
             connectOps.setCleanSession(true);
             connectOps.setKeepAliveInterval(getConfig().getKeepAliveInterval());
             connectOps.setConnectionTimeout(this.getConfig().getConnectTimeout());
+            //setting to version 3.1.1 to prevent repeated connect with earlier MQTT version
+            connectOps.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 
             // Set socket factory if applicable
             connectOps.setSocketFactory(socketFactory);
