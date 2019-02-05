@@ -37,6 +37,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.eclipse.paho.client.mqttv3.MqttConnectOptions.MQTT_VERSION_3_1_1;
+
 /**
  * The {@link DxlClient} class is responsible for all communication with the Data Exchange Layer (DXL) fabric (it can
  * be thought of as the "main" class). All other classes exist to support the functionality provided by the client.
@@ -1315,6 +1317,7 @@ public class DxlClient implements AutoCloseable {
             connectOps.setCleanSession(true);
             connectOps.setKeepAliveInterval(getConfig().getKeepAliveInterval());
             connectOps.setConnectionTimeout(this.getConfig().getConnectTimeout());
+            connectOps.setMqttVersion(MQTT_VERSION_3_1_1);
 
             // Set socket factory if applicable
             connectOps.setSocketFactory(socketFactory);
