@@ -53,10 +53,10 @@ Maven:
         <dependency>
           <groupId>com.opendxl</groupId>
           <artifactId>dxlclient</artifactId>
-          <version>0.1.1</version>
+          <version>0.1.2</version>
         </dependency>
 or Gradle:
 
     .. code-block:: groovy
 
-        compile 'com.opendxl:dxlclient:0.1.1'
+        compile 'com.opendxl:dxlclient:0.1.2'
