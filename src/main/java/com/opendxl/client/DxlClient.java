@@ -1233,8 +1233,9 @@ public class DxlClient implements AutoCloseable {
         final KeyStore ks = config.getKeyStore();
 
         try {
-            this.socketFactory = SSLValidationSocketFactory.newInstance(ks, DxlClientConfig.KS_PASS);
-
+            if (ks != null) {
+                this.socketFactory = SSLValidationSocketFactory.newInstance(ks, DxlClientConfig.KS_PASS);
+            }
             //
             // Each thread is a daemon thread.
             //

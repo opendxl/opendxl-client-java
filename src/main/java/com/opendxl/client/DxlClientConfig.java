@@ -212,7 +212,8 @@ public class DxlClientConfig {
      * @throws DxlException If an error occurs
      */
     public synchronized KeyStore getKeyStore() throws DxlException {
-        if (this.keystore == null) {
+        if (this.keystore == null && this.brokerCaBundlePath != null && this.certFile != null
+                && this.privateKey != null) {
             try {
                 this.keystore = KeyStoreUtils.generateKeyStoreFromFiles(
                     this.brokerCaBundlePath, this.certFile, this.privateKey, KS_PASS);
