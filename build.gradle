@@ -84,6 +84,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 
 javadoc {
     exclude "**/org/eclipse/paho/**"
+    options.memberLevel = JavadocMemberLevel.PUBLIC
 }
 
 artifacts {
