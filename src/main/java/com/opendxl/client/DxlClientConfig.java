@@ -168,7 +168,7 @@ public class DxlClientConfig {
     /**
      * Default constructor
      */
-    public DxlClientConfig() {
+    protected DxlClientConfig() {
         this.uniqueId = UuidGenerator.generateIdAsString();
     }
 
@@ -177,7 +177,7 @@ public class DxlClientConfig {
      *
      * @param uniqueId The unique identifier of the client
      */
-    public DxlClientConfig(final String uniqueId) {
+    protected DxlClientConfig(final String uniqueId) {
         if (uniqueId == null || uniqueId.isEmpty()) {
             this.uniqueId = UuidGenerator.generateIdAsString();
         } else {
@@ -225,15 +225,6 @@ public class DxlClientConfig {
     }
 
     /**
-     * Sets the {@link KeyStore} associated with the client configuration
-     *
-     * @param keystore The {@link KeyStore} associated with the client configuration
-     */
-    public void setKeystore(KeyStore keystore) {
-        this.keystore = keystore;
-    }
-
-    /**
      * Returns the file name of a bundle containing the broker CA certificates in PEM format
      *
      * @return the file name of a bundle containing the broker CA certificates in PEM format
@@ -253,11 +244,10 @@ public class DxlClientConfig {
 
     /**
      * Overwrites the unique identifier of the client with a new UUID.
-     * This is recommended for McAfee Agent managed systems using the DXL Java Client.
      *
      * @param uniqueId The unique identifier of the client.
      */
-    public void setUniqueId(final String uniqueId) {
+    protected void setUniqueId(final String uniqueId) {
         this.uniqueId = uniqueId;
     }
 
@@ -277,7 +267,7 @@ public class DxlClientConfig {
      *
      * @param broker A {@link Broker} object
      */
-    public synchronized void addBroker(final Broker broker) {
+    protected synchronized void addBroker(final Broker broker) {
         if (broker != null) {
             if (brokers == null) {
                 brokers = new ArrayList<>();
@@ -291,7 +281,7 @@ public class DxlClientConfig {
      *
      * @param brokers The list of {@link Broker} objects representing brokers comprising the DXL fabric.
      */
-    public void setBrokers(List<Broker> brokers) {
+    protected void setBrokers(List<Broker> brokers) {
         this.brokers = brokers;
     }
 

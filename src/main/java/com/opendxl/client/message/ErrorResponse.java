@@ -31,7 +31,7 @@ public class ErrorResponse extends Response {
     /**
      * Constructor for {@link ErrorResponse}
      */
-    public ErrorResponse() {
+    protected ErrorResponse() {
         super();
     }
 

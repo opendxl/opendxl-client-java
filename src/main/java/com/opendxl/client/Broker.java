@@ -69,7 +69,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
     /**
      * Constructor for the {@link Broker}
      */
-    public Broker() { }
+    protected Broker() { }
 
     /**
      * Constructor for the {@link Broker}
@@ -263,7 +263,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *
      * @param responseTime The response time for the broker (essentially the ping time)
      */
-    public void setResponseTime(Long responseTime) {
+    void setResponseTime(Long responseTime) {
         this.responseTime = responseTime;
     }
 
@@ -281,7 +281,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *
      * @param responseFromIpAddress Whether the response time is for the broker's IP address
      */
-    public void setResponseFromIpAddress(boolean responseFromIpAddress) {
+    void setResponseFromIpAddress(boolean responseFromIpAddress) {
         this.responseFromIpAddress = responseFromIpAddress;
     }
 

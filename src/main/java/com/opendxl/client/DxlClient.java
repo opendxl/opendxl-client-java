@@ -26,6 +26,7 @@ import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -215,6 +216,11 @@ public class DxlClient implements AutoCloseable {
      * Indicates if the client is attempting to connect
      */
     private boolean attemptingToConnect = false;
+
+    /**
+     * An optional SSL socket factory callback
+     */
+    private SslSocketFactoryCallback sslSocketFactoryCallback = null;
 
     /**
      * Constructor for the {@link DxlClient}
@@ -1178,11 +1184,11 @@ public class DxlClient implements AutoCloseable {
 
     /**
      * Set the name of the "reply-to" topic to use for communicating back to this client
-     *      * (responses to requests).
+     * (responses to requests).
      *
      * @param replyToTopic The name of the "reply-to" topic to use for communicating back to this client
      */
-    public void setReplyToTopic(String replyToTopic) {
+    protected void setReplyToTopic(String replyToTopic) {
         this.replyToTopic = replyToTopic;
     }
 
@@ -1233,7 +1239,7 @@ public class DxlClient implements AutoCloseable {
         final KeyStore ks = config.getKeyStore();
 
         try {
-            if (ks != null) {
+            if (ks != null && this.sslSocketFactoryCallback == null) {
                 this.socketFactory = SSLValidationSocketFactory.newInstance(ks, DxlClientConfig.KS_PASS);
             }
             //
@@ -1321,7 +1327,11 @@ public class DxlClient implements AutoCloseable {
             connectOps.setMqttVersion(MQTT_VERSION_3_1_1);
 
             // Set socket factory if applicable
-            connectOps.setSocketFactory(socketFactory);
+            if (this.sslSocketFactoryCallback != null) {
+                connectOps.setSocketFactory(this.sslSocketFactoryCallback.createFactory(getConfig()));
+            } else {
+                connectOps.setSocketFactory(socketFactory);
+            }
 
             for (Map.Entry<String, Broker> entry : brokers.entrySet()) {
                 if (this.interrupt.get()) {
@@ -1498,6 +1508,38 @@ public class DxlClient implements AutoCloseable {
         return this.requestManager.getAsyncCallbackCount();
     }
 
+    /**
+     * Returns information related to currently active services
+     *
+     * @return Information related to currently active services
+     */
+    protected List<Map<String, Object>> getActiveServices() {
+        return serviceManager.getActiveServices();
+    }
+
+    /**
+     * Sets an optional {@link SslSocketFactoryCallback}. This callback will be invoked prior
+     * to an SSL connection being established.
+     *
+     * @param cb The callback
+     */
+    protected void setSslSocketFactoryCallback(final SslSocketFactoryCallback cb) {
+        this.sslSocketFactoryCallback = cb;
+    }
+
+    /**
+     * Interface that allows for the {@link SSLSocketFactory} to be replaced.
+     */
+    protected interface SslSocketFactoryCallback {
+        /**
+         * Invoked to create an {@link SSLSocketFactory} prior to connecting to a fabric.
+         *
+         * @param config The client configuration
+         * @return The {@link SSLSocketFactory}
+         * @throws Exception If an error occurs
+         */
+        SSLSocketFactory createFactory(DxlClientConfig config) throws Exception;
+    };
 
     /**
      * Implements the {@link MqttCallback} interface (used to received callbacks from the MQTT client.
