@@ -78,6 +78,21 @@ public class DxlClientConfig {
     private String privateKey;
 
     /**
+     * The original file name of a bundle containing the broker CA certificates in PEM format
+     */
+    private String brokerCaBundlePathOriginal;
+
+    /**
+     * The original filename of the client certificate in PEM format
+     */
+    private String certFileOriginal;
+
+    /**
+     * The original filename of the client private key
+     */
+    private String privateKeyOriginal;
+
+    /**
      * The number of times to retry during connect, default -1 (infinite)
      */
     private int connectRetries =
@@ -201,8 +216,11 @@ public class DxlClientConfig {
         this.uniqueId = UuidGenerator.generateIdAsString();
         this.brokers = brokers;
         this.brokerCaBundlePath = brokerCaBundlePath;
+        this.brokerCaBundlePathOriginal = brokerCaBundlePath;
+        this.certFileOriginal = certFile;
         this.certFile = certFile;
         this.privateKey = privateKey;
+        this.privateKeyOriginal = privateKey;
     }
 
     /**
@@ -501,11 +519,11 @@ public class DxlClientConfig {
 
         final IniParser parser = new IniParser();
         // Add Broker Cert Chain
-        parser.addValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME, this.brokerCaBundlePath);
+        parser.addValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME, this.brokerCaBundlePathOriginal);
         // Add Cert File
-        parser.addValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME, this.certFile);
+        parser.addValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME, this.certFileOriginal);
         // Add Private Key
-        parser.addValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME, this.privateKey);
+        parser.addValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME, this.privateKeyOriginal);
 
         // Add Brokers
         for (Broker broker : this.brokers) {
@@ -808,12 +826,16 @@ public class DxlClientConfig {
             final IniParser parser = new IniParser();
             parser.read(fileName);
 
+            String brokerCaBundleFileOriginal = parser.getValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME);
+            String certFileOriginal = parser.getValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME);
+            String privateKeyOriginal = parser.getValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME);
+
             String brokerCaBundlePath =
-                    normalizeConfigFile(fileName, parser.getValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME));
+                    normalizeConfigFile(fileName, brokerCaBundleFileOriginal);
             String certFile =
-                    normalizeConfigFile(fileName, parser.getValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME));
+                    normalizeConfigFile(fileName, certFileOriginal);
             String privateKey =
-                    normalizeConfigFile(fileName, parser.getValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME));
+                    normalizeConfigFile(fileName, privateKeyOriginal);
             Map<String, String> brokersSection = parser.getSection(BROKERS_INI_SECTION);
 
             List<Broker> brokers = new ArrayList<>();
@@ -843,7 +865,14 @@ public class DxlClientConfig {
                 throw new DxlException("No brokers are specified");
             }
 
-            return new DxlClientConfig(brokerCaBundlePath, certFile, privateKey, brokers);
+            final DxlClientConfig dxlClientConfig = new DxlClientConfig(brokerCaBundlePath, certFile,
+                    privateKey, brokers);
+            //set the original paths
+            dxlClientConfig.brokerCaBundlePathOriginal = brokerCaBundleFileOriginal;
+            dxlClientConfig.certFileOriginal = certFileOriginal;
+            dxlClientConfig.privateKeyOriginal = privateKeyOriginal;
+
+            return dxlClientConfig;
         } catch (Exception ex) {
             throw new DxlException("Error reading configuration file: " + fileName, ex);
         }
