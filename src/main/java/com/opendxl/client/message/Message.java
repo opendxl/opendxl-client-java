@@ -65,7 +65,7 @@ public abstract class Message {
     /**
      * ASCII character encoding
      */
-    static final String CHARSET_ASCII = "US-ASCII";
+    public static final String CHARSET_ASCII = "US-ASCII";
 
     /**
      * UTF-8 character encoding
@@ -74,9 +74,9 @@ public abstract class Message {
 
     /**
      * The message version
-     * <p/>
+     * <p>
      * Version history
-     * <p/>
+     * </p>
      * <code>
      * Version 0:
      * 1.0 to version 1.1:
@@ -94,7 +94,7 @@ public abstract class Message {
      * connections per client (string).
      * </code>
      */
-    private static final long MESSAGE_VERSION = 3;
+    public static final long MESSAGE_VERSION = 3;
 
     /**
      * The numeric type identifier for the {@link Request} message type
@@ -451,7 +451,6 @@ public abstract class Message {
      * Sets the tenant identifiers that the message is to be routed to. Setting this value will limit which
      * clients the message will be delivered to. This can be used in conjunction with {@link #setBrokerIds} and
      * {@link #setClientIds}.
-
      *
      * @param destTenantGuids The set of tenant identifiers that the message is to be routed to.
      */

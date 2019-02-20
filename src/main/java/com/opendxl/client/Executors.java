@@ -14,10 +14,10 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility methods for creating {@link Executor} instances.
  */
-class Executors {
+public class Executors {
 
     /** Private constructor */
-    private Executors() {
+    protected Executors() {
         super();
     }
 

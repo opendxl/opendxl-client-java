@@ -30,10 +30,10 @@ public class Broker implements Comparable<Broker>, Cloneable {
     /**
      * Constant for ssl protocol
      */
-    private static final String SSL_PROTOCOL = "ssl";
+    public static final String SSL_PROTOCOL = "ssl";
 
     /** Constant for parse separator */
-    private static final String FIELD_SEPARATOR = ";";
+    public static final String FIELD_SEPARATOR = ";";
 
     /**
      * The unique identifier of the Broker
