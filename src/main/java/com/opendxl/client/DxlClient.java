@@ -228,6 +228,18 @@ public class DxlClient implements AutoCloseable {
      */
     public DxlClient(DxlClientConfig config)
         throws DxlException {
+        this(config, true);
+    }
+
+    /**
+     * Constructor for the {@link DxlClient}
+     *
+     * @param config The DXL client configuration (see {@link DxlClientConfig})
+     * @param init Whether to initialize the client
+     * @throws DxlException If a DXL exception occurs
+     */
+    protected DxlClient(DxlClientConfig config, boolean init)
+        throws DxlException {
         if (config == null) {
             throw new DxlException("No client configuration specified");
         }
@@ -240,8 +252,11 @@ public class DxlClient implements AutoCloseable {
         this.requestManager = new RequestManager(this);
         this.serviceManager = new ServiceManager(this);
 
-        init();
+        if (init) {
+            init();
+        }
     }
+
 
     /**
      * Returns the unique identifier of the client instance
