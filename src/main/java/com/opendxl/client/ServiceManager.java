@@ -11,12 +11,15 @@ import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Request;
 import org.apache.log4j.Logger;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -353,4 +356,33 @@ class ServiceManager implements RequestCallback, AutoCloseable {
             lock.readLock().unlock();
         }
     }
+
+    /**
+     * Returns information regarding active services
+     *
+     * @return Information regarding active services
+     */
+    List<Map<String, Object>> getActiveServices() {
+        List<Map<String, Object>> results = new ArrayList<>();
+        lock.readLock().lock();
+        try {
+            for (ServiceRegistrationHandler handler : services.values()) {
+                if (!handler.isDeleted()) {
+                    final Map<String, Object> service = new HashMap<>();
+                    service.put("type", handler.getServiceType());
+                    service.put("guid", handler.getInstanceId());
+                    service.put("topics", new TreeSet<>(handler.getRequestTopics()));
+                    service.put("metadata", handler.getMetadata());
+                    service.put("ttl", handler.getTtlMins());
+                    service.put("registration", (handler.getRegisterTimeMillis() / 1000));
+                    results.add(service);
+                }
+            }
+        } finally {
+            lock.readLock().unlock();
+        }
+
+        return results;
+    }
+
 }

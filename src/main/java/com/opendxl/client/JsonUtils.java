@@ -12,7 +12,7 @@ import com.opendxl.client.exception.DxlException;
 /**
  * Json utility methods
  */
-class JsonUtils {
+public class JsonUtils {
 
     /**
      * The Jackson object mapper instance
@@ -21,7 +21,7 @@ class JsonUtils {
         new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     /** Private constructor */
-    private JsonUtils() {
+    protected JsonUtils() {
         super();
     }
 

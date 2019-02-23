@@ -181,6 +181,26 @@ public class DxlClientConfig {
             System.getProperty(Constants.SYSPROP_INCOMING_MESSAGE_QUEUE_SIZE, Integer.toString(16384)));
 
     /**
+     * Default constructor
+     */
+    protected DxlClientConfig() {
+        this.uniqueId = UuidGenerator.generateIdAsString();
+    }
+
+    /**
+     * Construct the configuration with a unique id
+     *
+     * @param uniqueId The unique identifier of the client
+     */
+    protected DxlClientConfig(final String uniqueId) {
+        if (uniqueId == null || uniqueId.isEmpty()) {
+            this.uniqueId = UuidGenerator.generateIdAsString();
+        } else {
+            this.uniqueId = uniqueId;
+        }
+    }
+
+    /**
      * Constructs the configuration
      *
      * @param brokerCaBundlePath The file name of a bundle containing the broker CA certificates in PEM format
@@ -210,7 +230,8 @@ public class DxlClientConfig {
      * @throws DxlException If an error occurs
      */
     public synchronized KeyStore getKeyStore() throws DxlException {
-        if (this.keystore == null) {
+        if (this.keystore == null && this.brokerCaBundlePath != null && this.certFile != null
+                && this.privateKey != null) {
             try {
                 this.keystore = KeyStoreUtils.generateKeyStoreFromFiles(
                     this.brokerCaBundlePath, this.certFile, this.privateKey, KS_PASS);
@@ -240,6 +261,15 @@ public class DxlClientConfig {
     }
 
     /**
+     * Overwrites the unique identifier of the client with a new UUID.
+     *
+     * @param uniqueId The unique identifier of the client.
+     */
+    protected void setUniqueId(final String uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+
+    /**
      * Returns the list of {@link Broker} objects representing brokers comprising the DXL fabric.
      * When invoking the {@link DxlClient#connect} method, the {@link DxlClient} will attempt to connect to the closest
      * broker.
@@ -248,6 +278,29 @@ public class DxlClientConfig {
      */
     public List<Broker> getBrokerList() {
         return brokers;
+    }
+
+    /**
+     * Add a {@link Broker} object to the list of brokers comprising the DXL fabric.
+     *
+     * @param broker A {@link Broker} object
+     */
+    protected synchronized void addBroker(final Broker broker) {
+        if (broker != null) {
+            if (brokers == null) {
+                brokers = new ArrayList<>();
+            }
+            brokers.add(broker);
+        }
+    }
+
+    /**
+     * Set the list of {@link Broker} objects representing brokers comprising the DXL fabric.
+     *
+     * @param brokers The list of {@link Broker} objects representing brokers comprising the DXL fabric.
+     */
+    protected void setBrokers(List<Broker> brokers) {
+        this.brokers = brokers;
     }
 
     /**
@@ -500,7 +553,7 @@ public class DxlClientConfig {
      * @return The sorted and cleaned map of broker to its URI
      * @throws DxlException If a DXL exception occurs
      */
-    synchronized Map<String, Broker> getSortedBrokerMap() throws DxlException {
+    protected synchronized Map<String, Broker> getSortedBrokerMap() throws DxlException {
         if (brokers == null || brokers.isEmpty()) {
             throw new DxlException("No broker defined");
         }
@@ -536,8 +589,10 @@ public class DxlClientConfig {
      *
      * @param brokers The brokers to evaluate
      * @return The {@link Broker} list sorted by response time low to high
+     * @throws InterruptedException If the current thread was interrupted while waiting
+     * @throws ExecutionException If there is an error checking a socket connection to a broker
      */
-    synchronized List<Broker> getSortedBrokerList(final Collection<Broker> brokers)
+    protected synchronized List<Broker> getSortedBrokerList(final Collection<Broker> brokers)
         throws InterruptedException, ExecutionException {
         final List<Future<Broker>> futures = new ArrayList<>();
         final ExecutorService es = Executors.newFixedThreadPool(20);
@@ -620,7 +675,7 @@ public class DxlClientConfig {
      * @param brokers The brokers to clone
      * @return The cloned brokers as a {@link List}
      */
-    private static List<Broker> cloneBrokers(final Collection<Broker> brokers) {
+    protected static List<Broker> cloneBrokers(final Collection<Broker> brokers) {
         final List<Broker> clonedBrokers = new ArrayList<>();
         if (brokers != null) {
             for (final Broker broker : brokers) {
@@ -642,7 +697,7 @@ public class DxlClientConfig {
      * @param unsortedList The unsorted broker list
      * @param sortedMap    The sorted map to add the unsorted brokers to
      */
-    private static void addUnsortedBrokersToMap(
+    protected static void addUnsortedBrokersToMap(
         final Collection<Broker> unsortedList, final LinkedHashMap<String, Broker> sortedMap) {
         if (unsortedList != null) {
             for (final Broker broker : unsortedList) {
@@ -659,7 +714,7 @@ public class DxlClientConfig {
      * @param sortedList The sorted broker list
      * @param sortedMap  The sorted map to add the sorted brokers to
      */
-    private static void addSortedBrokersToMap(final List<Broker> sortedList,
+    protected static void addSortedBrokersToMap(final List<Broker> sortedList,
                                               final LinkedHashMap<String, Broker> sortedMap) {
         if (sortedList != null) {
             for (final Broker broker : sortedList) {
@@ -703,7 +758,7 @@ public class DxlClientConfig {
      * @param timeout The timeout for the connect attempt
      * @return The future associated with the connect attempt
      */
-    private static Future<Broker> connectToBroker(final ExecutorService es, final Broker broker, final int timeout) {
+    protected static Future<Broker> connectToBroker(final ExecutorService es, final Broker broker, final int timeout) {
         return es.submit(
             () -> {
                 final Broker result = broker.clone();

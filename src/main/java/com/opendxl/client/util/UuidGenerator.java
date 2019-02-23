@@ -12,8 +12,8 @@ import java.util.UUID;
  */
 public class UuidGenerator {
 
-    /** Private constructor */
-    private UuidGenerator() {
+    /** Constructor */
+    protected UuidGenerator() {
         super();
     }
 
@@ -51,7 +51,7 @@ public class UuidGenerator {
      * @param uuid The UUID string
      * @return The corresponding UUID instance
      */
-    static UUID fromString(final String uuid) {
+    protected static UUID fromString(final String uuid) {
         return UUID.fromString(uuid.replaceAll("[{}]+", ""));
     }
 

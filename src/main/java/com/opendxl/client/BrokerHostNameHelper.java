@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 class BrokerHostNameHelper {
 
     /** Private constructor */
-    private BrokerHostNameHelper() {
+    protected BrokerHostNameHelper() {
         super();
     }
 

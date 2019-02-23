@@ -9,12 +9,12 @@ import com.opendxl.client.exception.DxlException;
 /**
  * Utility methods for use by the DXL-related classes
  */
-class DxlUtils {
+public class DxlUtils {
 
     /**
      * Private constructor
      */
-    private DxlUtils() {
+    protected DxlUtils() {
         super();
     }
 

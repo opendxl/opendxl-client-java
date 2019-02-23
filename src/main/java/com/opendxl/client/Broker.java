@@ -30,10 +30,10 @@ public class Broker implements Comparable<Broker>, Cloneable {
     /**
      * Constant for ssl protocol
      */
-    private static final String SSL_PROTOCOL = "ssl";
+    public static final String SSL_PROTOCOL = "ssl";
 
     /** Constant for parse separator */
-    private static final String FIELD_SEPARATOR = ";";
+    public static final String FIELD_SEPARATOR = ";";
 
     /**
      * The unique identifier of the Broker
@@ -69,7 +69,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
     /**
      * Constructor for the {@link Broker}
      */
-    private Broker() { }
+    protected Broker() { }
 
     /**
      * Constructor for the {@link Broker}
@@ -195,12 +195,30 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
+     * Sets the unique identifier for the broker, used to identify the broker in log messages, etc.
+     *
+     * @param uniqueId The unique identifier for the broker, used to identify the broker in log messages, etc.
+     */
+    public void setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
+    }
+
+    /**
      * Returns the host name or IP address of the broker
      *
      * @return The host name or IP address of the broker
      */
     public String getHostName() {
         return hostName;
+    }
+
+    /**
+     * Sets the host name or IP address of the broker
+     *
+     * @param hostName The host name or IP address of the broker
+     */
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
     }
 
     /**
@@ -214,12 +232,30 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
+     * Sets the IP address for the broker
+     *
+     * @param ipAddress The IP address for the broker
+     */
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
+    }
+
+    /**
      * Returns the port of the broker
      *
      * @return The port of the broker
      */
     public int getPort() {
         return port;
+    }
+
+    /**
+     * Set the port of the broker
+     *
+     * @param port The port of the broker
+     */
+    public void setPort(int port) {
+        this.port = port;
     }
 
     /**
@@ -236,7 +272,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *
      * @return The response time for the broker (essentially the ping time)
      */
-    Long getResponseTime() {
+    public Long getResponseTime() {
         return this.responseTime;
     }
 
@@ -254,7 +290,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *
      * @return Whether the response time is for the broker's IP address
      */
-    boolean isResponseFromIpAddress() {
+    public boolean isResponseFromIpAddress() {
         return responseFromIpAddress;
     }
 
