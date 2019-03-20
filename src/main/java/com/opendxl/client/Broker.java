@@ -32,6 +32,11 @@ public class Broker implements Comparable<Broker>, Cloneable {
      */
     public static final String SSL_PROTOCOL = "ssl";
 
+    /**
+     * The WSS protocol identifier
+     */
+    public static final String WSS_PROTOCOL = "wss";
+
     /** Constant for parse separator */
     public static final String FIELD_SEPARATOR = ";";
 
@@ -50,6 +55,11 @@ public class Broker implements Comparable<Broker>, Cloneable {
      * The IP address of the broker (optional)
      */
     private String ipAddress = null;
+
+    /**
+     * The protocol used by the broker (wss or ssl). The default protocol is ssl.
+     */
+    private String protocol = SSL_PROTOCOL;
 
     /**
      * The TCP port of the broker
@@ -81,10 +91,26 @@ public class Broker implements Comparable<Broker>, Cloneable {
      *                  used when connecting to the broker (optional).
      */
     public Broker(final String uniqueId, final int port, final String hostName, final String ipAddress) {
+        this(uniqueId, port, hostName, ipAddress, false);
+    }
+
+    /**
+     * Constructor for the {@link Broker}
+     *
+     * @param uniqueId A unique identifier for the broker, used to identify the broker in log messages, etc.
+     * @param port The port of the broker
+     * @param hostName The host name or IP address of the broker (required)
+     * @param ipAddress A valid IP address for the broker. This allows for both the host name and IP address to be
+     *                  used when connecting to the broker (optional).
+     * @param useWebsockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
+     */
+    public Broker(final String uniqueId, final int port, final String hostName, final String ipAddress,
+                  final boolean useWebsockets) {
         this.uniqueId = uniqueId;
         this.hostName = hostName;
         this.ipAddress = ipAddress;
         this.port = port;
+        this.protocol = useWebsockets ? WSS_PROTOCOL : SSL_PROTOCOL;
     }
 
     /**
@@ -102,6 +128,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
         broker.port = this.port;
         broker.responseTime = this.responseTime;
         broker.responseFromIpAddress = this.responseFromIpAddress;
+        broker.protocol = this.protocol;
         return broker;
     }
 
@@ -126,7 +153,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
         sb.append(uniqueId).append(FIELD_SEPARATOR);
         sb.append(port).append(FIELD_SEPARATOR);
         sb.append(hostName).append(FIELD_SEPARATOR);
-        sb.append(ipAddress).append(FIELD_SEPARATOR);
+        sb.append(ipAddress);
 
         return sb.toString();
     }
@@ -138,7 +165,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      */
     String toServerURI() {
         StringBuilder sb = new StringBuilder();
-        sb.append(SSL_PROTOCOL);
+        sb.append(protocol);
         sb.append("://");
         String serverName = (BrokerHostNameHelper.isValidIPv6Address(hostName)
             ? "[" + hostName + "]"
@@ -157,7 +184,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
      */
     String toAlternativeServerURI() {
         StringBuilder sb = new StringBuilder();
-        sb.append(SSL_PROTOCOL);
+        sb.append(protocol);
         sb.append("://");
         String serverName;
         if (ipAddress != null && !ipAddress.isEmpty()) {
@@ -238,6 +265,24 @@ public class Broker implements Comparable<Broker>, Cloneable {
      */
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
+    }
+
+    /**
+     * Returns the connection protocol of the broker.
+     *
+     * @return The connection protocol of the broker
+     */
+    public String getProtocol() {
+        return protocol;
+    }
+
+    /**
+     * Set the connection protocol of the broker.
+     *
+     * @param protocol The connection protocol of the broker (wss or ssl).
+     */
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     /**
@@ -356,6 +401,22 @@ public class Broker implements Comparable<Broker>, Cloneable {
     public static Broker parse(final String configString)
         throws MalformedBrokerException {
         // [UniqueId];[Port];[HostName];[IpAddress]
+        return parse(configString, false);
+    }
+
+    /**
+     * Constructs and returns a {@link Broker} for the specified configuration string of the following format:
+     * <P>
+     * {@code [UniqueId];[Port];[HostName];[IpAddress]}
+     * </P>
+     * @param configString The configuration string
+     * @param useWebsockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
+     * @return A {@link Broker} corresponding to the specified configuration string
+     * @throws MalformedBrokerException If the format is malformed
+     */
+    public static Broker parse(final String configString, boolean useWebsockets)
+        throws MalformedBrokerException {
+        // [UniqueId];[Port];[HostName];[IpAddress]
         if (StringUtils.isBlank(configString)) {
             throw new MalformedBrokerException("Missing argument for creating a broker object");
         }
@@ -383,6 +444,8 @@ public class Broker implements Comparable<Broker>, Cloneable {
         } catch (NumberFormatException ex) {
             throw new MalformedBrokerException("Invalid port");
         }
+
+        broker.protocol = useWebsockets ? WSS_PROTOCOL : SSL_PROTOCOL;
         return broker;
     }
 }

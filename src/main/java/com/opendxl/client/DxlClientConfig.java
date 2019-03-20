@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,8 +38,10 @@ public class DxlClientConfig {
     //
     // INI Sections
     //
+    private static final String GENERAL_INI_SECTION = "General";
     private static final String CERTS_INI_SECTION = "Certs";
     private static final String BROKERS_INI_SECTION = "Brokers";
+    private static final String WEBSOCKET_BROKERS_INI_SECTION = "BrokersWebSockets";
 
     //
     // INI Keys
@@ -46,6 +49,25 @@ public class DxlClientConfig {
     private static final String BROKER_CERT_INI_CHAIN_KEY_NAME = "BrokerCertChain";
     private static final String CERT_FILE_INI_KEY_NAME = "CertFile";
     private static final String PRIVATE_KEY_INI_KEY_NAME = "PrivateKey";
+    private static final String USE_WEBSOCKETS_INI_KEY_NAME = "UseWebSockets";
+
+    /**
+     * A mapping of various strings to boolean values
+     */
+    private static final Map<String, Boolean> stringToBooleanMap;
+
+    static {
+        Map<String, Boolean> tempStringToBooleanMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        tempStringToBooleanMap.put("yes", Boolean.TRUE);
+        tempStringToBooleanMap.put("no", Boolean.FALSE);
+        tempStringToBooleanMap.put("on", Boolean.TRUE);
+        tempStringToBooleanMap.put("off", Boolean.FALSE);
+        tempStringToBooleanMap.put("1", Boolean.TRUE);
+        tempStringToBooleanMap.put("0", Boolean.FALSE);
+        tempStringToBooleanMap.put("true", Boolean.TRUE);
+        tempStringToBooleanMap.put("false", Boolean.FALSE);
+        stringToBooleanMap = Collections.unmodifiableMap(tempStringToBooleanMap);
+    }
 
     /**
      * The unique identifier of the client
@@ -53,9 +75,14 @@ public class DxlClientConfig {
     private String uniqueId;
 
     /**
-     * The list of brokers
+     * The list of brokers supporting standard MQTT connections
      */
     private List<Broker> brokers;
+
+    /**
+     * The list of brokers supporting DXL connections over WebSockets
+     */
+    private List<Broker> websocketBrokers;
 
     /**
      * The keystore
@@ -91,6 +118,11 @@ public class DxlClientConfig {
      * The original filename of the client private key
      */
     private String privateKeyOriginal;
+
+    /**
+     * Whether to use WebSockets or regular MQTT over tcp
+     */
+    private boolean useWebsockets = false;
 
     /**
      * The number of times to retry during connect, default -1 (infinite)
@@ -206,13 +238,32 @@ public class DxlClientConfig {
      * @param brokerCaBundlePath The file name of a bundle containing the broker CA certificates in PEM format
      * @param certFile The file name of the client certificate in PEM format
      * @param privateKey The file name of the client private key in PEM format
-     * @param brokers A list of {@link Broker} objects representing brokers comprising the DXL fabric.
-     *                When invoking the {@link DxlClient#connect} method, the {@link DxlClient} will attempt to connect
-     *                to the closest broker.
+     * @param brokers A list of {@link Broker} objects representing brokers comprising the DXL fabric supporting
+     *                standard MQTT connections. When invoking the {@link DxlClient#connect} method, the
+     *                {@link DxlClient} will attempt to connect to the closest broker.
      */
     public DxlClientConfig(
         final String brokerCaBundlePath, final String certFile, final String privateKey,
         final List<Broker> brokers) {
+        this(brokerCaBundlePath, certFile, privateKey, brokers, Collections.EMPTY_LIST);
+    }
+
+    /**
+     * Constructs the configuration
+     *
+     * @param brokerCaBundlePath The file name of a bundle containing the broker CA certificates in PEM format
+     * @param certFile The file name of the client certificate in PEM format
+     * @param privateKey The file name of the client private key in PEM format
+     * @param brokers A list of {@link Broker} objects representing brokers comprising the DXL fabric supporting
+     *                standard MQTT connections. When invoking the {@link DxlClient#connect} method, the
+     *                {@link DxlClient} will attempt to connect to the closest broker.
+     * @param websocketBrokers A list {@link Broker} objects representing brokers on the DXL fabric supporting DXL
+     *                         connections over WebSockets. When invoking the {@link DxlClient#connect} method,
+     *                         the {@link DxlClient} will attempt to connect to the closest broker.
+     */
+    public DxlClientConfig(
+        final String brokerCaBundlePath, final String certFile, final String privateKey,
+        final List<Broker> brokers, final List<Broker> websocketBrokers) {
         this.uniqueId = UuidGenerator.generateIdAsString();
         this.brokers = brokers;
         this.brokerCaBundlePath = brokerCaBundlePath;
@@ -221,6 +272,8 @@ public class DxlClientConfig {
         this.certFile = certFile;
         this.privateKey = privateKey;
         this.privateKeyOriginal = privateKey;
+        this.websocketBrokers = websocketBrokers;
+        this.useWebsockets = false;
     }
 
     /**
@@ -270,18 +323,23 @@ public class DxlClientConfig {
     }
 
     /**
-     * Returns the list of {@link Broker} objects representing brokers comprising the DXL fabric.
-     * When invoking the {@link DxlClient#connect} method, the {@link DxlClient} will attempt to connect to the closest
-     * broker.
+     * Returns the list of {@link Broker} objects representing brokers on the DXL fabric supporting standard
+     * MQTT connections. When invoking the {@link DxlClient#connect} method, the {@link DxlClient} will attempt to
+     * connect to the closest broker.
      *
-     * @return The list of {@link Broker} objects representing brokers comprising the DXL fabric.
+     * @return The list of {@link Broker} objects representing brokers on the DXL fabric supporting standard
+     * MQTT connections.
      */
     public List<Broker> getBrokerList() {
+        if (useWebsockets) {
+            return websocketBrokers;
+        }
         return brokers;
     }
 
     /**
-     * Add a {@link Broker} object to the list of brokers comprising the DXL fabric.
+     * Add a {@link Broker} object to the list of brokers on the DXL fabric supporting standard MQTT
+     * connections.
      *
      * @param broker A {@link Broker} object
      */
@@ -295,12 +353,60 @@ public class DxlClientConfig {
     }
 
     /**
-     * Set the list of {@link Broker} objects representing brokers comprising the DXL fabric.
+     * Set the list of {@link Broker} objects representing brokers on the DXL fabric supporting standard
+     * MQTT connections.
      *
-     * @param brokers The list of {@link Broker} objects representing brokers comprising the DXL fabric.
+     * @param brokers The list of {@link Broker} objects representing brokers on the DXL fabric supporting
+     *                standard MQTT connections.
      */
     protected void setBrokers(List<Broker> brokers) {
         this.brokers = brokers;
+    }
+
+    /**
+     * Returns the list of {@link Broker} objects representing brokers on the DXL fabric supporting DXL connections
+     * over WebSockets. When invoking the {@link DxlClient#connect} method, the {@link DxlClient} will
+     * attempt to connect to the closest broker.
+     *
+     * @return The list of {@link Broker} objects representing brokers on the DXL fabric supporting DXL connections
+     * over WebSockets.
+     */
+    public List<Broker> getWebsocketBrokers() {
+        return websocketBrokers;
+    }
+
+    /**
+     * Set the list of {@link Broker} objects representing brokers on the DXL fabric supporting DXL connections
+     * over WebSockets.
+     *
+     * @param websocketBrokers The list of {@link Broker} objects representing brokers on the DXL fabric supporting
+     * DXL connections over WebSockets.
+     */
+    public void setWebsocketBrokers(List<Broker> websocketBrokers) {
+        this.websocketBrokers = websocketBrokers;
+    }
+
+    /**
+     * Returns whether the client should use WebSockets or regular MQTT over tcp when connecting to a {@link Broker}
+     *
+     * <P>
+     * Defaults to {@code false}
+     * </P>
+     *
+     * @return Whether the client should use WebSockets or regular MQTT over tcp when connecting to a {@link Broker}
+     */
+    public boolean isUseWebsockets() {
+        return useWebsockets;
+    }
+
+    /**
+     * Sets whether the client should use WebSockets or regular MQTT over tcp when connecting to a {@link Broker}
+     *
+     * @param useWebsockets Whether the client should use WebSockets or regular MQTT over tcp when connecting to
+     * a {@link Broker}
+     */
+    public void setUseWebsockets(boolean useWebsockets) {
+        this.useWebsockets = useWebsockets;
     }
 
     /**
@@ -518,6 +624,9 @@ public class DxlClientConfig {
         final String certsSection = "Certs";
 
         final IniParser parser = new IniParser();
+        // Add Use WebSockets
+        parser.addValue(GENERAL_INI_SECTION, USE_WEBSOCKETS_INI_KEY_NAME, String.valueOf(this.useWebsockets));
+
         // Add Broker Cert Chain
         parser.addValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME, this.brokerCaBundlePathOriginal);
         // Add Cert File
@@ -528,6 +637,11 @@ public class DxlClientConfig {
         // Add Brokers
         for (Broker broker : this.brokers) {
             parser.addValue(BROKERS_INI_SECTION, broker.getUniqueId(), broker.toConfigString());
+        }
+
+        // Add WebSocket Brokers
+        for (Broker broker : this.websocketBrokers) {
+            parser.addValue(WEBSOCKET_BROKERS_INI_SECTION, broker.getUniqueId(), broker.toConfigString());
         }
 
         parser.write(configFile);
@@ -554,7 +668,8 @@ public class DxlClientConfig {
      * @throws DxlException If a DXL exception occurs
      */
     protected synchronized Map<String, Broker> getSortedBrokerMap() throws DxlException {
-        if (brokers == null || brokers.isEmpty()) {
+        List<Broker> brokerList = getBrokerList();
+        if (brokerList == null || brokerList.isEmpty()) {
             throw new DxlException("No broker defined");
         }
 
@@ -565,7 +680,7 @@ public class DxlClientConfig {
         // Build a map containing the brokers by GUID
         //
         final Map<String, Broker> brokersByGuid = new HashMap<>();
-        for (final Broker broker : brokers) {
+        for (final Broker broker : brokerList) {
             brokersByGuid.put(broker.getUniqueId(), broker);
         }
 
@@ -799,16 +914,44 @@ public class DxlClientConfig {
     }
 
     /**
+     * This method converts a Brokers or BrokersWebSockets section of a configuration file in to a list of
+     * {@link Broker} objects.
+     *
+     * @param configSection A map representing the keys and values of a Brokers or BrokersWebSockets section of a
+     * configuration file.
+     * @param useWebsockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
+     * @return A list of {@link Broker} objects representing the Brokers or BrokersWebSockets section of a
+     * configuration file.
+     * @throws DxlException If an error occurs
+     */
+    private static List<Broker> getBrokerListFromConfigSection(Map<String, String> configSection,
+                                                               boolean useWebsockets) throws DxlException {
+        List<Broker> brokers = new ArrayList<>();
+        for (Map.Entry<String, String> entry : configSection.entrySet()) {
+            brokers.add(Broker.parse(entry.getValue(), useWebsockets));
+        }
+
+        return brokers;
+    }
+
+    /**
      * This method allows creation of a {@link DxlClientConfig} object from a specified configuration file. The
      * information contained in the file has a one-to-one correspondence with the {@link DxlClientConfig} constructor.
      *
      * <pre>
+     * [General]
+     * useWebSocketBrokers=false
+     *
      * [Certs]
      * BrokerCertChain=c:\\certs\\brokercerts.crt
      * CertFile=c:\\certs\\client.crt
      * PrivateKey=c:\\certs\\client.key
      *
      * [Brokers]
+     * mybroker=mybroker;8883;mybroker.mcafee.com;192.168.1.12
+     * mybroker2=mybroker2;8883;mybroker2.mcafee.com;192.168.1.13
+     *
+     * [BrokersWebSockets]
      * mybroker=mybroker;8883;mybroker.mcafee.com;192.168.1.12
      * mybroker2=mybroker2;8883;mybroker2.mcafee.com;192.168.1.13
      * </pre>
@@ -826,9 +969,9 @@ public class DxlClientConfig {
             final IniParser parser = new IniParser();
             parser.read(fileName);
 
-            String brokerCaBundleFileOriginal = parser.getValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME);
-            String certFileOriginal = parser.getValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME);
-            String privateKeyOriginal = parser.getValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME);
+            String brokerCaBundleFileOriginal = parser.getValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME, "");
+            String certFileOriginal = parser.getValue(CERTS_INI_SECTION, CERT_FILE_INI_KEY_NAME, "");
+            String privateKeyOriginal = parser.getValue(CERTS_INI_SECTION, PRIVATE_KEY_INI_KEY_NAME,  "");
 
             String brokerCaBundlePath =
                     normalizeConfigFile(fileName, brokerCaBundleFileOriginal);
@@ -836,41 +979,37 @@ public class DxlClientConfig {
                     normalizeConfigFile(fileName, certFileOriginal);
             String privateKey =
                     normalizeConfigFile(fileName, privateKeyOriginal);
-            Map<String, String> brokersSection = parser.getSection(BROKERS_INI_SECTION);
-
-            List<Broker> brokers = new ArrayList<>();
-            for (Map.Entry<String, String> entry : brokersSection.entrySet()) {
-                final String[] values = entry.getValue().split(";");
-                if (values.length < 3) {
-                    throw new DxlException("Invalid broker specification: " + entry.getValue());
-                }
-                final String id = entry.getKey();
-                final String portStr = values[1];
-                final String host = values[2];
-
-                String ipAddress = host;
-                if (values.length > 3) {
-                    ipAddress = values[3];
-                }
-                int port;
-                try {
-                    port = Integer.parseInt(portStr);
-                } catch (NumberFormatException ex) {
-                    throw new DxlException("Port specified is not valid: " + portStr);
-                }
-                brokers.add(new Broker(id, port, host, ipAddress));
+            Map<String, String> brokersSection = Collections.EMPTY_MAP;
+            try {
+                parser.getSection(BROKERS_INI_SECTION);
+            } catch (Exception ex) {
+                // The Brokers section was not found in the config file
             }
 
-            if (brokers.size() == 0) {
+            Map<String, String> websocketBrokersSection = Collections.EMPTY_MAP;
+            try {
+                websocketBrokersSection = parser.getSection(WEBSOCKET_BROKERS_INI_SECTION);
+            } catch (Exception ex) {
+                // The BrokersWebSockets section was not found in the config file
+            }
+
+            // Get the list of MQTT brokers
+            List<Broker> brokers = getBrokerListFromConfigSection(brokersSection, false);
+            // Get the list of WebSocket brokers
+            List<Broker> websocketBrokers = getBrokerListFromConfigSection(websocketBrokersSection, true);
+
+            if (brokers.size() == 0 && websocketBrokers.size() == 0) {
                 throw new DxlException("No brokers are specified");
             }
 
             final DxlClientConfig dxlClientConfig = new DxlClientConfig(brokerCaBundlePath, certFile,
-                    privateKey, brokers);
+                    privateKey, brokers, websocketBrokers);
             //set the original paths
             dxlClientConfig.brokerCaBundlePathOriginal = brokerCaBundleFileOriginal;
             dxlClientConfig.certFileOriginal = certFileOriginal;
             dxlClientConfig.privateKeyOriginal = privateKeyOriginal;
+            dxlClientConfig.useWebsockets = stringToBooleanMap.get(parser.getValue(GENERAL_INI_SECTION,
+                USE_WEBSOCKETS_INI_KEY_NAME, (!websocketBrokers.isEmpty() && brokers.isEmpty()) ? "true" : "false"));
 
             return dxlClientConfig;
         } catch (Exception ex) {

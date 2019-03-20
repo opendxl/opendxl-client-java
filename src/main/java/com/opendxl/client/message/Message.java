@@ -193,7 +193,7 @@ public abstract class Message {
     private Map<String, String> otherFields = Collections.EMPTY_MAP;
 
     /**
-     * Private constructor
+     * Protected constructor
      */
     protected Message() { }
 
