@@ -981,7 +981,7 @@ public class DxlClientConfig {
                     normalizeConfigFile(fileName, privateKeyOriginal);
             Map<String, String> brokersSection = Collections.EMPTY_MAP;
             try {
-                parser.getSection(BROKERS_INI_SECTION);
+                brokersSection = parser.getSection(BROKERS_INI_SECTION);
             } catch (Exception ex) {
                 // The Brokers section was not found in the config file
             }
