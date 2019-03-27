@@ -331,9 +331,21 @@ public class DxlClientConfig {
      * MQTT connections.
      */
     public List<Broker> getBrokerList() {
+        return brokers;
+    }
+
+    /**
+     * Returns the list of {@link Broker} objects representing brokers on the DXL fabric. When invoking
+     * the {@link DxlClient#connect} method, the {@link DxlClient} will attempt to
+     * connect to the closest broker.
+     *
+     * @return The list of {@link Broker} objects representing brokers on the DXL fabric
+     */
+    public List<Broker> getInUseBrokerList() {
         if (useWebsockets) {
             return websocketBrokers;
         }
+
         return brokers;
     }
 
@@ -668,7 +680,7 @@ public class DxlClientConfig {
      * @throws DxlException If a DXL exception occurs
      */
     protected synchronized Map<String, Broker> getSortedBrokerMap() throws DxlException {
-        List<Broker> brokerList = getBrokerList();
+        List<Broker> brokerList = getInUseBrokerList();
         if (brokerList == null || brokerList.isEmpty()) {
             throw new DxlException("No broker defined");
         }
