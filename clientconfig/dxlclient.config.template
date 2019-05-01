@@ -9,9 +9,9 @@
 UseWebSockets=false
 
 [Certs]
-BrokerCertChain=../../certificates/client/ca-broker.crt
-CertFile=../../certificates/client/client.crt
-PrivateKey=../../certificates/client/client.pem
+BrokerCertChain=<path-to-cabundle>
+CertFile=<path-to-dxlcert>
+PrivateKey=<path-to-dxlprivatekey>
 
 [Brokers]
 unique_broker_id_1=unique_broker_id_1;@BROKER_PORT@;@BROKER_HOSTNAME@;@BROKER_IP@
