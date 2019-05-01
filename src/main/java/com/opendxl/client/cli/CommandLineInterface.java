@@ -196,6 +196,21 @@ import java.net.URISyntaxException;
  *             },
  *             ...
  *         ],
+ *         "brokersWebSockets": [
+ *             {
+ *                 "guid": "{2c5b107c-7f51-11e7-0ebf-0800271cfa58}",
+ *                 "hostName": "broker1",
+ *                 "ipAddress": "10.10.100.100",
+ *                 "port": 443
+ *             },
+ *             {
+ *                 "guid": "{e90335b2-8dc8-11e7-1bc3-0800270989e4}",
+ *                 "hostName": "broker2",
+ *                 "ipAddress": "10.10.100.101",
+ *                 "port": 443
+ *             },
+ *             ...
+ *         ],
  *         "certVersion": 0
  *     }
  * </pre>
@@ -203,7 +218,7 @@ import java.net.URISyntaxException;
  * </ul>
  * </li>
  * <li>
- * Saves the [broker config] to the "Brokers" section of the
+ * Saves the [broker config] to the "Brokers" and "BrokersWebSockets" sections of the
  * dxlclient.config file.
  * </li>
  * </ul>

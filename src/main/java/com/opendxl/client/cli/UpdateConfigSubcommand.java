@@ -4,6 +4,8 @@
 
 package com.opendxl.client.cli;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opendxl.client.Broker;
 import com.opendxl.client.DxlClientConfig;
@@ -11,7 +13,9 @@ import org.apache.log4j.Logger;
 import picocli.CommandLine;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,6 +88,21 @@ import java.util.List;
  *             },
  *             ...
  *         ],
+ *         "brokersWebSockets": [
+ *             {
+ *                 "guid": "{2c5b107c-7f51-11e7-0ebf-0800271cfa58}",
+ *                 "hostName": "broker1",
+ *                 "ipAddress": "10.10.100.100",
+ *                 "port": 443
+ *             },
+ *             {
+ *                 "guid": "{e90335b2-8dc8-11e7-1bc3-0800270989e4}",
+ *                 "hostName": "broker2",
+ *                 "ipAddress": "10.10.100.101",
+ *                 "port": 443
+ *             },
+ *             ...
+ *         ],
  *         "certVersion": 0
  *     }
  * </pre>
@@ -108,7 +127,7 @@ import java.util.List;
  * </pre>
  */
 @CommandLine.Command(name = "updateconfig", description = "Update the DXL client configuration",
-        mixinStandardHelpOptions = true)
+    mixinStandardHelpOptions = true)
 class UpdateConfigSubcommand extends DxlCliCommand {
 
     /**
@@ -126,17 +145,22 @@ class UpdateConfigSubcommand extends DxlCliCommand {
     private static final String BROKER_LIST_COMMAND = "DxlClientMgmt.getBrokerList";
 
     /**
+     * The basic Jackson JSON ObjectMapper used for deserializing the results of the broker list command.
+     */
+    private static final ObjectMapper GENERIC_MAPPER = new ObjectMapper();
+
+    /**
      * The path to the config directory
      */
     @CommandLine.Parameters(index = "0", paramLabel = "CONFIGDIR",
-            description = "Path to the config directory")
+        description = "Path to the config directory")
     private String configDir;
 
     /**
      * The hostname where the management service resides
      */
     @CommandLine.Parameters(index = "1", paramLabel = "HOSTNAME",
-            description = "Hostname where the management service resides")
+        description = "Hostname where the management service resides")
     private String hostName;
 
     /**
@@ -157,7 +181,7 @@ class UpdateConfigSubcommand extends DxlCliCommand {
 
             // Make sure the config file exists
             File configFile = new File(this.configDir + File.separatorChar
-                    + CommandLineInterface.DXL_CONFIG_FILE_NAME);
+                + CommandLineInterface.DXL_CONFIG_FILE_NAME);
             if (!configFile.exists()) {
                 throw new Exception("Unable to find config file to update: " + configFile);
             }
@@ -167,24 +191,30 @@ class UpdateConfigSubcommand extends DxlCliCommand {
 
             // Create a ManagementService instance for communicating with the Management Service
             ManagementService managementService = new ManagementService(this.hostName, this.serverArgs.getPort(),
-                    this.serverArgs.getUser(), this.serverArgs.getPassword(), this.serverArgs.getTrustStoreFile());
+                this.serverArgs.getUser(), this.serverArgs.getPassword(), this.serverArgs.getTrustStoreFile());
 
             // Invoke the broker cert chain command on the management service
             String brokerCertChainResponse = managementService.invokeCommand(BROKER_CERT_CHAIN_COMMAND,
-                    Collections.EMPTY_LIST);
+                Collections.EMPTY_LIST);
 
             // Save broker cert chain response to disk
             logger.info("Updating certs in " + dxlClientConfig.getBrokerCaBundlePath());
             CertUtils.writePemFile(dxlClientConfig.getBrokerCaBundlePath(), brokerCertChainResponse);
 
             String brokerListCommandResultsAsString = managementService.invokeCommand(BROKER_LIST_COMMAND,
-                    Collections.EMPTY_LIST);
+                Collections.EMPTY_LIST);
 
             BrokerListCommandResults brokerListCommandResults =
-                    new ObjectMapper().readValue(brokerListCommandResultsAsString, BrokerListCommandResults.class);
+                GENERIC_MAPPER.readValue(brokerListCommandResultsAsString, BrokerListCommandResults.class);
+            // Set MQTT broker list
             List<Broker> existingBrokers = dxlClientConfig.getBrokerList();
             existingBrokers.clear();
             existingBrokers.addAll(brokerListCommandResults.getBrokers());
+
+            // Set WebSocket broker list
+            List<Broker> existingWebsocketBrokers = dxlClientConfig.getWebsocketBrokers();
+            existingWebsocketBrokers.clear();
+            existingWebsocketBrokers.addAll(brokerListCommandResults.getWebsocketBrokers());
 
             logger.info("Updating DXL config file at " + configFile.getPath());
             dxlClientConfig.write(configFile.getAbsolutePath());
@@ -192,54 +222,100 @@ class UpdateConfigSubcommand extends DxlCliCommand {
             logger.error("Error attempting to the ca bundle and broker configurations.", ex);
         }
     }
+
+
+    /**
+     * Model object for the JSON returned by the broker list command
+     */
+    private static class BrokerListCommandResults {
+        /**
+         * The list of brokers supporting standard MQTT connections
+         */
+        private List<Broker> brokers;
+        /**
+         * The list of brokers supporting DXL connections over WebSockets
+         */
+        private List<Broker> websocketBrokers = new ArrayList<>();
+        /**
+         * The certificate version
+         */
+        private int certVersion;
+
+        /**
+         * Get the list of brokers supporting standard MQTT connections
+         *
+         * @return The list of brokers supporting standard MQTT connections
+         */
+        List<Broker> getBrokers() {
+            return brokers;
+        }
+
+        /**
+         * Set the list of brokers supporting standard MQTT connections
+         *
+         * @param brokers The list of brokers supporting standard MQTT connections
+         */
+        void setBrokers(List<Broker> brokers) {
+            this.brokers = brokers;
+        }
+
+        /**
+         * Get the list of brokers supporting DXL connections over WebSockets
+         *
+         * @return The list of brokers supporting DXL connections over WebSockets
+         */
+        public List<Broker> getWebsocketBrokers() {
+            return websocketBrokers;
+        }
+
+        /**
+         * Set the list of brokers supporting DXL connections over WebSockets
+         *
+         * @param websocketBrokers The list of brokers supporting DXL connections over WebSockets
+         */
+        public void setWebsocketBrokers(List<Broker> websocketBrokers) {
+            this.websocketBrokers = websocketBrokers;
+        }
+
+        /**
+         * Setter called by Jackson when deserializing the JSON results of the broker list command. This method
+         * creates a Broker object and sets the protocol on the Broker object to be WSS for every Broker in the
+         * results.
+         *
+         * @param fieldKey      The JSON field
+         * @param embeddedField The deserialized JsonNode for the websocketBrokers section of the result JSON
+         */
+        @JsonAnySetter
+        public void setWebsocketBrokers(String fieldKey, JsonNode embeddedField) {
+            embeddedField.forEach(jsonNode -> {
+                try {
+                    Broker broker = GENERIC_MAPPER.readValue(jsonNode.toString(), Broker.class);
+                    broker.setProtocol(Broker.WSS_PROTOCOL);
+                    websocketBrokers.add(broker);
+                } catch (IOException e) {
+                    logger.warn("Error creating websocket broker", e);
+                }
+            });
+        }
+
+        /**
+         * Get the certificate version
+         *
+         * @return The certificate version
+         */
+        int getCertVersion() {
+            return certVersion;
+        }
+
+        /**
+         * Set the certificate version
+         *
+         * @param certVersion The certificate version
+         */
+        void setCertVersion(int certVersion) {
+            this.certVersion = certVersion;
+        }
+    }
 }
 
-/**
- * Model object for the JSON returned by the broker list command
- */
-class BrokerListCommandResults {
-    /**
-     * The list of brokers
-     */
-    private List<Broker> brokers;
-    /**
-     * The certificate version
-     */
-    private int certVersion;
 
-    /**
-     * Get the list of brokers
-     *
-     * @return The list of brokers
-     */
-    List<Broker> getBrokers() {
-        return brokers;
-    }
-
-    /**
-     * Set the list of brokers
-     *
-     * @param brokers The list of brokers
-     */
-    void setBrokers(List<Broker> brokers) {
-        this.brokers = brokers;
-    }
-
-    /**
-     * Get the certificate version
-     *
-     * @return The certificate version
-     */
-    int getCertVersion() {
-        return certVersion;
-    }
-
-    /**
-     * Set the certificate version
-     *
-     * @param certVersion The certificate version
-     */
-    void setCertVersion(int certVersion) {
-        this.certVersion = certVersion;
-    }
-}

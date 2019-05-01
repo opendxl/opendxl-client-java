@@ -1,3 +1,13 @@
+[General]
+# The UseWebSockets property is optional and it indicates if the OpenDXL Java Client should connect to
+# DXL Brokers via WebSockets. This flag will override the default behavior which is the following:
+#
+# MQTT will be used for connections to DXL Brokers if the [Brokers] section is not empty.
+#
+# WebSockets will be used for connections to DXL Brokers if the the [Brokers] section is empty and the
+# [BrokersWebSockets] section is not empty.
+UseWebSockets=false
+
 [Certs]
 BrokerCertChain=../../certificates/client/ca-broker.crt
 CertFile=../../certificates/client/client.crt
@@ -5,3 +15,6 @@ PrivateKey=../../certificates/client/client.pem
 
 [Brokers]
 unique_broker_id_1=unique_broker_id_1;@BROKER_PORT@;@BROKER_HOSTNAME@;@BROKER_IP@
+
+[BrokersWebSockets]
+unique_websocket_broker_id_1=unique_websocket_broker_id_1;@BROKER_WEBSOCKET_PORT@;@BROKER_HOSTNAME@;@BROKER_IP@

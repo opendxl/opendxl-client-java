@@ -1245,7 +1245,7 @@ public class DxlClient implements AutoCloseable {
         if (config == null) {
             throw new DxlException("No client configuration");
         }
-        if (config.getBrokerList() == null || config.getBrokerList().isEmpty()) {
+        if (config.getInUseBrokerList() == null || config.getInUseBrokerList().isEmpty()) {
             throw new DxlException("No broker defined");
         }
 
@@ -1268,7 +1268,7 @@ public class DxlClient implements AutoCloseable {
                     });
 
             // Use the first broker in the list for initialization. This will be overwritten before connect.
-            Broker broker = config.getBrokerList().get(0);
+            Broker broker = config.getInUseBrokerList().get(0);
             resetClient(broker.toString());
 
             // The reply-to topic name
