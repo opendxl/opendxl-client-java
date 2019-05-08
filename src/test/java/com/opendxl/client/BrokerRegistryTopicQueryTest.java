@@ -191,7 +191,7 @@ public class BrokerRegistryTopicQueryTest extends AbstractDxlTest {
                     expectedSubscriptionCount, true);
             }
 
-            Thread.sleep(15 * 1000L); //sleep 15 seconds to allow broker to clean up after client2 disconnects
+            Thread.sleep(30 * 1000L); //sleep 30 seconds to allow broker to clean up after client2 disconnects
 
             validateBrokerTopicQueryResponse(sendBrokerTopicQuery(client1, null, BROKER1_GUID, topics),
                 initialSubscriptionCount, false);
