@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Client Configuration Update via Command Line &mdash; OpenDXL Java SDK 0.1.3 documentation</title>
+  <title>Client Configuration Update via Command Line &mdash; OpenDXL Java SDK 0.2.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.1.3
+                0.2.0
               </div>
             
           
@@ -194,15 +194,15 @@ provisioned client with the latest information from a management server
 <li>Retrieves the latest CA certificate bundle from the server and stores it
 at the file referenced by the <code class="docutils literal notranslate"><span class="pre">BrokerCertChain</span></code> setting in the <code class="docutils literal notranslate"><span class="pre">[Certs]</span></code>
 section of the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file.</li>
-<li>Retrieves the latest broker information and updates the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code>
-section of the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file with that information.</li>
+<li>Retrieves the latest broker information and updates the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> and
+<code class="docutils literal notranslate"><span class="pre">[BrokersWebSockets]</span></code> sections of the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file with that information.</li>
 </ul>
 <div class="section" id="basic-example">
 <h2>Basic Example<a class="headerlink" href="#basic-example" title="Permalink to this headline">¶</a></h2>
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.1.3-all.jar updateconfig config myserver
+java -jar dxlclient-0.2.0-all.jar updateconfig config myserver
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -228,7 +228,7 @@ should be displayed:</p>
 command line options (<code class="docutils literal notranslate"><span class="pre">-u</span></code> and <code class="docutils literal notranslate"><span class="pre">-p</span></code>):</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.1.3-all.jar updateconfig config myserver -u myuser -p mypass
+java -jar dxlclient-0.2.0-all.jar updateconfig config myserver -u myuser -p mypass
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -245,7 +245,7 @@ Console is hosted.</p>
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.1.3-all.jar updateconfig config myserver -t 443
+java -jar dxlclient-0.2.0-all.jar updateconfig config myserver -t 443
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -260,7 +260,7 @@ negotiation by supplying the <code class="docutils literal notranslate"><span cl
 <p>The name of the truststore file should be supplied along with the option:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.1.3-all.jar updateconfig config myserver -e config/ca-bundle.crt
+java -jar dxlclient-0.2.0-all.jar updateconfig config myserver -e config/ca-bundle.crt
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>External Certificate Authority (CA) Provisioning &mdash; OpenDXL Java SDK 0.1.3 documentation</title>
+  <title>External Certificate Authority (CA) Provisioning &mdash; OpenDXL Java SDK 0.2.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.1.3
+                0.2.0
               </div>
             
           
@@ -204,7 +204,10 @@ will be populated.</p>
 <li><p class="first">Open the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file located in the <code class="docutils literal notranslate"><span class="pre">sample</span></code> sub-directory of the Java DXL SDK.</p>
 <p>The contents should appear as follows:</p>
 <blockquote>
-<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Certs</span><span class="p">]</span>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">General</span><span class="p">]</span>
+<span class="n">UseWebSockets</span><span class="o">=</span><span class="n">false</span>
+
+<span class="p">[</span><span class="n">Certs</span><span class="p">]</span>
 <span class="n">BrokerCertChain</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">cabundle</span><span class="o">&gt;</span>
 <span class="n">CertFile</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">dxlcert</span><span class="o">&gt;</span>
 <span class="n">PrivateKey</span><span class="o">=&lt;</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">dxlprivatekey</span><span class="o">&gt;</span>
@@ -212,8 +215,20 @@ will be populated.</p>
 <span class="p">[</span><span class="n">Brokers</span><span class="p">]</span>
 <span class="n">unique_broker_id_1</span><span class="o">=</span><span class="n">broker_id_1</span><span class="p">;</span><span class="n">broker_port_1</span><span class="p">;</span><span class="n">broker_hostname_1</span><span class="p">;</span><span class="n">broker_ip_1</span>
 <span class="n">unique_broker_id_2</span><span class="o">=</span><span class="n">broker_id_2</span><span class="p">;</span><span class="n">broker_port_2</span><span class="p">;</span><span class="n">broker_hostname_2</span><span class="p">;</span><span class="n">broker_ip_2</span>
+
+<span class="p">[</span><span class="n">BrokersWebSockets</span><span class="p">]</span>
+<span class="n">unique_websocket_broker_id_1</span><span class="o">=</span><span class="n">unique_websocket_broker_id_1</span><span class="p">;</span><span class="n">broker_websocket_port_1</span><span class="p">;</span><span class="n">broker_hostname_1</span><span class="p">;</span><span class="n">broker_ip_1</span>
+<span class="n">unique_websocket_broker_id_2</span><span class="o">=</span><span class="n">unique_websocket_broker_id_2</span><span class="p">;</span><span class="n">broker_websocket_port_2</span><span class="p">;</span><span class="n">broker_hostname_2</span><span class="p">;</span><span class="n">broker_ip_2</span>
 </pre></div>
 </div>
+</div></blockquote>
+</li>
+<li><p class="first">Optionally update the <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> value to indicate if the OpenDXL Java Client should connect to DXL Brokers
+via WebSockets. This flag will override the default behavior which is the following:</p>
+<blockquote>
+<div><p>MQTT will be used for connections to DXL Brokers if the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section is not empty.</p>
+<p>WebSockets will be used for connections to DXL Brokers if the the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section is empty and the
+<code class="docutils literal notranslate"><span class="pre">[BrokersWebSockets]</span></code> section is not empty.</p>
 </div></blockquote>
 </li>
 <li><p class="first">Update the <code class="docutils literal notranslate"><span class="pre">CertFile</span></code> and <code class="docutils literal notranslate"><span class="pre">PrivateKey</span></code> values to point to the certificate file (<code class="docutils literal notranslate"><span class="pre">client.crt</span></code>) and
@@ -222,6 +237,9 @@ private key file (<code class="docutils literal notranslate"><span class="pre">c
 <p>After completing this step the contents of the configuration file should look similar to:</p>
 <blockquote>
 <div><pre class="literal-block">
+[General]
+UseWebSockets=false
+
 [Certs]
 BrokerCertChain=&lt;path-to-cabundle&gt;
 CertFile=c:\certificates\client.crt
@@ -230,6 +248,10 @@ PrivateKey=c:\certificates\client.key
 [Brokers]
 unique_broker_id_1=broker_id_1;broker_port_1;broker_hostname_1;broker_ip_1
 unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
+
+[BrokersWebSockets]
+unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
+unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
 </pre>
 </div></blockquote>
 </li>
@@ -239,6 +261,9 @@ that was created when exporting the Broker Certificates.</p>
 <p>After completing this step the contents of the configuration file should look similar to:</p>
 <blockquote>
 <div><pre class="literal-block">
+[General]
+UseWebSockets=false
+
 [Certs]
 BrokerCertChain=c:\certificates\brokercerts.crt
 CertFile=c:\certificates\client.crt
@@ -247,17 +272,22 @@ PrivateKey=c:\certificates\client.key
 [Brokers]
 unique_broker_id_1=broker_id_1;broker_port_1;broker_hostname_1;broker_ip_1
 unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
+
+[BrokersWebSockets]
+unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
+unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
 </pre>
 </div></blockquote>
 </li>
-</ol>
-<ol class="arabic" start="3">
-<li><p class="first">Update the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section to include the contents of the broker list file (<code class="docutils literal notranslate"><span class="pre">brokerlist.properties</span></code>)
-that was created when exporting the Broker List.</p>
+<li><p class="first">Update the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> and <code class="docutils literal notranslate"><span class="pre">[BrokersWebSockets]</span></code> sections to include the contents of the broker
+list file (<code class="docutils literal notranslate"><span class="pre">brokerlist.properties</span></code>) that was created when exporting the Broker List.</p>
 <p>See the <a class="reference internal" href="epobrokerlistexport.html"><span class="doc">ePO Broker List Export</span></a> section for more information on exporting the Broker List.</p>
 <p>After completing this step the contents of the configuration file should look similar to:</p>
 <blockquote>
 <div><pre class="literal-block">
+[General]
+UseWebSockets=false
+
 [Certs]
 BrokerCertChain=c:\certificates\brokercerts.crt
 CertFile=c:\certificates\client.crt
@@ -266,6 +296,10 @@ PrivateKey=c:\certificates\client.key
 [Brokers]
 {5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};8883;mybroker.mcafee.com;192.168.1.12
 {24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};8883;mybroker2.mcafee.com;192.168.1.13
+
+[BrokersWebSockets]
+{5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};443;mybroker.mcafee.com;192.168.1.12
+{24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};443;mybroker2.mcafee.com;192.168.1.13
 </pre>
 </div></blockquote>
 </li>
