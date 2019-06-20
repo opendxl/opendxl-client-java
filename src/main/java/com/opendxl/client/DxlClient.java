@@ -1339,6 +1339,8 @@ public class DxlClient implements AutoCloseable {
             //setting to version 3.1.1 to prevent repeated connect with earlier MQTT version
             connectOps.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 
+            connectOps.setHttpsHostnameVerificationEnabled(getConfig().isHttpsHostnameVerificationEnabled());
+
             // Set socket factory if applicable
             if (this.sslSocketFactoryCallback != null) {
                 connectOps.setSocketFactory(this.sslSocketFactoryCallback.createFactory(getConfig()));

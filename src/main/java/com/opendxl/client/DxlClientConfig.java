@@ -201,6 +201,11 @@ public class DxlClientConfig {
     private boolean infiniteReconnect = true;
 
     /**
+     * Whether SSL host name verification is enabled when connecting to a broker
+     */
+    private boolean httpsHostnameVerificationEnabled = false;
+
+    /**
      * The logger
      */
     private static Logger logger = Logger.getLogger(DxlClientConfig.class);
@@ -555,6 +560,28 @@ public class DxlClientConfig {
      */
     public boolean isInfiniteReconnectRetries() {
         return this.infiniteReconnect;
+    }
+
+    /**
+     * Returns whether the client should do SSL host name verification when connecting to a broker
+     *
+     * @return Whether the client should do SSL host name verification when connecting to a broker
+     */
+    public boolean isHttpsHostnameVerificationEnabled() {
+        return httpsHostnameVerificationEnabled;
+    }
+
+    /**
+     * Sets whether the client should do SSL host name verification when connecting to a broker.
+     * <P>
+     * Defaults to {@code false}
+     * </P>
+     *
+     * @param httpsHostnameVerificationEnabled Whether the client should do SSL host name
+     *                                         verification when connecting to a broker.
+     */
+    public void setHttpsHostnameVerificationEnabled(boolean httpsHostnameVerificationEnabled) {
+        this.httpsHostnameVerificationEnabled = httpsHostnameVerificationEnabled;
     }
 
     /**
