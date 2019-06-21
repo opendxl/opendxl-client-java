@@ -6,6 +6,7 @@ package com.opendxl.client;
 
 import com.opendxl.client.exception.DxlException;
 import com.opendxl.client.util.UuidGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -42,6 +43,7 @@ public class DxlClientConfig {
     private static final String CERTS_INI_SECTION = "Certs";
     private static final String BROKERS_INI_SECTION = "Brokers";
     private static final String WEBSOCKET_BROKERS_INI_SECTION = "BrokersWebSockets";
+    private static final String PROXY_INI_SECTION = "Proxy";
 
     //
     // INI Keys
@@ -50,6 +52,10 @@ public class DxlClientConfig {
     private static final String CERT_FILE_INI_KEY_NAME = "CertFile";
     private static final String PRIVATE_KEY_INI_KEY_NAME = "PrivateKey";
     private static final String USE_WEBSOCKETS_INI_KEY_NAME = "UseWebSockets";
+    private static final String PROXY_ADDRESS = "Address";
+    private static final String PROXY_PORT = "Port";
+    private static final String PROXY_USER_NAME = "User";
+    private static final String PROXY_USER_PASSWORD = "Password";
 
     /**
      * A mapping of various strings to boolean values
@@ -216,6 +222,26 @@ public class DxlClientConfig {
     private int incomingMessageQueueSize =
         Integer.parseInt(
             System.getProperty(Constants.SYSPROP_INCOMING_MESSAGE_QUEUE_SIZE, Integer.toString(16384)));
+
+    /**
+     *The HTTP proxy address
+     */
+    private String proxyAddress;
+
+    /**
+     * The HTTP proxy port
+     */
+    private int proxyPort;
+
+    /**
+     * The HTTP proxy user name
+     */
+    private String proxyUserName;
+
+    /**
+     * The HTTP proxy user password
+     */
+    private char[] proxyPassword;
 
     /**
      * Default constructor
@@ -659,6 +685,38 @@ public class DxlClientConfig {
         this.delayRandom = percent;
     }
 
+    public String getProxyAddress() {
+        return proxyAddress;
+    }
+
+    public void setProxyAddress(String proxyAddress) {
+        this.proxyAddress = proxyAddress;
+    }
+
+    public int getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
+    public String getProxyUserName() {
+        return proxyUserName;
+    }
+
+    public void setProxyUserName(String proxyUserName) {
+        this.proxyUserName = proxyUserName;
+    }
+
+    public char[] getProxyPassword() {
+        return proxyPassword;
+    }
+
+    public void setProxyPassword(char[] proxyPassword) {
+        this.proxyPassword = proxyPassword;
+    }
+
     public void write(String configFile) throws Exception {
         final String certsSection = "Certs";
 
@@ -681,6 +739,14 @@ public class DxlClientConfig {
         // Add WebSocket Brokers
         for (Broker broker : this.websocketBrokers) {
             parser.addValue(WEBSOCKET_BROKERS_INI_SECTION, broker.getUniqueId(), broker.toConfigString());
+        }
+
+        // Add Proxy info
+        if (StringUtils.isNotBlank(this.proxyAddress)) {
+            parser.addValue(PROXY_INI_SECTION, PROXY_ADDRESS, this.proxyAddress);
+            parser.addValue(PROXY_INI_SECTION, PROXY_PORT, String.valueOf(this.proxyPort));
+            parser.addValue(PROXY_INI_SECTION, PROXY_USER_NAME, this.proxyUserName);
+            parser.addValue(PROXY_INI_SECTION, PROXY_USER_PASSWORD, String.valueOf(this.proxyPassword));
         }
 
         parser.write(configFile);
@@ -993,6 +1059,13 @@ public class DxlClientConfig {
      * [BrokersWebSockets]
      * mybroker=mybroker;8883;mybroker.mcafee.com;192.168.1.12
      * mybroker2=mybroker2;8883;mybroker2.mcafee.com;192.168.1.13
+     *
+     *[Proxy]
+     * Address=proxy.mycompany.com
+     * Port=3128
+     * User=proxyUser
+     * Passowrd=proxyPassword
+     *
      * </pre>
      * The configuration file can be loaded as follows:
      * <pre>
@@ -1049,6 +1122,14 @@ public class DxlClientConfig {
             dxlClientConfig.privateKeyOriginal = privateKeyOriginal;
             dxlClientConfig.useWebsockets = stringToBooleanMap.get(parser.getValue(GENERAL_INI_SECTION,
                 USE_WEBSOCKETS_INI_KEY_NAME, (!websocketBrokers.isEmpty() && brokers.isEmpty()) ? "true" : "false"));
+
+            // Get the proxy information
+            dxlClientConfig.proxyAddress = parser.getValue(PROXY_INI_SECTION, PROXY_ADDRESS, "");
+            dxlClientConfig.proxyPort = Integer.parseInt(
+                parser.getValue(PROXY_INI_SECTION, PROXY_PORT, "0"));
+            dxlClientConfig.proxyUserName = parser.getValue(PROXY_INI_SECTION, PROXY_USER_NAME, "");
+            dxlClientConfig.proxyPassword =
+                parser.getValue(PROXY_INI_SECTION, PROXY_USER_PASSWORD, "").toCharArray();
 
             return dxlClientConfig;
         } catch (Exception ex) {
