@@ -219,6 +219,7 @@ class ManagementService {
         }
 
         return HttpClients.custom()
+                .useSystemProperties()
                 .setDefaultRequestConfig(createRequestConfig())
                 .setConnectionManager(createConnectionManager(socketFactory))
                 .setDefaultCookieStore(new BasicCookieStore())

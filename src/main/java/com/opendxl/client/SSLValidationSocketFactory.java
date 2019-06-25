@@ -69,7 +69,7 @@ class SSLValidationSocketFactory {
             new ProxySocketFactory(sslContext.getSocketFactory(), proxyHost, proxyPort);
 
         // Set the default Authenticator if there is a proxy username and password
-        if (StringUtils.isNoneBlank(proxyUserName)) {
+        if (StringUtils.isNotBlank(proxyUserName)) {
             Authenticator.setDefault(new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
