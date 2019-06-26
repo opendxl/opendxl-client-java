@@ -102,15 +102,15 @@ public class Broker implements Comparable<Broker>, Cloneable {
      * @param hostName The host name or IP address of the broker (required)
      * @param ipAddress A valid IP address for the broker. This allows for both the host name and IP address to be
      *                  used when connecting to the broker (optional).
-     * @param useWebsockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
+     * @param useWebSockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
      */
     public Broker(final String uniqueId, final int port, final String hostName, final String ipAddress,
-                  final boolean useWebsockets) {
+                  final boolean useWebSockets) {
         this.uniqueId = uniqueId;
         this.hostName = hostName;
         this.ipAddress = ipAddress;
         this.port = port;
-        this.protocol = useWebsockets ? WSS_PROTOCOL : SSL_PROTOCOL;
+        this.protocol = useWebSockets ? WSS_PROTOCOL : SSL_PROTOCOL;
     }
 
     /**
@@ -405,16 +405,31 @@ public class Broker implements Comparable<Broker>, Cloneable {
     }
 
     /**
+     * Constructs and returns a {@link Broker} for the specified protocol and configuration string of the
+     * following format:
+     * <P>
+     * {@code [UniqueId];[Port];[HostName];[IpAddress]}
+     * </P>
+     * @param configString The configuration string
+     * @param protocol The protocol to use when connecting to a broker
+     * @return A {@link Broker} corresponding to the specified configuration string and protocol
+     * @throws MalformedBrokerException If the format is malformed
+     */
+    public static Broker parse(final String configString, final String protocol) throws MalformedBrokerException {
+        return parse(configString, WSS_PROTOCOL.equals(protocol));
+    }
+
+    /**
      * Constructs and returns a {@link Broker} for the specified configuration string of the following format:
      * <P>
      * {@code [UniqueId];[Port];[HostName];[IpAddress]}
      * </P>
      * @param configString The configuration string
-     * @param useWebsockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
+     * @param useWebSockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
      * @return A {@link Broker} corresponding to the specified configuration string
      * @throws MalformedBrokerException If the format is malformed
      */
-    public static Broker parse(final String configString, boolean useWebsockets)
+    public static Broker parse(final String configString, boolean useWebSockets)
         throws MalformedBrokerException {
         // [UniqueId];[Port];[HostName];[IpAddress]
         if (StringUtils.isBlank(configString)) {
@@ -431,9 +446,19 @@ public class Broker implements Comparable<Broker>, Cloneable {
         // Remove brackets around IPv6 address
         broker.hostName = elements.get(2).replaceAll("[\\[\\]]", "");
 
+        // Validate the host name
+        if (!BrokerHostNameHelper.isValidHostNameOrIPAddress(broker.hostName)) {
+            throw new MalformedBrokerException("Invalid hostname");
+        }
+
         if (elements.size() > 3) {
             // Remove brackets around IPv6 address
             broker.ipAddress = elements.get(3).replaceAll("[\\[\\]]", "");
+
+            // Validate the IP address
+            if (!BrokerHostNameHelper.isValidIPAddress(broker.ipAddress)) {
+                throw new MalformedBrokerException("Invalid IP address");
+            }
         }
 
         try {
@@ -445,7 +470,7 @@ public class Broker implements Comparable<Broker>, Cloneable {
             throw new MalformedBrokerException("Invalid port");
         }
 
-        broker.protocol = useWebsockets ? WSS_PROTOCOL : SSL_PROTOCOL;
+        broker.protocol = useWebSockets ? WSS_PROTOCOL : SSL_PROTOCOL;
         return broker;
     }
 }

@@ -128,7 +128,7 @@ public class DxlClientConfig {
     /**
      * Whether to use WebSockets or regular MQTT over tcp
      */
-    private boolean useWebsockets = false;
+    private boolean useWebSockets = false;
 
     /**
      * The number of times to retry during connect, default -1 (infinite)
@@ -304,7 +304,7 @@ public class DxlClientConfig {
         this.privateKey = privateKey;
         this.privateKeyOriginal = privateKey;
         this.websocketBrokers = websocketBrokers;
-        this.useWebsockets = false;
+        this.useWebSockets = false;
     }
 
     /**
@@ -373,7 +373,7 @@ public class DxlClientConfig {
      * @return The list of {@link Broker} objects representing brokers on the DXL fabric
      */
     public List<Broker> getInUseBrokerList() {
-        if (useWebsockets) {
+        if (useWebSockets) {
             return websocketBrokers;
         }
 
@@ -438,18 +438,18 @@ public class DxlClientConfig {
      *
      * @return Whether the client should use WebSockets or regular MQTT over tcp when connecting to a {@link Broker}
      */
-    public boolean isUseWebsockets() {
-        return useWebsockets;
+    public boolean isUseWebSockets() {
+        return useWebSockets;
     }
 
     /**
      * Sets whether the client should use WebSockets or regular MQTT over tcp when connecting to a {@link Broker}
      *
-     * @param useWebsockets Whether the client should use WebSockets or regular MQTT over tcp when connecting to
+     * @param useWebSockets Whether the client should use WebSockets or regular MQTT over tcp when connecting to
      * a {@link Broker}
      */
-    public void setUseWebsockets(boolean useWebsockets) {
-        this.useWebsockets = useWebsockets;
+    public void setUseWebSockets(boolean useWebSockets) {
+        this.useWebSockets = useWebSockets;
     }
 
     /**
@@ -722,7 +722,7 @@ public class DxlClientConfig {
 
         final IniParser parser = new IniParser();
         // Add Use WebSockets
-        parser.addValue(GENERAL_INI_SECTION, USE_WEBSOCKETS_INI_KEY_NAME, String.valueOf(this.useWebsockets));
+        parser.addValue(GENERAL_INI_SECTION, USE_WEBSOCKETS_INI_KEY_NAME, String.valueOf(this.useWebSockets));
 
         // Add Broker Cert Chain
         parser.addValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME, this.brokerCaBundlePathOriginal);
@@ -1024,16 +1024,16 @@ public class DxlClientConfig {
      *
      * @param configSection A map representing the keys and values of a Brokers or BrokersWebSockets section of a
      * configuration file.
-     * @param useWebsockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
+     * @param useWebSockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
      * @return A list of {@link Broker} objects representing the Brokers or BrokersWebSockets section of a
      * configuration file.
      * @throws DxlException If an error occurs
      */
     private static List<Broker> getBrokerListFromConfigSection(Map<String, String> configSection,
-                                                               boolean useWebsockets) throws DxlException {
+                                                               boolean useWebSockets) throws DxlException {
         List<Broker> brokers = new ArrayList<>();
         for (Map.Entry<String, String> entry : configSection.entrySet()) {
-            brokers.add(Broker.parse(entry.getValue(), useWebsockets));
+            brokers.add(Broker.parse(entry.getValue(), useWebSockets));
         }
 
         return brokers;
@@ -1045,7 +1045,7 @@ public class DxlClientConfig {
      *
      * <pre>
      * [General]
-     * useWebSocketBrokers=false
+     * UseWebSockets=false
      *
      * [Certs]
      * BrokerCertChain=c:\\certs\\brokercerts.crt
@@ -1064,7 +1064,7 @@ public class DxlClientConfig {
      * Address=proxy.mycompany.com
      * Port=3128
      * User=proxyUser
-     * Passowrd=proxyPassword
+     * Password=proxyPassword
      *
      * </pre>
      * The configuration file can be loaded as follows:
@@ -1120,7 +1120,7 @@ public class DxlClientConfig {
             dxlClientConfig.brokerCaBundlePathOriginal = brokerCaBundleFileOriginal;
             dxlClientConfig.certFileOriginal = certFileOriginal;
             dxlClientConfig.privateKeyOriginal = privateKeyOriginal;
-            dxlClientConfig.useWebsockets = stringToBooleanMap.get(parser.getValue(GENERAL_INI_SECTION,
+            dxlClientConfig.useWebSockets = stringToBooleanMap.get(parser.getValue(GENERAL_INI_SECTION,
                 USE_WEBSOCKETS_INI_KEY_NAME, (!websocketBrokers.isEmpty() && brokers.isEmpty()) ? "true" : "false"));
 
             // Get the proxy information

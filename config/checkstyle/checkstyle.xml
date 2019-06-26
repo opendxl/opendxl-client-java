@@ -66,6 +66,11 @@
         <!-- See http://checkstyle.sf.net/config_sizes.html -->
         <module name="LineLength">
             <property name="max" value="120"/>
+            <!--
+            Ignore Javadoc comments since references to other elements (@see
+            tag, etc.) may get rather long and should not be truncated.
+            -->
+            <property name="ignorePattern" value="^\s*\*\s*[^\s]+.+$"/>
         </module>
         <module name="MethodLength">
             <property name="max" value="200"/>

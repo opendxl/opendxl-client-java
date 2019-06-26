@@ -46,8 +46,9 @@ class SSLValidationSocketFactory {
      * @throws Exception If an SSL exception occurs
      */
     public static SSLSocketFactory newInstance(final KeyStore keyStore, final String keyStorePassword,
-                                               String proxyHost, int proxyPort, String proxyUserName,
-                                               char[] proxyPassword)
+                                               final boolean useWebSockets, final String proxyHost,
+                                               final int proxyPort, final String proxyUserName,
+                                               final char[] proxyPassword)
         throws Exception {
 
         final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -60,7 +61,7 @@ class SSLValidationSocketFactory {
         sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), secureRandom);
 
         // If there is no proxy return a non proxy socket factory
-        if (StringUtils.isBlank(proxyHost)) {
+        if (!useWebSockets || StringUtils.isBlank(proxyHost)) {
             return sslContext.getSocketFactory();
         }
 
@@ -70,6 +71,12 @@ class SSLValidationSocketFactory {
 
         // Set the default Authenticator if there is a proxy username and password
         if (StringUtils.isNotBlank(proxyUserName)) {
+            // Basic authentication was disabled in Java 8
+            // (https://www.oracle.com/technetwork/java/javase/8u111-relnotes-3124969.html)
+            // This is a workaround to re-enable basic authentication when making a proxy connection.
+            // The other alternative is to set this as a system property when starting the OpenDXL Java Client:
+            // -Djdk.http.auth.tunneling.disabledSchemes= ""
+            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
             Authenticator.setDefault(new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {

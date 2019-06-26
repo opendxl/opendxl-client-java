@@ -94,3 +94,16 @@ The name of the truststore file should be supplied along with the option:
 
         Ensure that the ``-all`` version of the dxlclient ``.jar`` file is specified.
 
+Routing client configuration update operation through a proxy
+*************************************************************
+
+If the remote call to a provisioning server (ePO or OpenDXL Broker) used during a client configuration update must be
+routed through a proxy, then use standard Java system properties to declare the proxy host, port, user name,
+and password. (`<https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html>`_)
+
+For example:
+
+    .. parsed-literal::
+
+        java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128 -Dhttp.proxyHost=proxy.mycompany.com -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyUser -Dhttp.proxyPassword=proxyPassword -jar dxlclient-\ |version|\-all.jar updateconfig config myserver
+
