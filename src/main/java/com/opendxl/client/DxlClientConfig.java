@@ -224,7 +224,7 @@ public class DxlClientConfig {
             System.getProperty(Constants.SYSPROP_INCOMING_MESSAGE_QUEUE_SIZE, Integer.toString(16384)));
 
     /**
-     *The HTTP proxy address
+     * The HTTP proxy address
      */
     private String proxyAddress;
 
@@ -685,38 +685,84 @@ public class DxlClientConfig {
         this.delayRandom = percent;
     }
 
+    /**
+     * Returns the HTTP proxy address
+     *
+     * @return The HTTP proxy address
+     */
     public String getProxyAddress() {
         return proxyAddress;
     }
 
+    /**
+     * Sets the HTTP proxy address
+     *
+     * @param proxyAddress The HTTP proxy address
+     */
     public void setProxyAddress(String proxyAddress) {
         this.proxyAddress = proxyAddress;
     }
 
+    /**
+     * Returns the HTTP proxy port
+     *
+     * @return The HTTP proxy port
+     */
     public int getProxyPort() {
         return proxyPort;
     }
 
+    /**
+     * Sets the HTTP proxy port
+     *
+     * @param proxyPort The HTTP proxy port
+     */
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
     }
 
+    /**
+     * Returns the HTTP proxy user name
+     *
+     * @return The HTTP proxy user name
+     */
     public String getProxyUserName() {
         return proxyUserName;
     }
 
+    /**
+     * Sets the HTTP proxy user name
+     *
+     * @param proxyUserName The HTTP proxy user name
+     */
     public void setProxyUserName(String proxyUserName) {
         this.proxyUserName = proxyUserName;
     }
 
+    /**
+     * Returns the the HTTP proxy password
+     *
+     * @return The the HTTP proxy password
+     */
     public char[] getProxyPassword() {
         return proxyPassword;
     }
 
+    /**
+     * Sets the the HTTP proxy password
+     *
+     * @param proxyPassword The the HTTP proxy password
+     */
     public void setProxyPassword(char[] proxyPassword) {
         this.proxyPassword = proxyPassword;
     }
 
+    /**
+     * Method to write out the dxlClient.config file from the DXLClientConfig object member variables
+     *
+     * @param configFile The path to the dxlClient.config file
+     * @throws Exception If there is an issue with writing the dxlClient.config file
+     */
     public void write(String configFile) throws Exception {
         final String certsSection = "Certs";
 
