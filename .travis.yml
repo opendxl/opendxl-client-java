@@ -10,6 +10,8 @@ jdk:
   - oraclejdk8
 
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y apache2-utils
   - docker pull opendxl/opendxl-broker
   - docker pull sameersbn/squid
   - docker run -d -p 127.0.0.1:8883:8883 -p 127.0.0.1:8443:8443 -p 127.0.0.1:443:443 opendxl/opendxl-broker
