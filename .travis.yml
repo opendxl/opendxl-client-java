@@ -18,7 +18,7 @@ before_install:
   - docker ps -a
   - mkdir ./squid-proxy-cache
   - htpasswd -b -c ./testing/passwords proxyuser proxypassword
-  - docker run --name squid -d --restart=always --publish 3128:3128 --volume ./testing/squid.conf:/etc/squid/squid.conf --volume ./testing/passwords:/etc/squid/passwords --volume ./squid-proxy-cache:/var/spool/squid sameersbn/squid
+  - docker run --name squid -d --restart=always --publish 3128:3128 --volume ${TRAVIS_BUILD_DIR}/testing/squid.conf:/etc/squid/squid.conf --volume ${TRAVIS_BUILD_DIR}/testing/passwords:/etc/squid/passwords --volume ./squid-proxy-cache:/var/spool/squid sameersbn/squid
   - docker ps -a
 
 script:
