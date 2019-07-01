@@ -11,16 +11,27 @@ jdk:
 
 before_install:
   - docker pull opendxl/opendxl-broker
+  - docker pull sameersbn/squid
   - docker run -d -p 127.0.0.1:8883:8883 -p 127.0.0.1:8443:8443 -p 127.0.0.1:443:443 opendxl/opendxl-broker
+  - docker ps -a
+  - mkdir ./squid-proxy-cache
+  - mkdir /etc/squid/
+  - htpasswd -b -c /etc/squid/passwords proxyuser proxypassword
+  - cp ./testing/squid.conf /etc/squid/squid.conf
+  - docker run --name squid -d --restart=always --publish 3128:3128 --volume /etc/squid/squid.conf:/etc/squid/squid.conf --volume /etc/squid/passwords:/etc/squid/passwords --volume ./squid-proxy-cache:/var/spool/squid sameersbn/squid
   - docker ps -a
 
 script:
-  - java -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig 127.0.0.1 client -u admin -p password
+  - ip4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
+  - java -Dhttps.proxyHost{$ip4} -Dhttps.proxyPort=3128 -Dhttp.proxyHost={$ip4} -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyuser -Dhttp.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig {$ip4} client -u admin -p password
   - sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
-  - cat clientconfig/dxlclient.config
-  - echo Running tests with MQTT
-  - ./gradlew test --info --console=plain
   - sed -i -e "s/= false/= true/g" -e "s/;8883/;443/g" -e "s/Brokers/BrokersWebSockets/g"  clientconfig/dxlclient.config
+  - echo "[Proxy]" >> clientconfig/dxlclient.config
+  - echo "Address=${ip4}" >> clientconfig/dxlclient.config
+  - echo "Port=3128" >> clientconfig/dxlclient.config
+  - echo "User=proxyuser" >> clientconfig/dxlclient.config
+  - echo "Password=proxypassword" >> clientconfig/dxlclient.config
   - cat clientconfig/dxlclient.config
-  - echo Running tests with WebSockets
+  - cat clientconfig/dxlclient.config
+  - echo Running tests with WebSockets and authenticated proxy
   - ./gradlew cleanTest test --info --console=plain
