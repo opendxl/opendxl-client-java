@@ -25,4 +25,5 @@ script:
   - ip4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
   - curl -x http://proxyuser:proxypassword@${ip4}:3128 -I http://google.com
   - curl -x http://proxyuser:proxypassword@127.0.0.1:3128 -I http://google.com
-  - - java -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=3128 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyuser -Dhttp.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
+  - java -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=3128 -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyuser -Dhttp.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig 127.0.0.1 client -u admin -p password
+  - cat clientconfig/dxlclient.config
