@@ -26,7 +26,7 @@ script:
   - ip4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
   - docker ps
   - docker logs squid
-  - java -Dhttps.proxyHost=${ip4} -Dhttps.proxyPort=3128 -Dhttp.proxyHost=${ip4} -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyuser -Dhttp.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
+  - java -Dhttps.proxyHost=${ip4} -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyuser -Dhttps.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
   - sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
   - sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
   - cat clientconfig/dxlclient.config

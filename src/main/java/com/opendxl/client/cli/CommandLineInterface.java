@@ -125,13 +125,13 @@ import java.net.URISyntaxException;
  * </pre>
  * <p>
  * <b>Note:</b> If the command must route through a proxy to reach the management server then use standard Java system
- * properties to declare the proxy host, port, user name, and password.
+ * properties to declare the https proxy host, port, user name, and password.
  * (<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html" target="_blank">https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html</a>)
  * An example usage of this command with Java system properties for the proxy settings is the following:
  * </p>
  * <pre>
- *     $&gt; java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128 -Dhttp.proxyHost=proxy.mycompany.com
- *     -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyUser -Dhttp.proxyPassword=proxyPassword
+ *     $&gt; java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128
+ *     -Dhttps.proxyUser=proxyUser -Dhttps.proxyPassword=proxyPassword
  *     -jar dxlclient-0.1.0-all.jar provisionconfig config myserver dxlclient1
  * </pre>
  * </td>
@@ -246,13 +246,13 @@ import java.net.URISyntaxException;
  * </pre>
  * <p>
  * <b>Note:</b> If the command must route through a proxy to reach the management server then use standard Java system
- * properties to declare the proxy host, port, user name, and password.
+ * properties to declare the https proxy host, port, user name, and password.
  * (<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html" target="_blank">https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html</a>)
  * An example usage of this command with Java system properties for the proxy settings is the following:
  * </p>
  * <pre>
- *     $&gt; java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128 -Dhttp.proxyHost=proxy.mycompany.com
- *     -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyUser -Dhttp.proxyPassword=proxyPassword
+ *     $&gt; java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128
+ *     -Dhttps.proxyUser=proxyUser -Dhttps.proxyPassword=proxyPassword
  *     -jar dxlclient-0.1.0-all.jar updateconfig config myserver
  * </pre>
  * </td>
