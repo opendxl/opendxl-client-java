@@ -16,13 +16,15 @@ before_install:
   - docker pull sameersbn/squid
   - docker run -d -p 8883:8883 -p 8443:8443 -p 443:443 opendxl/opendxl-broker
   - docker ps -a
-  - mkdir ./squid-proxy-cache
-  - htpasswd -b -c ./testing/passwords proxyuser proxypassword
+  - mkdir squid-proxy-cache
+  - htpasswd -b -c ${TRAVIS_BUILD_DIR}/testing/passwords proxyuser proxypassword
+  - cat ${TRAVIS_BUILD_DIR}/testing/passwords
   - docker run --name squid -d --restart=always --publish 3128:3128 --volume ${TRAVIS_BUILD_DIR}/testing/squid.conf:/etc/squid/squid.conf --volume ${TRAVIS_BUILD_DIR}/testing/passwords:/etc/squid/passwords --volume ${TRAVIS_BUILD_DIR}/squid-proxy-cache:/var/spool/squid sameersbn/squid
   - docker ps -a
 
 script:
   - ip4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
+  - docker ps
   - java -Dhttps.proxyHost=${ip4} -Dhttps.proxyPort=3128 -Dhttp.proxyHost=${ip4} -Dhttp.proxyPort=3128 -Dhttp.proxyUser=proxyuser -Dhttp.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
   - sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
   - sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
