@@ -23,7 +23,7 @@ public class ProxyUsageVerificationTest {
             client.connect();
         } catch (Exception e) {
             e.printStackTrace();
-            assertTrue(e.getMessage().contains("Unable to connect to server: Connection refused: connect"));
+            assertTrue(e.getMessage().contains("Unable to connect to server: Connection refused"));
         }
 
         config.setProxyPort(originalProxyPort);
