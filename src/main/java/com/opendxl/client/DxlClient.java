@@ -13,6 +13,7 @@ import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
 import com.opendxl.client.util.UuidGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -24,6 +25,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.security.KeyStore;
 import java.util.HashSet;
 import java.util.List;
@@ -1253,9 +1256,7 @@ public class DxlClient implements AutoCloseable {
 
         try {
             if (ks != null && this.sslSocketFactoryCallback == null) {
-                this.socketFactory = SSLValidationSocketFactory.newInstance(ks, DxlClientConfig.KS_PASS,
-                    config.isUseWebSockets(), config.getProxyAddress(), config.getProxyPort(),
-                    config.getProxyUserName(), config.getProxyPassword());
+                this.socketFactory = SSLValidationSocketFactory.newInstance(ks, DxlClientConfig.KS_PASS);
             }
             //
             // Each thread is a daemon thread.
@@ -1343,12 +1344,41 @@ public class DxlClient implements AutoCloseable {
 
             connectOps.setHttpsHostnameVerificationEnabled(getConfig().isHttpsHostnameVerificationEnabled());
 
-            // Set socket factory if applicable
+            // Get socket factory
+            SSLSocketFactory connectOpsSocketFactory;
             if (this.sslSocketFactoryCallback != null) {
-                connectOps.setSocketFactory(this.sslSocketFactoryCallback.createFactory(getConfig()));
+                connectOpsSocketFactory = this.sslSocketFactoryCallback.createFactory(getConfig());
             } else {
-                connectOps.setSocketFactory(socketFactory);
+                connectOpsSocketFactory = socketFactory;
             }
+
+            // Wrap the socket factory in the ProxySocketFactory if there is a proxy host address
+            if (StringUtils.isNotBlank(this.config.getProxyAddress())) {
+                // Create proxy socket factory
+                connectOpsSocketFactory =
+                    new ProxySocketFactory(connectOpsSocketFactory,
+                        this.config.getProxyAddress(), this.config.getProxyPort());
+
+                // Set the default Authenticator if there is a proxy username and password
+                if (StringUtils.isNotBlank(this.config.getProxyUserName())) {
+                    // Basic authentication was disabled in Java 8
+                    // (https://www.oracle.com/technetwork/java/javase/8u111-relnotes-3124969.html)
+                    // This is a workaround to re-enable basic authentication when making a proxy connection.
+                    // The other alternative is to set this as a system property when starting the OpenDXL Java Client:
+                    // -Djdk.http.auth.tunneling.disabledSchemes= ""
+                    System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+                    Authenticator.setDefault(new Authenticator() {
+                        @Override
+                        protected PasswordAuthentication getPasswordAuthentication() {
+                            return new PasswordAuthentication(
+                                getConfig().getProxyUserName(), getConfig().getProxyPassword());
+                        }
+                    });
+                }
+            }
+
+            // Set the socket factory on the connectOps
+            connectOps.setSocketFactory(connectOpsSocketFactory);
 
             for (Map.Entry<String, Broker> entry : brokers.entrySet()) {
                 if (this.interrupt.get()) {
@@ -1556,7 +1586,7 @@ public class DxlClient implements AutoCloseable {
          * @throws Exception If an error occurs
          */
         SSLSocketFactory createFactory(DxlClientConfig config) throws Exception;
-    };
+    }
 
     /**
      * Implements the {@link MqttCallback} interface (used to received callbacks from the MQTT client.

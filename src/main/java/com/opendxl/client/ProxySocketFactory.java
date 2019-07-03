@@ -48,7 +48,8 @@ class ProxySocketFactory extends SSLSocketFactory {
      * @return The proxy port
      */
     private static Integer resolveProxyPort() {
-        return Integer.valueOf(System.getProperty("http.proxyPort", "3128"));
+        return Integer.valueOf(System.getProperty("https.proxyPort",
+            System.getProperty("http.proxyPort", "3128")));
     }
 
     /**
@@ -57,7 +58,8 @@ class ProxySocketFactory extends SSLSocketFactory {
      * @return The proxy host
      */
     private static String resolveProxyHost() {
-        return System.getProperty("http.proxyHost", "localhost");
+        return System.getProperty("https.proxyHost",
+            System.getProperty("http.proxyHost", "localhost"));
     }
 
     /**
