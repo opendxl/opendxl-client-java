@@ -22,6 +22,7 @@ public class ProxyUsageVerificationTest {
             client.getConfig().setConnectRetries(1);
             client.connect();
         } catch (Exception e) {
+            e.printStackTrace();
             assertTrue(e.getMessage().contains("Unable to connect to server: Connection refused: connect"));
         }
 
