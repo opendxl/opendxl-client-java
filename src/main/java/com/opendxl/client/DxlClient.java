@@ -1370,8 +1370,15 @@ public class DxlClient implements AutoCloseable {
                     Authenticator.setDefault(new Authenticator() {
                         @Override
                         protected PasswordAuthentication getPasswordAuthentication() {
-                            return new PasswordAuthentication(
-                                getConfig().getProxyUserName(), getConfig().getProxyPassword());
+                            // Only use the proxy username and password in the config if the requesting host and port
+                            // matches the proxy host address and port in the config
+                            if (getRequestingHost().equalsIgnoreCase(getConfig().getProxyAddress())
+                                && getRequestingPort() == getConfig().getProxyPort()) {
+                                return new PasswordAuthentication(
+                                    getConfig().getProxyUserName(), getConfig().getProxyPassword());
+                            }
+
+                            return null;
                         }
                     });
                 }
