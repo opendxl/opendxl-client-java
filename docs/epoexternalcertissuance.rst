@@ -162,7 +162,7 @@ The following steps walk through the process of populating this file:
 6. Optionally update the ``[Proxy]`` section to have the required host name or IP address, port, user name, and 
    password of the proxy that WebSocket connections to DXL Brokers will be routed through. These settings are only
    used when the OpenDXL Java Client will make WebSocket connections to DXL Brokers. The ``User`` and ``Password``
-   values not required if the proxy does not require authentication.
+   values are not required if the proxy does not require authentication.
 
    After completing this step the contents of the configuration file should look similar to:
 
