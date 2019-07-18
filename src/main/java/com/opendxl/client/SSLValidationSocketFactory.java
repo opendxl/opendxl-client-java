@@ -19,10 +19,14 @@ import java.security.SecureRandom;
  */
 class SSLValidationSocketFactory {
 
-    /** Secure random */
+    /**
+     * Secure random
+     */
     private static SecureRandom secureRandom = new SecureRandom();
 
-    /** Private constructor */
+    /**
+     * Private constructor
+     */
     private SSLValidationSocketFactory() {
         super();
     }

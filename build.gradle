@@ -256,8 +256,17 @@ assemble.dependsOn(replaceVersionInREADME)
 
 test {
     systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"
+    
+    // Exclude the Proxy Usage Verification Test
+    exclude "**/ProxyUsageVerificationTest.class"
 //    filter {
 //        //specific test method
 //        includeTestsMatching "com.opendxl.client.RegisterServiceTest"
 //    }
+}
+
+// Task for verifying proxy usage
+task proxyUsageVerificationTest(type:Test) {
+    systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"
+    include "**/ProxyUsageVerificationTest.class"
 }

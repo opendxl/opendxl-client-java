@@ -50,6 +50,13 @@ External Certificate Authority (CA)
 
         epoexternalcertissuance
 
+WebSocket and Proxy Support
+    .. toctree::
+        :maxdepth: 1
+
+        websocketsupport
+        proxysupport
+
 API Documentation
 -----------------
 

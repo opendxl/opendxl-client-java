@@ -7,7 +7,11 @@ package com.opendxl.client.cli;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -16,15 +20,18 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.DefaultHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 
@@ -219,11 +226,55 @@ class ManagementService {
         }
 
         return HttpClients.custom()
-                .setDefaultRequestConfig(createRequestConfig())
-                .setConnectionManager(createConnectionManager(socketFactory))
-                .setDefaultCookieStore(new BasicCookieStore())
-                .setRedirectStrategy(new LaxRedirectStrategy())
-                .build();
+            .setDefaultRequestConfig(createRequestConfig())
+            .setConnectionManager(createConnectionManager(socketFactory))
+            .setDefaultCookieStore(new BasicCookieStore())
+            .setRedirectStrategy(new LaxRedirectStrategy())
+            .setRoutePlanner(createRoutePlanner())
+            .setDefaultCredentialsProvider(createCredentialsProvider())
+            .build();
+    }
+
+    /**
+     * Creates and returns a {@link HttpRoutePlanner} based on the standard Java system properties for https proxy
+     * information
+     *
+     * @return A {@link HttpRoutePlanner} based on the standard Java system properties for https proxy
+     * information
+     */
+    private HttpRoutePlanner createRoutePlanner() {
+        DefaultProxyRoutePlanner routePlanner = null;
+        String httpsProxyHost = System.getProperty("https.proxyHost", "");
+        int httpsProxyPort = Integer.parseInt(System.getProperty("https.proxyPort", "0"));
+        if (StringUtils.isNotBlank(httpsProxyHost)) {
+            HttpHost proxy = new HttpHost(httpsProxyHost, httpsProxyPort);
+            routePlanner = new DefaultProxyRoutePlanner(proxy);
+        }
+        return routePlanner;
+    }
+
+    /**
+     * Creates and returns a {@link CredentialsProvider} based on the specified descriptor properties
+     *
+     * @return A {@link CredentialsProvider} based on the specified descriptor properties
+     */
+    private CredentialsProvider createCredentialsProvider() {
+        CredentialsProvider credsProvider = new BasicCredentialsProvider();
+
+        String httpsProxyHost = System.getProperty("https.proxyHost", "");
+        int httpsProxyPort = Integer.parseInt(System.getProperty("https.proxyPort", "0"));
+        String httpsProxyUser = System.getProperty("https.proxyUser", "");
+        String httpsProxyPassword = System.getProperty("https.proxyPassword", "");
+
+        if (StringUtils.isNotBlank(httpsProxyHost)) {
+            // if an HTTP proxy username has been provided add credentials for the HTTP proxy
+            if (StringUtils.isNotBlank(httpsProxyUser)) {
+                credsProvider.setCredentials(
+                    new AuthScope(httpsProxyHost, httpsProxyPort),
+                    new UsernamePasswordCredentials(httpsProxyUser, httpsProxyPassword));
+            }
+        }
+        return credsProvider;
     }
 
     /**

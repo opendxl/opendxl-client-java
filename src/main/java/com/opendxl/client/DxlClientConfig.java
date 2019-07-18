@@ -6,6 +6,7 @@ package com.opendxl.client;
 
 import com.opendxl.client.exception.DxlException;
 import com.opendxl.client.util.UuidGenerator;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.File;
@@ -42,6 +43,7 @@ public class DxlClientConfig {
     private static final String CERTS_INI_SECTION = "Certs";
     private static final String BROKERS_INI_SECTION = "Brokers";
     private static final String WEBSOCKET_BROKERS_INI_SECTION = "BrokersWebSockets";
+    private static final String PROXY_INI_SECTION = "Proxy";
 
     //
     // INI Keys
@@ -50,6 +52,10 @@ public class DxlClientConfig {
     private static final String CERT_FILE_INI_KEY_NAME = "CertFile";
     private static final String PRIVATE_KEY_INI_KEY_NAME = "PrivateKey";
     private static final String USE_WEBSOCKETS_INI_KEY_NAME = "UseWebSockets";
+    private static final String PROXY_ADDRESS = "Address";
+    private static final String PROXY_PORT = "Port";
+    private static final String PROXY_USER_NAME = "User";
+    private static final String PROXY_USER_PASSWORD = "Password";
 
     /**
      * A mapping of various strings to boolean values
@@ -122,7 +128,7 @@ public class DxlClientConfig {
     /**
      * Whether to use WebSockets or regular MQTT over tcp
      */
-    private boolean useWebsockets = false;
+    private boolean useWebSockets = false;
 
     /**
      * The number of times to retry during connect, default -1 (infinite)
@@ -201,6 +207,11 @@ public class DxlClientConfig {
     private boolean infiniteReconnect = true;
 
     /**
+     * Whether SSL host name verification is enabled when connecting to a broker
+     */
+    private boolean httpsHostnameVerificationEnabled = false;
+
+    /**
      * The logger
      */
     private static Logger logger = Logger.getLogger(DxlClientConfig.class);
@@ -211,6 +222,26 @@ public class DxlClientConfig {
     private int incomingMessageQueueSize =
         Integer.parseInt(
             System.getProperty(Constants.SYSPROP_INCOMING_MESSAGE_QUEUE_SIZE, Integer.toString(16384)));
+
+    /**
+     * The HTTP proxy address
+     */
+    private String proxyAddress;
+
+    /**
+     * The HTTP proxy port
+     */
+    private int proxyPort;
+
+    /**
+     * The HTTP proxy user name
+     */
+    private String proxyUserName;
+
+    /**
+     * The HTTP proxy user password
+     */
+    private char[] proxyPassword;
 
     /**
      * Default constructor
@@ -273,7 +304,7 @@ public class DxlClientConfig {
         this.privateKey = privateKey;
         this.privateKeyOriginal = privateKey;
         this.websocketBrokers = websocketBrokers;
-        this.useWebsockets = false;
+        this.useWebSockets = false;
     }
 
     /**
@@ -342,7 +373,7 @@ public class DxlClientConfig {
      * @return The list of {@link Broker} objects representing brokers on the DXL fabric
      */
     public List<Broker> getInUseBrokerList() {
-        if (useWebsockets) {
+        if (useWebSockets) {
             return websocketBrokers;
         }
 
@@ -407,18 +438,18 @@ public class DxlClientConfig {
      *
      * @return Whether the client should use WebSockets or regular MQTT over tcp when connecting to a {@link Broker}
      */
-    public boolean isUseWebsockets() {
-        return useWebsockets;
+    public boolean isUseWebSockets() {
+        return useWebSockets;
     }
 
     /**
      * Sets whether the client should use WebSockets or regular MQTT over tcp when connecting to a {@link Broker}
      *
-     * @param useWebsockets Whether the client should use WebSockets or regular MQTT over tcp when connecting to
+     * @param useWebSockets Whether the client should use WebSockets or regular MQTT over tcp when connecting to
      * a {@link Broker}
      */
-    public void setUseWebsockets(boolean useWebsockets) {
-        this.useWebsockets = useWebsockets;
+    public void setUseWebSockets(boolean useWebSockets) {
+        this.useWebSockets = useWebSockets;
     }
 
     /**
@@ -558,6 +589,28 @@ public class DxlClientConfig {
     }
 
     /**
+     * Returns whether the client should do SSL host name verification when connecting to a broker
+     *
+     * @return Whether the client should do SSL host name verification when connecting to a broker
+     */
+    public boolean isHttpsHostnameVerificationEnabled() {
+        return httpsHostnameVerificationEnabled;
+    }
+
+    /**
+     * Sets whether the client should do SSL host name verification when connecting to a broker.
+     * <P>
+     * Defaults to {@code false}
+     * </P>
+     *
+     * @param httpsHostnameVerificationEnabled Whether the client should do SSL host name
+     *                                         verification when connecting to a broker.
+     */
+    public void setHttpsHostnameVerificationEnabled(boolean httpsHostnameVerificationEnabled) {
+        this.httpsHostnameVerificationEnabled = httpsHostnameVerificationEnabled;
+    }
+
+    /**
      * The amount of time (in ms) for the first connect retry, defaults to {@code 1000}
      *
      * @param delay The amount of time (in ms) for the first connect retry,
@@ -632,12 +685,90 @@ public class DxlClientConfig {
         this.delayRandom = percent;
     }
 
+    /**
+     * Returns the HTTP proxy address
+     *
+     * @return The HTTP proxy address
+     */
+    public String getProxyAddress() {
+        return proxyAddress;
+    }
+
+    /**
+     * Sets the HTTP proxy address
+     *
+     * @param proxyAddress The HTTP proxy address
+     */
+    public void setProxyAddress(String proxyAddress) {
+        this.proxyAddress = proxyAddress;
+    }
+
+    /**
+     * Returns the HTTP proxy port
+     *
+     * @return The HTTP proxy port
+     */
+    public int getProxyPort() {
+        return proxyPort;
+    }
+
+    /**
+     * Sets the HTTP proxy port
+     *
+     * @param proxyPort The HTTP proxy port
+     */
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
+    /**
+     * Returns the HTTP proxy user name
+     *
+     * @return The HTTP proxy user name
+     */
+    public String getProxyUserName() {
+        return proxyUserName;
+    }
+
+    /**
+     * Sets the HTTP proxy user name
+     *
+     * @param proxyUserName The HTTP proxy user name
+     */
+    public void setProxyUserName(String proxyUserName) {
+        this.proxyUserName = proxyUserName;
+    }
+
+    /**
+     * Returns the the HTTP proxy password
+     *
+     * @return The the HTTP proxy password
+     */
+    public char[] getProxyPassword() {
+        return proxyPassword;
+    }
+
+    /**
+     * Sets the the HTTP proxy password
+     *
+     * @param proxyPassword The the HTTP proxy password
+     */
+    public void setProxyPassword(char[] proxyPassword) {
+        this.proxyPassword = proxyPassword;
+    }
+
+    /**
+     * Method to write out the dxlClient.config file from the DXLClientConfig object member variables
+     *
+     * @param configFile The path to the dxlClient.config file
+     * @throws Exception If there is an issue with writing the dxlClient.config file
+     */
     public void write(String configFile) throws Exception {
         final String certsSection = "Certs";
 
         final IniParser parser = new IniParser();
         // Add Use WebSockets
-        parser.addValue(GENERAL_INI_SECTION, USE_WEBSOCKETS_INI_KEY_NAME, String.valueOf(this.useWebsockets));
+        parser.addValue(GENERAL_INI_SECTION, USE_WEBSOCKETS_INI_KEY_NAME, String.valueOf(this.useWebSockets));
 
         // Add Broker Cert Chain
         parser.addValue(CERTS_INI_SECTION, BROKER_CERT_INI_CHAIN_KEY_NAME, this.brokerCaBundlePathOriginal);
@@ -654,6 +785,14 @@ public class DxlClientConfig {
         // Add WebSocket Brokers
         for (Broker broker : this.websocketBrokers) {
             parser.addValue(WEBSOCKET_BROKERS_INI_SECTION, broker.getUniqueId(), broker.toConfigString());
+        }
+
+        // Add Proxy info
+        if (StringUtils.isNotBlank(this.proxyAddress)) {
+            parser.addValue(PROXY_INI_SECTION, PROXY_ADDRESS, this.proxyAddress);
+            parser.addValue(PROXY_INI_SECTION, PROXY_PORT, String.valueOf(this.proxyPort));
+            parser.addValue(PROXY_INI_SECTION, PROXY_USER_NAME, this.proxyUserName);
+            parser.addValue(PROXY_INI_SECTION, PROXY_USER_PASSWORD, String.valueOf(this.proxyPassword));
         }
 
         parser.write(configFile);
@@ -931,16 +1070,16 @@ public class DxlClientConfig {
      *
      * @param configSection A map representing the keys and values of a Brokers or BrokersWebSockets section of a
      * configuration file.
-     * @param useWebsockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
+     * @param useWebSockets Whether to use WebSockets or regular MQTT over tcp when connecting to a broker
      * @return A list of {@link Broker} objects representing the Brokers or BrokersWebSockets section of a
      * configuration file.
      * @throws DxlException If an error occurs
      */
     private static List<Broker> getBrokerListFromConfigSection(Map<String, String> configSection,
-                                                               boolean useWebsockets) throws DxlException {
+                                                               boolean useWebSockets) throws DxlException {
         List<Broker> brokers = new ArrayList<>();
         for (Map.Entry<String, String> entry : configSection.entrySet()) {
-            brokers.add(Broker.parse(entry.getValue(), useWebsockets));
+            brokers.add(Broker.parse(entry.getValue(), useWebSockets));
         }
 
         return brokers;
@@ -952,7 +1091,7 @@ public class DxlClientConfig {
      *
      * <pre>
      * [General]
-     * useWebSocketBrokers=false
+     * UseWebSockets=false
      *
      * [Certs]
      * BrokerCertChain=c:\\certs\\brokercerts.crt
@@ -966,6 +1105,13 @@ public class DxlClientConfig {
      * [BrokersWebSockets]
      * mybroker=mybroker;8883;mybroker.mcafee.com;192.168.1.12
      * mybroker2=mybroker2;8883;mybroker2.mcafee.com;192.168.1.13
+     *
+     *[Proxy]
+     * Address=proxy.mycompany.com
+     * Port=3128
+     * User=proxyUser
+     * Password=proxyPassword
+     *
      * </pre>
      * The configuration file can be loaded as follows:
      * <pre>
@@ -1020,8 +1166,16 @@ public class DxlClientConfig {
             dxlClientConfig.brokerCaBundlePathOriginal = brokerCaBundleFileOriginal;
             dxlClientConfig.certFileOriginal = certFileOriginal;
             dxlClientConfig.privateKeyOriginal = privateKeyOriginal;
-            dxlClientConfig.useWebsockets = stringToBooleanMap.get(parser.getValue(GENERAL_INI_SECTION,
+            dxlClientConfig.useWebSockets = stringToBooleanMap.get(parser.getValue(GENERAL_INI_SECTION,
                 USE_WEBSOCKETS_INI_KEY_NAME, (!websocketBrokers.isEmpty() && brokers.isEmpty()) ? "true" : "false"));
+
+            // Get the proxy information
+            dxlClientConfig.proxyAddress = parser.getValue(PROXY_INI_SECTION, PROXY_ADDRESS, "");
+            dxlClientConfig.proxyPort = Integer.parseInt(
+                parser.getValue(PROXY_INI_SECTION, PROXY_PORT, "0"));
+            dxlClientConfig.proxyUserName = parser.getValue(PROXY_INI_SECTION, PROXY_USER_NAME, "");
+            dxlClientConfig.proxyPassword =
+                parser.getValue(PROXY_INI_SECTION, PROXY_USER_PASSWORD, "").toCharArray();
 
             return dxlClientConfig;
         } catch (Exception ex) {

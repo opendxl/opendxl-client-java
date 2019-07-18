@@ -3,7 +3,7 @@ import sys, os
 from recommonmark.parser import CommonMarkParser
 
 project = u'OpenDXL Java SDK'
-copyright = u'2018, McAfee LLC'
+copyright = u'2019, McAfee LLC'
 
 with open('../VERSION', 'r') as content_file:
     VERSION = content_file.read()

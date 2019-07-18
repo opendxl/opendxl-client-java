@@ -51,6 +51,12 @@ The following steps walk through the process of populating this file:
            unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
            unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
 
+           [Proxy]
+           Address=<Proxy host name or IP address>
+           Port=<Proxy port>
+           User=<User name required for authentication with the Proxy>
+           Password=<Password required for authentication with the Proxy>
+
 2. Optionally update the ``UseWebSockets`` value to indicate if the OpenDXL Java Client should connect to DXL Brokers
    via WebSockets. This flag will override the default behavior which is the following:
 
@@ -85,6 +91,12 @@ The following steps walk through the process of populating this file:
            unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
            unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
 
+           [Proxy]
+           Address=<Proxy host name or IP address>
+           Port=<Proxy port>
+           User=<User name required for authentication with the Proxy>
+           Password=<Password required for authentication with the Proxy>
+
 4. Update the ``BrokerCertChain`` value to point to the Broker Certificates file (``brokercerts.crt``)
    that was created when exporting the Broker Certificates.
 
@@ -109,6 +121,12 @@ The following steps walk through the process of populating this file:
            [BrokersWebSockets]
            unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
            unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
+
+           [Proxy]
+           Address=<Proxy host name or IP address>
+           Port=<Proxy port>
+           User=<User name required for authentication with the Proxy>
+           Password=<Password required for authentication with the Proxy>
 
 5. Update the ``[Brokers]`` and ``[BrokersWebSockets]`` sections to include the contents of the broker
    list file (``brokerlist.properties``) that was created when exporting the Broker List.
@@ -135,4 +153,41 @@ The following steps walk through the process of populating this file:
            {5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};443;mybroker.mcafee.com;192.168.1.12
            {24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};443;mybroker2.mcafee.com;192.168.1.13
 
-6. At this point you can run the samples included with the Java SDK.
+           [Proxy]
+           Address=<Proxy host name or IP address>
+           Port=<Proxy port>
+           User=<User name required for authentication with the Proxy>
+           Password=<Password required for authentication with the Proxy>
+
+6. Optionally update the ``[Proxy]`` section to have the required host name or IP address, port, user name, and 
+   password of the proxy that WebSocket connections to DXL Brokers will be routed through. These settings are only
+   used when the OpenDXL Java Client will make WebSocket connections to DXL Brokers. The ``User`` and ``Password``
+   values not required if the proxy does not require authentication.
+
+   After completing this step the contents of the configuration file should look similar to:
+
+       .. parsed-literal::
+
+          [General]
+          UseWebSockets=false
+
+          [Certs]
+          BrokerCertChain=c:\\certificates\\brokercerts.crt
+          CertFile=c:\\certificates\\client.crt
+          PrivateKey=c:\\certificates\\client.key
+
+          [Brokers]
+          {5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};8883;mybroker.mcafee.com;192.168.1.12
+          {24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};8883;mybroker2.mcafee.com;192.168.1.13
+
+          [BrokersWebSockets]
+          {5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};443;mybroker.mcafee.com;192.168.1.12
+          {24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};443;mybroker2.mcafee.com;192.168.1.13
+
+          [Proxy]
+          Address=proxy.mycompany.com
+          Port=3128
+          User=proxyUser
+          Password=proxyPassword
+
+7. At this point you can run the samples included with the Java SDK.
