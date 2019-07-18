@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Client Configuration Update via Command Line &mdash; OpenDXL Java SDK 0.2.0 documentation</title>
+  <title>Client Configuration Update via Command Line &mdash; OpenDXL Java SDK 0.2.1 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -101,6 +101,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Client Configuration Update via Command Line</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#basic-example">Basic Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#additional-options">Additional Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#routing-client-configuration-update-operation-through-a-proxy">Routing client configuration update operation through a proxy</a></li>
 </ul>
 </li>
 </ul>
@@ -109,6 +110,10 @@
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="epoexternalcertissuance.html">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="websocketsupport.html">WebSocket Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxysupport.html">Proxy Support</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
@@ -202,7 +207,7 @@ section of the <code class="docutils literal notranslate"><span class="pre">dxlc
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.0-all.jar updateconfig config myserver
+java -jar dxlclient-0.2.1-all.jar updateconfig config myserver
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -228,7 +233,7 @@ should be displayed:</p>
 command line options (<code class="docutils literal notranslate"><span class="pre">-u</span></code> and <code class="docutils literal notranslate"><span class="pre">-p</span></code>):</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.0-all.jar updateconfig config myserver -u myuser -p mypass
+java -jar dxlclient-0.2.1-all.jar updateconfig config myserver -u myuser -p mypass
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -245,7 +250,7 @@ Console is hosted.</p>
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.0-all.jar updateconfig config myserver -t 443
+java -jar dxlclient-0.2.1-all.jar updateconfig config myserver -t 443
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -260,12 +265,24 @@ negotiation by supplying the <code class="docutils literal notranslate"><span cl
 <p>The name of the truststore file should be supplied along with the option:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.0-all.jar updateconfig config myserver -e config/ca-bundle.crt
+java -jar dxlclient-0.2.1-all.jar updateconfig config myserver -e config/ca-bundle.crt
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">Ensure that the <code class="docutils literal notranslate"><span class="pre">-all</span></code> version of the dxlclient <code class="docutils literal notranslate"><span class="pre">.jar</span></code> file is specified.</p>
 </div>
+</div></blockquote>
+</div>
+<div class="section" id="routing-client-configuration-update-operation-through-a-proxy">
+<h2>Routing client configuration update operation through a proxy<a class="headerlink" href="#routing-client-configuration-update-operation-through-a-proxy" title="Permalink to this headline">¶</a></h2>
+<p>If the remote call to a provisioning server (ePO or OpenDXL Broker) used during a client configuration update must be
+routed through a proxy, then use standard Java system properties to declare the https proxy host, port, user name,
+and password. (<a class="reference external" href="https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html">https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html</a>)</p>
+<p>For example:</p>
+<blockquote>
+<div><pre class="literal-block">
+java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyUser -Dhttps.proxyPassword=proxyPassword -jar dxlclient-0.2.1-all.jar updateconfig config myserver
+</pre>
 </div></blockquote>
 </div>
 </div>
@@ -290,7 +307,7 @@ java -jar dxlclient-0.2.0-all.jar updateconfig config myserver -e config/ca-bund
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, McAfee LLC
+        &copy; Copyright 2019, McAfee LLC
 
     </p>
   </div>

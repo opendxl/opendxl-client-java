@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>External Certificate Authority (CA) Provisioning &mdash; OpenDXL Java SDK 0.2.0 documentation</title>
+  <title>External Certificate Authority (CA) Provisioning &mdash; OpenDXL Java SDK 0.2.1 documentation</title>
   
 
   
@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Samples Configuration" href="sampleconfig.html" />
+    <link rel="next" title="WebSocket Support" href="websocketsupport.html" />
     <link rel="prev" title="OpenDXL Broker Management Console Provisioning" href="openconsoleprovisioning.html" /> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.2.1
               </div>
             
           
@@ -105,6 +105,10 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">External Certificate Authority (CA) Provisioning</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="websocketsupport.html">WebSocket Support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proxysupport.html">Proxy Support</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="sampleconfig.html">Samples Configuration</a></li>
@@ -219,6 +223,12 @@ will be populated.</p>
 <span class="p">[</span><span class="n">BrokersWebSockets</span><span class="p">]</span>
 <span class="n">unique_websocket_broker_id_1</span><span class="o">=</span><span class="n">unique_websocket_broker_id_1</span><span class="p">;</span><span class="n">broker_websocket_port_1</span><span class="p">;</span><span class="n">broker_hostname_1</span><span class="p">;</span><span class="n">broker_ip_1</span>
 <span class="n">unique_websocket_broker_id_2</span><span class="o">=</span><span class="n">unique_websocket_broker_id_2</span><span class="p">;</span><span class="n">broker_websocket_port_2</span><span class="p">;</span><span class="n">broker_hostname_2</span><span class="p">;</span><span class="n">broker_ip_2</span>
+
+<span class="p">[</span><span class="n">Proxy</span><span class="p">]</span>
+<span class="n">Address</span><span class="o">=&lt;</span><span class="n">Proxy</span> <span class="n">host</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">IP</span> <span class="n">address</span><span class="o">&gt;</span>
+<span class="n">Port</span><span class="o">=&lt;</span><span class="n">Proxy</span> <span class="n">port</span><span class="o">&gt;</span>
+<span class="n">User</span><span class="o">=&lt;</span><span class="n">User</span> <span class="n">name</span> <span class="n">required</span> <span class="k">for</span> <span class="n">authentication</span> <span class="k">with</span> <span class="n">the</span> <span class="n">Proxy</span><span class="o">&gt;</span>
+<span class="n">Password</span><span class="o">=&lt;</span><span class="n">Password</span> <span class="n">required</span> <span class="k">for</span> <span class="n">authentication</span> <span class="k">with</span> <span class="n">the</span> <span class="n">Proxy</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -252,6 +262,12 @@ unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
 [BrokersWebSockets]
 unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
 unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
+
+[Proxy]
+Address=&lt;Proxy host name or IP address&gt;
+Port=&lt;Proxy port&gt;
+User=&lt;User name required for authentication with the Proxy&gt;
+Password=&lt;Password required for authentication with the Proxy&gt;
 </pre>
 </div></blockquote>
 </li>
@@ -276,6 +292,12 @@ unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
 [BrokersWebSockets]
 unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
 unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
+
+[Proxy]
+Address=&lt;Proxy host name or IP address&gt;
+Port=&lt;Proxy port&gt;
+User=&lt;User name required for authentication with the Proxy&gt;
+Password=&lt;Password required for authentication with the Proxy&gt;
 </pre>
 </div></blockquote>
 </li>
@@ -300,6 +322,43 @@ PrivateKey=c:\certificates\client.key
 [BrokersWebSockets]
 {5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};443;mybroker.mcafee.com;192.168.1.12
 {24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};443;mybroker2.mcafee.com;192.168.1.13
+
+[Proxy]
+Address=&lt;Proxy host name or IP address&gt;
+Port=&lt;Proxy port&gt;
+User=&lt;User name required for authentication with the Proxy&gt;
+Password=&lt;Password required for authentication with the Proxy&gt;
+</pre>
+</div></blockquote>
+</li>
+<li><p class="first">Optionally update the <code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code> section to have the required host name or IP address, port, user name, and
+password of the proxy that WebSocket connections to DXL Brokers will be routed through. These settings are only
+used when the OpenDXL Java Client will make WebSocket connections to DXL Brokers. The <code class="docutils literal notranslate"><span class="pre">User</span></code> and <code class="docutils literal notranslate"><span class="pre">Password</span></code>
+values are not required if the proxy does not require authentication.</p>
+<p>After completing this step the contents of the configuration file should look similar to:</p>
+<blockquote>
+<div><pre class="literal-block">
+[General]
+UseWebSockets=false
+
+[Certs]
+BrokerCertChain=c:\certificates\brokercerts.crt
+CertFile=c:\certificates\client.crt
+PrivateKey=c:\certificates\client.key
+
+[Brokers]
+{5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};8883;mybroker.mcafee.com;192.168.1.12
+{24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};8883;mybroker2.mcafee.com;192.168.1.13
+
+[BrokersWebSockets]
+{5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};443;mybroker.mcafee.com;192.168.1.12
+{24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};443;mybroker2.mcafee.com;192.168.1.13
+
+[Proxy]
+Address=proxy.mycompany.com
+Port=3128
+User=proxyUser
+Password=proxyPassword
 </pre>
 </div></blockquote>
 </li>
@@ -316,7 +375,7 @@ PrivateKey=c:\certificates\client.key
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="sampleconfig.html" class="btn btn-neutral float-right" title="Samples Configuration" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="websocketsupport.html" class="btn btn-neutral float-right" title="WebSocket Support" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="openconsoleprovisioning.html" class="btn btn-neutral" title="OpenDXL Broker Management Console Provisioning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -328,7 +387,7 @@ PrivateKey=c:\certificates\client.key
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, McAfee LLC
+        &copy; Copyright 2019, McAfee LLC
 
     </p>
   </div>

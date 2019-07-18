@@ -8,6 +8,19 @@ Refer to :doc:`basiccliprovisioning` for basic usage details.
 
 .. _subject-attributes-label:
 
+Routing provisioning operation through a proxy
+**********************************************
+
+If the remote call to a provisioning server (ePO or OpenDXL Broker) must be routed through a proxy, then use standard Java system
+properties to declare the https proxy host, port, user name, and password. (`<https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html>`_)
+
+For example:
+
+    .. parsed-literal::
+
+        java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyUser -Dhttps.proxyPassword=proxyPassword -jar dxlclient-\ |version|\-all.jar provisionconfig config myserver client1
+
+
 Additional Certificate Signing Request (CSR) Information
 ********************************************************
 
