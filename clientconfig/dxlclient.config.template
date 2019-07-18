@@ -23,8 +23,8 @@ unique_websocket_broker_id_1=unique_websocket_broker_id_1;@BROKER_WEBSOCKET_PORT
 # will not be used when the OpenDXL Java Client connects to a DXL Broker via MQTT. It should be used when the
 # OpenDXL Java Client WebSocket connection to a DXL Broker must be routed through a proxy. The user and password
 # settings are not required if the proxy does not require authentication.
-[Proxy]
-Address=<Proxy host name or IP address>
-Port=<Proxy port>
-User=<User name required for authentication with the Proxy>
-Password=<Password required for authentication with the Proxy>
+#[Proxy]
+#Address=<Proxy host name or IP address>
+#Port=<Proxy port>
+#User=<User name required for authentication with the Proxy>
+#Password=<Password required for authentication with the Proxy>
