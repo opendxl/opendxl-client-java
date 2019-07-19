@@ -8,12 +8,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Test class for verifying WebSocket connection to a broker via a proxy
+ * Test class for verifying connecting to a broker via a proxy
  */
 public class ProxyUsageVerificationTest {
 
     /**
-     * Test to verifying WebSocket connection to a broker via a proxy
+     * Test to verifying connecting to a broker via a proxy
      *
      * @throws DxlException If there is an issue getting the DXL Client config
      */

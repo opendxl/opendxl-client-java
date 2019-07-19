@@ -1106,7 +1106,7 @@ public class DxlClientConfig {
      * mybroker=mybroker;8883;mybroker.mcafee.com;192.168.1.12
      * mybroker2=mybroker2;8883;mybroker2.mcafee.com;192.168.1.13
      *
-     *[Proxy]
+     * [Proxy]
      * Address=proxy.mycompany.com
      * Port=3128
      * User=proxyUser
