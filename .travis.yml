@@ -47,16 +47,14 @@ script:
   - cat clientconfig/dxlclient.config
   - echo Running Proxy Usage Verification Test for MQTT connections
   - ./gradlew proxyUsageVerificationTest
-  - docker exec -it squid cat /var/log/squid/access.log
+  - docker exec -it squid tail /var/log/squid/access.log
   - echo Running tests with MQTT and authenticated proxy
   - ./gradlew cleanTest test --info --console=plain
-  - docker exec -it squid cat /var/log/squid/access.log
   - echo Changing config to use WebSockets
   - sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
   - cat clientconfig/dxlclient.config
   - echo Running Proxy Usage Verification Test for WebSocket connections
   - ./gradlew proxyUsageVerificationTest
-  - docker exec -it squid cat /var/log/squid/access.log
+  - docker exec -it squid tail /var/log/squid/access.log
   - echo Running tests with WebSockets and authenticated proxy
   - ./gradlew cleanTest test --info --console=plain
-  - docker exec -it squid cat /var/log/squid/access.log
