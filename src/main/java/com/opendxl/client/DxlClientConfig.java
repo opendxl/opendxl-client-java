@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The {@link DxlClientConfig} class holds the information necessary to connect a {@link DxlClient} to the DXL fabric.
@@ -185,7 +186,7 @@ public class DxlClientConfig {
      * The broker ping timeout (in ms), defaults to 500ms
      */
     private int brokerPingTimeout =
-        Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_TIMEOUT, "500"));
+        Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_TIMEOUT, "1000"));
 
     /**
      * Keep alive interval (30 minutes by default)
@@ -867,7 +868,9 @@ public class DxlClientConfig {
                 futures.add(connectToBroker(es, broker, brokerPingTimeout));
             }
         } finally {
-            es.shutdown();
+            if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
+                es.shutdown();
+            }
         }
 
         final List<Broker> brokersSorted = new ArrayList<>();
