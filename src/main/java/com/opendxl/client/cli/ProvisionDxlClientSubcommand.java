@@ -277,9 +277,9 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
             List<Broker> brokers = brokersForConfig(provisionCommandResultsArray[2]);
 
             // Create web socket brokers list
-            List<Broker> websocketBrokers = new ArrayList<>();
+            List<Broker> webSocketBrokers = new ArrayList<>();
             if (provisionCommandResultsArray.length > 3) {
-                websocketBrokers = brokersForConfig(provisionCommandResultsArray[3]);
+                webSocketBrokers = brokersForConfig(provisionCommandResultsArray[3]);
             }
 
             String certFileName = this.cryptoArgs.getFilePrefix() + ".crt";
@@ -287,7 +287,7 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
 
             // Create DxlClientConfig object
             DxlClientConfig dxlClientConfig = new DxlClientConfig(CommandLineInterface.CA_BUNDLE_FILE_NAME,
-                    certFileName, certKeyName, brokers, websocketBrokers);
+                    certFileName, certKeyName, brokers, webSocketBrokers);
 
             // create config dir if it does not exist
             File configDirFile = new File(this.configDir);

@@ -212,9 +212,9 @@ class UpdateConfigSubcommand extends DxlCliCommand {
             existingBrokers.addAll(brokerListCommandResults.getBrokers());
 
             // Set WebSocket broker list
-            List<Broker> existingWebsocketBrokers = dxlClientConfig.getWebsocketBrokers();
-            existingWebsocketBrokers.clear();
-            existingWebsocketBrokers.addAll(brokerListCommandResults.getWebsocketBrokers());
+            List<Broker> existingWebSocketBrokers = dxlClientConfig.getWebSocketBrokers();
+            existingWebSocketBrokers.clear();
+            existingWebSocketBrokers.addAll(brokerListCommandResults.getWebSocketBrokers());
 
             logger.info("Updating DXL config file at " + configFile.getPath());
             dxlClientConfig.write(configFile.getAbsolutePath());
@@ -235,7 +235,7 @@ class UpdateConfigSubcommand extends DxlCliCommand {
         /**
          * The list of brokers supporting DXL connections over WebSockets
          */
-        private List<Broker> websocketBrokers = new ArrayList<>();
+        private List<Broker> webSocketBrokers = new ArrayList<>();
         /**
          * The certificate version
          */
@@ -264,17 +264,17 @@ class UpdateConfigSubcommand extends DxlCliCommand {
          *
          * @return The list of brokers supporting DXL connections over WebSockets
          */
-        public List<Broker> getWebsocketBrokers() {
-            return websocketBrokers;
+        public List<Broker> getWebSocketBrokers() {
+            return webSocketBrokers;
         }
 
         /**
          * Set the list of brokers supporting DXL connections over WebSockets
          *
-         * @param websocketBrokers The list of brokers supporting DXL connections over WebSockets
+         * @param webSocketBrokers The list of brokers supporting DXL connections over WebSockets
          */
-        public void setWebsocketBrokers(List<Broker> websocketBrokers) {
-            this.websocketBrokers = websocketBrokers;
+        public void setWebSocketBrokers(List<Broker> webSocketBrokers) {
+            this.webSocketBrokers = webSocketBrokers;
         }
 
         /**
@@ -283,15 +283,15 @@ class UpdateConfigSubcommand extends DxlCliCommand {
          * results.
          *
          * @param fieldKey      The JSON field
-         * @param embeddedField The deserialized JsonNode for the websocketBrokers section of the result JSON
+         * @param embeddedField The deserialized JsonNode for the webSocketBrokers section of the result JSON
          */
         @JsonAnySetter
-        public void setWebsocketBrokers(String fieldKey, JsonNode embeddedField) {
+        public void setWebSocketBrokers(String fieldKey, JsonNode embeddedField) {
             embeddedField.forEach(jsonNode -> {
                 try {
                     Broker broker = GENERIC_MAPPER.readValue(jsonNode.toString(), Broker.class);
                     broker.setProtocol(Broker.WSS_PROTOCOL);
-                    websocketBrokers.add(broker);
+                    webSocketBrokers.add(broker);
                 } catch (IOException e) {
                     logger.warn("Error creating websocket broker", e);
                 }

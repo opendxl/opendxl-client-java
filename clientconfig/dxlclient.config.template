@@ -1,5 +1,5 @@
 [General]
-# The UseWebSockets property is optional and it indicates if the OpenDXL Java Client should connect to
+# The UseWebSockets setting is optional and it indicates if the OpenDXL Java Client should connect to
 # DXL Brokers via WebSockets. This flag will override the default behavior which is the following:
 #
 # MQTT will be used for connections to DXL Brokers if the [Brokers] section is not empty.
@@ -19,10 +19,9 @@ unique_broker_id_1=unique_broker_id_1;@BROKER_PORT@;@BROKER_HOSTNAME@;@BROKER_IP
 [BrokersWebSockets]
 unique_websocket_broker_id_1=unique_websocket_broker_id_1;@BROKER_WEBSOCKET_PORT@;@BROKER_HOSTNAME@;@BROKER_IP@
 
-# The [Proxy] section is optional and only applies to WebSocket connections. This section
-# will not be used when the OpenDXL Java Client connects to a DXL Broker via MQTT. It should be used when the
-# OpenDXL Java Client WebSocket connection to a DXL Broker must be routed through a proxy. The user and password
-# settings are not required if the proxy does not require authentication.
+# The [Proxy] section is optional. It should be used when the OpenDXL Java Client connection to a DXL Broker must
+# be routed through a proxy. The user and password settings are not required if the proxy does not require
+# authentication.
 #[Proxy]
 #Address=<Proxy host name or IP address>
 #Port=<Proxy port>

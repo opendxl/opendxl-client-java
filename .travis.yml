@@ -25,7 +25,8 @@ before_install:
 script:
   - ip4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
   - docker ps
-  - java -Dhttps.proxyHost=${ip4} -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyuser -Dhttps.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
+  - echo Provisioning client without proxy information
+  - java -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
   - sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
   - cat clientconfig/dxlclient.config
   - echo Running tests with MQTT
@@ -34,6 +35,9 @@ script:
   - cat clientconfig/dxlclient.config
   - echo Running tests with WebSockets and no proxy
   - ./gradlew cleanTest test --info --console=plain
+  - echo Provisioning client with proxy information
+  - java -Dhttps.proxyHost=${ip4} -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyuser -Dhttps.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
+  - sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
   - echo Updating dxlclient.config to include proxy information
   - echo "[Proxy]" >> clientconfig/dxlclient.config
   - echo "Address=${ip4}" >> clientconfig/dxlclient.config
@@ -41,9 +45,16 @@ script:
   - echo "User=proxyuser" >> clientconfig/dxlclient.config
   - echo "Password=proxypassword" >> clientconfig/dxlclient.config
   - cat clientconfig/dxlclient.config
-  - echo Running Proxy Usage Verification Test
+  - echo Running Proxy Usage Verification Test for MQTT connections
+  - ./gradlew proxyUsageVerificationTest
+  - docker exec -it squid tail /var/log/squid/access.log
+  - echo Running tests with MQTT and authenticated proxy
+  - ./gradlew cleanTest test --info --console=plain
+  - echo Changing config to use WebSockets
+  - sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
+  - cat clientconfig/dxlclient.config
+  - echo Running Proxy Usage Verification Test for WebSocket connections
   - ./gradlew proxyUsageVerificationTest
   - docker exec -it squid tail /var/log/squid/access.log
   - echo Running tests with WebSockets and authenticated proxy
   - ./gradlew cleanTest test --info --console=plain
-  - docker exec -it squid tail /var/log/squid/access.log
