@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>WebSocket Support &mdash; OpenDXL Java SDK 0.2.1 documentation</title>
+  <title>WebSocket Support &mdash; OpenDXL Java SDK 0.2.2 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -180,8 +180,21 @@
             
   <div class="section" id="websocket-support">
 <h1>WebSocket Support<a class="headerlink" href="#websocket-support" title="Permalink to this headline">¶</a></h1>
-<p>The OpenDXL Java Client will connect to DXL Brokers via WebSockets when the <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>
-in the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file.</p>
+<p>The OpenDXL Java Client supports connecting to DXL Brokers via WebSockets. The <code class="docutils literal notranslate"><span class="pre">[BrokersWebSockets]</span></code> section is
+where the list of DXL Brokers that support WebSocket connections are listed in the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file.
+The default protocol connection behavior is the following:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>MQTT will be used for connections to DXL Brokers if the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section is not empty</li>
+<li>WebSockets will be used for connections to DXL Brokers if the the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section is empty and the
+<code class="docutils literal notranslate"><span class="pre">[BrokersWebSockets]</span></code> section is not empty.</li>
+</ol>
+</div></blockquote>
+<p>In the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> the optional <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting under the <code class="docutils literal notranslate"><span class="pre">[General]</span></code> section is used to
+override the default protocol connection behavior and indicate if the OpenDXL Java Client should connect to
+DXL Brokers via WebSockets. To override the default behavior and force the OpenDXL Java Client to use WebSocket
+connections to the list of DXL Brokers in the <code class="docutils literal notranslate"><span class="pre">[BrokerWebSockets]</span></code> section, set the <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting to
+true in the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file:</p>
 <blockquote>
 <div><pre class="literal-block">
 [General]
@@ -200,17 +213,15 @@ PrivateKey=c:\certificates\client.key
 {5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};443;mybroker.mcafee.com;192.168.1.12
 {24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};443;mybroker2.mcafee.com;192.168.1.13
 
-[Proxy]
-Address=proxy.mycompany.com
-Port=3128
-User=proxyUser
-Password=proxyPassword
+#[Proxy]
+#Address=proxy.mycompany.com
+#Port=3128
+#User=proxyUser
+#Password=proxyPassword
 </pre>
 </div></blockquote>
-<p>When the <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting is set to <code class="docutils literal notranslate"><span class="pre">true</span></code>, the OpenDXL Java Client will connect to the DXL Brokers
-listed in the <code class="docutils literal notranslate"><span class="pre">[BrokersWebSockets]</span></code> sections via WebSockets.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting is set to <code class="docutils literal notranslate"><span class="pre">false</span></code> or does not exist in the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file, then the
-OpenDXL Java Client will connect to the DXL Brokers listed in the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section via MQTT.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting is set to false, then the OpenDXL Java Client will connect to the list of
+DXL Brokers in the <code class="docutils literal notranslate"><span class="pre">[Brokers]</span></code> section via MQTT.</p>
 </div>
 
 

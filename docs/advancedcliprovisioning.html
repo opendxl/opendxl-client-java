@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command Line Provisioning (Advanced) &mdash; OpenDXL Java SDK 0.2.1 documentation</title>
+  <title>Command Line Provisioning (Advanced) &mdash; OpenDXL Java SDK 0.2.2 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -196,7 +196,7 @@ properties to declare the https proxy host, port, user name, and password. (<a c
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyUser -Dhttps.proxyPassword=proxyPassword -jar dxlclient-0.2.1-all.jar provisionconfig config myserver client1
+java -Dhttps.proxyHost=proxy.mycompany.com -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyUser -Dhttps.proxyPassword=proxyPassword -jar dxlclient-0.2.2-all.jar provisionconfig config myserver client1
 </pre>
 </div></blockquote>
 </div>
@@ -207,7 +207,7 @@ the CSR subject.</p>
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.1-all.jar provisionconfig config myserver client1 --country US --state-or-province Oregon --locality Hillsboro --organization Engineering --organizational-unit &quot;DXL Team&quot; --email-address <a class="reference external" href="mailto:dxl&#37;&#52;&#48;mcafee&#46;com">dxl<span>&#64;</span>mcafee<span>&#46;</span>com</a>
+java -jar dxlclient-0.2.2-all.jar provisionconfig config myserver client1 --country US --state-or-province Oregon --locality Hillsboro --organization Engineering --organizational-unit &quot;DXL Team&quot; --email-address <a class="reference external" href="mailto:dxl&#37;&#52;&#48;mcafee&#46;com">dxl<span>&#64;</span>mcafee<span>&#46;</span>com</a>
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -219,7 +219,7 @@ one or more entries of type <code class="docutils literal notranslate"><span cla
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.1-all.jar provisionconfig config myserver client1 -s client1.myorg.com client1.myorg.net
+java -jar dxlclient-0.2.2-all.jar provisionconfig config myserver client1 -s client1.myorg.com client1.myorg.net
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -236,7 +236,7 @@ Console is hosted.</p>
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.1-all.jar provisionconfig config myserver client1 -t 443
+java -jar dxlclient-0.2.2-all.jar provisionconfig config myserver client1 -t 443
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -249,7 +249,7 @@ alternative base name for the stored files, use the <code class="docutils litera
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.1-all.jar provisionconfig config myserver client1 -f theclient
+java -jar dxlclient-0.2.2-all.jar provisionconfig config myserver client1 -f theclient
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -272,7 +272,7 @@ negotiation by supplying the <code class="docutils literal notranslate"><span cl
 <p>The name of the truststore file should be supplied along with the option:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.1-all.jar config myserver -e config/ca-bundle.crt
+java -jar dxlclient-0.2.2-all.jar config myserver -e config/ca-bundle.crt
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -291,7 +291,7 @@ key without sending the CSR to the server.</p>
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.1-all.jar generatecsr config client1
+java -jar dxlclient-0.2.2-all.jar generatecsr config client1
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -314,7 +314,7 @@ CSR file.</p>
 <p>For example:</p>
 <blockquote>
 <div><pre class="literal-block">
-java -jar dxlclient-0.2.1-all.jar provisionconfig config myserver -r config/client.csr
+java -jar dxlclient-0.2.2-all.jar provisionconfig config myserver -r config/client.csr
 </pre>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>

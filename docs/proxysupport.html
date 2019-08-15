@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Proxy Support &mdash; OpenDXL Java SDK 0.2.1 documentation</title>
+  <title>Proxy Support &mdash; OpenDXL Java SDK 0.2.2 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -180,12 +180,11 @@
             
   <div class="section" id="proxy-support">
 <h1>Proxy Support<a class="headerlink" href="#proxy-support" title="Permalink to this headline">¶</a></h1>
-<p>To have the OpenDXL Java Client connect to DXL Brokers via a proxy set <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting to <code class="docutils literal notranslate"><span class="pre">true</span></code> and set
-the proxy host name or IP address, port, user name, and password in the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file under the
-<code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code> section. The <code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code> is optional and if it does not exist or the values under it are blank in the
-<code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code>, then the OpenDXL Java Client will not use a proxy when connecting to the DXL Brokers listed under
-the <code class="docutils literal notranslate"><span class="pre">[BrokersWebSockets]</span></code> section. The <code class="docutils literal notranslate"><span class="pre">User</span></code> and <code class="docutils literal notranslate"><span class="pre">Password</span></code> settings are only required if the proxy requires
-authentication.</p>
+<p>To have the OpenDXL Java Client connect to DXL Brokers via a proxy, set the proxy host name or IP address, port,
+user name, and password in the <code class="docutils literal notranslate"><span class="pre">dxlclient.config</span></code> file under the <code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code> section. The <code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code>
+section is optional and if it does not exist or the values under it are blank, then the
+OpenDXL Java Client will not use a proxy when connecting to DXL Brokers.  The <code class="docutils literal notranslate"><span class="pre">User</span></code> and <code class="docutils literal notranslate"><span class="pre">Password</span></code> settings are
+only required if the proxy requires authentication.</p>
 <blockquote>
 <div><pre class="literal-block">
 [General]
@@ -211,11 +210,6 @@ User=proxyUser
 Password=proxyPassword
 </pre>
 </div></blockquote>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">In order to use the <code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code> section settings, the <code class="docutils literal notranslate"><span class="pre">UseWebSockets</span></code> setting must also be set to <code class="docutils literal notranslate"><span class="pre">true</span></code>. The
-OpenDXL Java Client will only use proxy settings when connecting to DXL Brokers via WebSockets.</p>
-</div>
 </div>
 
 

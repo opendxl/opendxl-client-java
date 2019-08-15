@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>External Certificate Authority (CA) Provisioning &mdash; OpenDXL Java SDK 0.2.1 documentation</title>
+  <title>External Certificate Authority (CA) Provisioning &mdash; OpenDXL Java SDK 0.2.2 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.2.1
+                0.2.2
               </div>
             
           
@@ -224,11 +224,11 @@ will be populated.</p>
 <span class="n">unique_websocket_broker_id_1</span><span class="o">=</span><span class="n">unique_websocket_broker_id_1</span><span class="p">;</span><span class="n">broker_websocket_port_1</span><span class="p">;</span><span class="n">broker_hostname_1</span><span class="p">;</span><span class="n">broker_ip_1</span>
 <span class="n">unique_websocket_broker_id_2</span><span class="o">=</span><span class="n">unique_websocket_broker_id_2</span><span class="p">;</span><span class="n">broker_websocket_port_2</span><span class="p">;</span><span class="n">broker_hostname_2</span><span class="p">;</span><span class="n">broker_ip_2</span>
 
-<span class="p">[</span><span class="n">Proxy</span><span class="p">]</span>
-<span class="n">Address</span><span class="o">=&lt;</span><span class="n">Proxy</span> <span class="n">host</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">IP</span> <span class="n">address</span><span class="o">&gt;</span>
-<span class="n">Port</span><span class="o">=&lt;</span><span class="n">Proxy</span> <span class="n">port</span><span class="o">&gt;</span>
-<span class="n">User</span><span class="o">=&lt;</span><span class="n">User</span> <span class="n">name</span> <span class="n">required</span> <span class="k">for</span> <span class="n">authentication</span> <span class="k">with</span> <span class="n">the</span> <span class="n">Proxy</span><span class="o">&gt;</span>
-<span class="n">Password</span><span class="o">=&lt;</span><span class="n">Password</span> <span class="n">required</span> <span class="k">for</span> <span class="n">authentication</span> <span class="k">with</span> <span class="n">the</span> <span class="n">Proxy</span><span class="o">&gt;</span>
+<span class="c1">#[Proxy]</span>
+<span class="c1">#Address=&lt;Proxy host name or IP address&gt;</span>
+<span class="c1">#Port=&lt;Proxy port&gt;</span>
+<span class="c1">#User=&lt;User name required for authentication with the Proxy&gt;</span>
+<span class="c1">#Password=&lt;Password required for authentication with the Proxy&gt;</span>
 </pre></div>
 </div>
 </div></blockquote>
@@ -263,11 +263,11 @@ unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
 unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
 unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
 
-[Proxy]
-Address=&lt;Proxy host name or IP address&gt;
-Port=&lt;Proxy port&gt;
-User=&lt;User name required for authentication with the Proxy&gt;
-Password=&lt;Password required for authentication with the Proxy&gt;
+#[Proxy]
+#Address=&lt;Proxy host name or IP address&gt;
+#Port=&lt;Proxy port&gt;
+#User=&lt;User name required for authentication with the Proxy&gt;
+#Password=&lt;Password required for authentication with the Proxy&gt;
 </pre>
 </div></blockquote>
 </li>
@@ -293,11 +293,11 @@ unique_broker_id_2=broker_id_2;broker_port_2;broker_hostname_2;broker_ip_2
 unique_websocket_broker_id_1=unique_websocket_broker_id_1;broker_websocket_port_1;broker_hostname_1;broker_ip_1
 unique_websocket_broker_id_2=unique_websocket_broker_id_2;broker_websocket_port_2;broker_hostname_2;broker_ip_2
 
-[Proxy]
-Address=&lt;Proxy host name or IP address&gt;
-Port=&lt;Proxy port&gt;
-User=&lt;User name required for authentication with the Proxy&gt;
-Password=&lt;Password required for authentication with the Proxy&gt;
+#[Proxy]
+#Address=&lt;Proxy host name or IP address&gt;
+#Port=&lt;Proxy port&gt;
+#User=&lt;User name required for authentication with the Proxy&gt;
+#Password=&lt;Password required for authentication with the Proxy&gt;
 </pre>
 </div></blockquote>
 </li>
@@ -323,17 +323,16 @@ PrivateKey=c:\certificates\client.key
 {5d73b77f-8c4b-4ae0-b437-febd12facfd4}={5d73b77f-8c4b-4ae0-b437-febd12facfd4};443;mybroker.mcafee.com;192.168.1.12
 {24397e4d-645f-4f2f-974f-f98c55bdddf7}={24397e4d-645f-4f2f-974f-f98c55bdddf7};443;mybroker2.mcafee.com;192.168.1.13
 
-[Proxy]
-Address=&lt;Proxy host name or IP address&gt;
-Port=&lt;Proxy port&gt;
-User=&lt;User name required for authentication with the Proxy&gt;
-Password=&lt;Password required for authentication with the Proxy&gt;
+#[Proxy]
+#Address=&lt;Proxy host name or IP address&gt;
+#Port=&lt;Proxy port&gt;
+#User=&lt;User name required for authentication with the Proxy&gt;
+#Password=&lt;Password required for authentication with the Proxy&gt;
 </pre>
 </div></blockquote>
 </li>
-<li><p class="first">Optionally update the <code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code> section to have the required host name or IP address, port, user name, and
-password of the proxy that WebSocket connections to DXL Brokers will be routed through. These settings are only
-used when the OpenDXL Java Client will make WebSocket connections to DXL Brokers. The <code class="docutils literal notranslate"><span class="pre">User</span></code> and <code class="docutils literal notranslate"><span class="pre">Password</span></code>
+<li><p class="first">Optionally update the <code class="docutils literal notranslate"><span class="pre">[Proxy]</span></code> section to have the host name or IP address, port, user name, and
+password of the proxy that connections to DXL Brokers will be routed through. The <code class="docutils literal notranslate"><span class="pre">User</span></code> and <code class="docutils literal notranslate"><span class="pre">Password</span></code>
 values are not required if the proxy does not require authentication.</p>
 <p>After completing this step the contents of the configuration file should look similar to:</p>
 <blockquote>

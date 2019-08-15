@@ -1,12 +1,11 @@
 Proxy Support
 =============
 
-To have the OpenDXL Java Client connect to DXL Brokers via a proxy set ``UseWebSockets`` setting to ``true`` and set
-the proxy host name or IP address, port, user name, and password in the ``dxlclient.config`` file under the
-``[Proxy]`` section. The ``[Proxy]`` is optional and if it does not exist or the values under it are blank in the
-``dxlclient.config``, then the OpenDXL Java Client will not use a proxy when connecting to the DXL Brokers listed under
-the ``[BrokersWebSockets]`` section. The ``User`` and ``Password`` settings are only required if the proxy requires
-authentication.
+To have the OpenDXL Java Client connect to DXL Brokers via a proxy, set the proxy host name or IP address, port,
+user name, and password in the ``dxlclient.config`` file under the ``[Proxy]`` section. The ``[Proxy]``
+section is optional and if it does not exist or the values under it are blank, then the
+OpenDXL Java Client will not use a proxy when connecting to DXL Brokers.  The ``User`` and ``Password`` settings are
+only required if the proxy requires authentication.
 
        .. parsed-literal::
 
@@ -31,11 +30,3 @@ authentication.
           Port=3128
           User=proxyUser
           Password=proxyPassword
-
-.. note::
-
-    In order to use the ``[Proxy]`` section settings, the ``UseWebSockets`` setting must also be set to ``true``. The
-    OpenDXL Java Client will only use proxy settings when connecting to DXL Brokers via WebSockets.
-
-
-
