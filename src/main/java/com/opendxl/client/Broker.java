@@ -456,8 +456,8 @@ public class Broker implements Comparable<Broker>, Cloneable {
             broker.ipAddress = elements.get(3).replaceAll("[\\[\\]]", "");
 
             // Validate the IP address
-            if (!BrokerHostNameHelper.isValidIPAddress(broker.ipAddress)) {
-                throw new MalformedBrokerException("Invalid IP address");
+            if (!BrokerHostNameHelper.isValidHostNameOrIPAddress(broker.ipAddress)) {
+                throw new MalformedBrokerException("Invalid IP address or host name");
             }
         }
 
