@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Certificate Files Creation (PKI) &mdash; OpenDXL Java SDK 0.2.2 documentation</title>
+  <title>Certificate Files Creation (PKI) &mdash; OpenDXL Java SDK 0.2.3 documentation</title>
   
 
   
@@ -57,7 +57,7 @@
             
             
               <div class="version">
-                0.2.2
+                0.2.3
               </div>
             
           
@@ -299,15 +299,13 @@ certificates).</li>
 <blockquote>
 <div><ul>
 <li><p class="first">Generate a Private Key for the client:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="p">:</span>\<span class="n">certificates</span><span class="o">&gt;</span><span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">out</span> <span class="n">client</span><span class="o">.</span><span class="n">key</span> <span class="mi">2048</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="p">:</span>\<span class="n">certificates</span><span class="o">&gt;</span><span class="n">openssl</span> <span class="n">genpkey</span> <span class="o">-</span><span class="n">out</span> <span class="n">client</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">algorithm</span> <span class="n">RSA</span> <span class="o">-</span><span class="n">pkeyopt</span> <span class="n">rsa_keygen_bits</span><span class="p">:</span><span class="mi">2048</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">The following should be displayed:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Generating</span> <span class="n">RSA</span> <span class="n">private</span> <span class="n">key</span><span class="p">,</span> <span class="mi">2048</span> <span class="n">bit</span> <span class="n">long</span> <span class="n">modulus</span>
-<span class="o">.......................+++</span>
-<span class="o">..................................................+++</span>
-<span class="n">e</span> <span class="ow">is</span> <span class="mi">65537</span> <span class="p">(</span><span class="mh">0x10001</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">..........................+++++</span>
+<span class="o">..........................+++++</span>
 </pre></div>
 </div>
 </li>

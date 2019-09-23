@@ -97,14 +97,12 @@ Windows
 
   * Generate a Private Key for the client::
 
-        c:\certificates>openssl genrsa -out client.key 2048
+        c:\certificates>openssl genpkey -out client.key -algorithm RSA -pkeyopt rsa_keygen_bits:2048
 
   * The following should be displayed::
 
-        Generating RSA private key, 2048 bit long modulus
-        .......................+++
-        ..................................................+++
-        e is 65537 (0x10001)
+        ..........................+++++
+        ..........................+++++
 
   * Create a Certificate Signing Request (CSR) for the client::
 
