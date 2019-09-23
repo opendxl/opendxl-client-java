@@ -325,7 +325,6 @@ public class DxlClient implements AutoCloseable {
 
         synchronized (this) {
             if (this.init) {
-                doDisconnectQuietly();
 
                 try {
                     this.serviceManager.close();
@@ -333,6 +332,7 @@ public class DxlClient implements AutoCloseable {
                     logger.error("Error during close of service manager", ex);
                 }
 
+                doDisconnectQuietly();
                 doClose();
                 this.init = false;
             }

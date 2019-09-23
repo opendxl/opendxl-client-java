@@ -295,6 +295,8 @@ class ServiceManager implements RequestCallback, AutoCloseable {
      */
     @Override
     public void close() {
+        // Unregister services
+        onDisconnect();
     }
 
     /**
