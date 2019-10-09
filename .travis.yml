@@ -24,6 +24,7 @@ before_install:
 
 script:
   - /sbin/ip -o -4 addr list
+  - /sbin/ip route|awk '/default/ { print $3 }'
   - ip4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
   - docker ps
   - echo Provisioning client without proxy information
