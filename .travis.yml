@@ -23,9 +23,7 @@ before_install:
   - docker ps -a
 
 script:
-  - /sbin/ip -o -4 addr list
-  - /sbin/ip route|awk '/default/ { print $3 }'
-  - ip4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
+  - ip4=$(/sbin/ip route|awk '/default/ { print $3 }')
   - docker ps
   - echo Provisioning client without proxy information
   - java -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ip4} client -u admin -p password
