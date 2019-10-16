@@ -128,7 +128,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
                 try {
                     if (client.isConnected()) {
                         try {
-                            serviceHandler.sendRegisterServiceRequest();
+                            serviceHandler.wakeupTimer();
                         } catch (Exception ex) {
                             log.error(
                                     "Exception during sendRegisterServiceRequest in service registration for service:"

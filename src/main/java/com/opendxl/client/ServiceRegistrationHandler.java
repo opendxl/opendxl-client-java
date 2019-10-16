@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -99,14 +97,14 @@ class ServiceRegistrationHandler {
      */
     private boolean deleted = false;
     /**
-     * Internal timer for registration and TTL handling
-     */
-    private Timer ttlTimer = null;
-    /**
      * The set of tenants that the service will be available to
      */
     @SuppressWarnings("unchecked")
     private Set<String> destTenantGuids = Collections.EMPTY_SET;
+    /**
+     * Registration thread
+     */
+    private RegistrationThread registrationThread;
 
     /**
      * Constructs the ServiceRegistrationHandler object
@@ -280,7 +278,7 @@ class ServiceRegistrationHandler {
                     this.ttlMins);
         }
 
-        log.debug("Sending request\n" + json.toPrettyJsonString());
+        log.debug("Sending registration request\n" + json.toPrettyJsonString());
 
         request.setPayload(json.toJsonString().getBytes(UTF_8)); //TODO Change this to use standard charsets from java
         final Response response = client.syncRequest(request); // Synchronous?
@@ -315,7 +313,7 @@ class ServiceRegistrationHandler {
             Request request = new Request(client, Constants.DXL_SERVICE_UNREGISTER_REQUEST_TOPIC);
             JsonUnregisterService json = new JsonUnregisterService(instanceId);
 
-            log.debug("Sending request\n" + json.toPrettyJsonString());
+            log.debug("Sending unregistration request\n" + json.toPrettyJsonString());
 
             request.setPayload(json.toJsonString().getBytes(UTF_8)); //TODO see other comment about charsets
             final Response response = client.syncRequest(request, 60 * 1000); // Wait a minute max
@@ -347,40 +345,12 @@ class ServiceRegistrationHandler {
         }
 
         if (client.isConnected() && !deleted) {
-            if (ttlTimer == null) {
-                ttlTimer = new Timer("dxl-client-ttl", true);
+            if (registrationThread == null) {
+                registrationThread = new RegistrationThread();
+                registrationThread.start();
+            } else {
+                registrationThread.wakeup();
             }
-
-            // Timer task for registration and TTL handling
-            TimerTask ttlTimerTask = new TimerTask() {
-                public void run() {
-                    if (client.isConnected()) {
-                        // Send unregister event if service marked for deletion or is no longer valid
-                        if (deleted) {
-                            try {
-                                markForDeletion();
-                                sendUnregisterServiceEvent();
-                                this.cancel();
-                            } catch (Exception ex) {
-                                log.error("Error sending unregister service event for "
-                                    + serviceType + " (" + instanceId + "): " + ex.getMessage());
-                            }
-                        } else {
-                            try {
-                                sendRegisterServiceRequest();
-                            } catch (Exception ex) {
-                                log.error("Error sending register service event for "
-                                    + serviceType + " (" + instanceId + "): " + ex.getMessage());
-                            }
-                        }
-                    // If client is not connected to broker stop further execution
-                    } else {
-                        this.cancel();
-                    }
-                }
-            };
-
-            ttlTimer.scheduleAtFixedRate(ttlTimerTask, 0, ttl * (60L / ttlResolution) * 1000L);
         }
     }
 
@@ -388,11 +358,15 @@ class ServiceRegistrationHandler {
      * Stops the TTL timer task
      */
     void stopTimer() {
-        if (ttlTimer != null) {
-            ttlTimer.cancel();
-            ttlTimer.purge();
+        if (registrationThread != null) {
+            registrationThread.setRunning(false);
+            try {
+                registrationThread.join();
+                registrationThread = null;
+            } catch (Exception ex) {
+                log.error("Error waiting for registration thread to stop", ex);
+            }
         }
-        ttlTimer = null;
     }
 
     /**
@@ -422,6 +396,13 @@ class ServiceRegistrationHandler {
     }
 
     /**
+     * Wakes up the timer
+     */
+    void wakeupTimer() {
+        this.registrationThread.wakeup();
+    }
+
+    /**
      * Returns the last registration time in milliseconds
      *
      * @return The last registration time in milliseconds, or 0L if not registered
@@ -444,6 +425,86 @@ class ServiceRegistrationHandler {
             registerTimeMillis = System.currentTimeMillis();
         } finally {
             lock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * The registration thread
+     */
+    class RegistrationThread extends Thread {
+
+        /** The thread notification object */
+        private final Object registrationThreadNotify = new Object();
+        /** Whether the thread is running */
+        private boolean running = true;
+
+        /**
+         * Cosntructs the registration thread
+         */
+        RegistrationThread() {
+            super();
+            setName("Service registration thread: "
+                + this.hashCode() + ", "
+                + ServiceRegistrationHandler.this.getServiceType() + ", "
+                + ServiceRegistrationHandler.this.getInstanceId());
+            setDaemon(true);
+        }
+
+        /**
+         * Sets the running state of the registration thread
+         *
+         * @param running Whether the registration thread should run
+         */
+        public void setRunning(final boolean running) {
+            synchronized (registrationThreadNotify) {
+                this.running = running;
+                registrationThreadNotify.notifyAll();
+            }
+        }
+
+        /**
+         * Wakes up the registration thread
+         */
+        void wakeup() {
+            synchronized (registrationThreadNotify) {
+                registrationThreadNotify.notifyAll();
+            }
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void run() {
+            final long waitTime = (ttl * (60L / ttlResolution) * 1000L);
+            while (running) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Registration thread running: " + this.getName());
+                }
+
+                if (client.isConnected() && !deleted) {
+                    try {
+                        sendRegisterServiceRequest();
+                    } catch (Exception ex) {
+                        log.error("Error sending register service event for "
+                            + serviceType + " (" + instanceId + "): " + ex.getMessage());
+                    }
+                }
+
+                synchronized (registrationThreadNotify) {
+                    try {
+                        if (running) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Registration thread waiting: " + waitTime + ", " + this.getName());
+                            }
+                            registrationThreadNotify.wait(waitTime);
+                        }
+                    } catch (Exception ex) {
+                        log.error("Error during registration thread wait", ex);
+                    }
+                }
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("Registration thread exiting: " + this.getName());
+            }
         }
     }
 }
