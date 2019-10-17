@@ -399,9 +399,9 @@ class ServiceRegistrationHandler {
      * Wakes up the timer
      */
     void wakeupTimer() {
-        if (registrationThread != null) {        
+        if (registrationThread != null) {
             registrationThread.wakeup();
-        }            
+        }
     }
 
     /**
