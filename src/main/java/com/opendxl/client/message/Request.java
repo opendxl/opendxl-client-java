@@ -29,6 +29,11 @@ public class Request extends Message {
     private String serviceId;
 
     /**
+     * Whether to perform a multi-service request
+     */
+    private boolean isMultiService = false;
+
+    /**
      * Constructor for {@link Request}
      */
     protected Request() { }
@@ -110,6 +115,24 @@ public class Request extends Message {
     }
 
     /**
+     * Returns whether this is a multi-service request
+     *
+     * @return Whether this is a multi-service request
+     */
+    public boolean isMultiServiceRequest() {
+        return this.isMultiService;
+    }
+
+    /**
+     * Sets whether this is a multi-service request
+     *
+     * @param isMultiService Whether this is a multi-service request
+     */
+    public void setMultiServiceRequest(final boolean isMultiService) {
+        this.isMultiService = isMultiService;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -127,5 +150,23 @@ public class Request extends Message {
         super.unpackMessage(unpacker);
         this.replyToTopic = new String(unpacker.readByteArray(), CHARSET_ASCII);
         this.serviceId = new String(unpacker.readByteArray(), CHARSET_ASCII);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    void packMessageV4(Packer packer) throws IOException {
+        super.packMessageV4(packer);
+        packer.write((byte) (this.isMultiService ? 1 : 0));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    void unpackMessageV4(BufferUnpacker unpacker) throws IOException {
+        super.unpackMessageV4(unpacker);
+        this.isMultiService = (unpacker.readByte() == 1);
     }
 }

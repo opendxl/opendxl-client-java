@@ -92,9 +92,12 @@ public abstract class Message {
      * 5.0+:
      * Added "sourceClientInstanceId" to support multiple
      * connections per client (string).
+     * Version 4:
+     * TBD:
+     * Multi-service request message
      * </code>
      */
-    public static final long MESSAGE_VERSION = 3;
+    public static final long MESSAGE_VERSION = 4;
 
     /**
      * The numeric type identifier for the {@link Request} message type
@@ -616,6 +619,22 @@ public abstract class Message {
     }
 
     /**
+     * Packs the contents of the message (version 4 of the DXL message)
+     *
+     * @param packer The packer
+     */
+    void packMessageV4(final Packer packer) throws IOException {
+    }
+
+    /**
+     * Unpacks the contents of the message (version 4 of the DXL message)
+     *
+     * @param unpacker The unpacker
+     */
+    void unpackMessageV4(final BufferUnpacker unpacker) throws IOException {
+    }
+
+    /**
      * Converts the message to an array of bytes and returns it
      *
      * @return The message as an array of bytes
@@ -639,6 +658,8 @@ public abstract class Message {
         packMessageV2(packer);
         // Version 3
         packMessageV3(packer);
+        // Version 4
+        packMessageV4(packer);
 
         return out.toByteArray();
     }
@@ -696,6 +717,10 @@ public abstract class Message {
         // Unpack version 3
         if (version > 2) {
             message.unpackMessageV3(unpacker);
+        }
+        // Unpack version 4
+        if (version > 3) {
+            message.unpackMessageV4(unpacker);
         }
 
         return message;
