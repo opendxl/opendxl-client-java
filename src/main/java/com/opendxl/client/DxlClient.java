@@ -8,6 +8,7 @@ import com.opendxl.client.callback.EventCallback;
 import com.opendxl.client.callback.RequestCallback;
 import com.opendxl.client.callback.ResponseCallback;
 import com.opendxl.client.exception.DxlException;
+import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Event;
 import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.security.KeyStore;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -707,6 +709,63 @@ public class DxlClient implements AutoCloseable {
         checkInitialized();
         request.setSourceClientId(getUniqueId());
         return this.requestManager.syncRequest(request, waitMillis);
+    }
+
+    /**
+     * Sends a {@link Request} message to all of the unique DXL service types that are
+     * currently registered for the topic associated with the request.
+     * <P>
+     * If multiple services exist for the same type, one of them will be selected to receive
+     * the request (round-robin).
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
+     *
+     * @param request The {@link Request} message to send
+     * @return The {@link MultiServiceResponse}
+     * @throws DxlException If an error occurs or the operation times out
+     * @see com.opendxl.client.exception.WaitTimeoutException
+     */
+    public MultiServiceResponse syncMultiServiceRequest(final Request request) throws DxlException {
+        return syncMultiServiceRequest(request, this.defaultWait);
+    }
+
+    /**
+     * Sends a {@link Request} message to all of the unique DXL service types that are
+     * currently registered for the topic associated with the request.
+     * <P>
+     * If multiple services exist for the same type, one of them will be selected to receive
+     * the request (round-robin).
+     * </P>
+     * <P>
+     * See the {@link ServiceRegistrationInfo} class for more information on DXL services.
+     * </P>
+     *
+     * @param request The {@link Request} message to send
+     * @param waitMillis The amount of time (in milliseconds) to wait for the {@link MultiServiceResponse} to
+     *                   the request. If the timeout is exceeded an exception will be raised.
+     * @return The {@link MultiServiceResponse}
+     * @throws DxlException If an error occurs or the operation times out
+     * @see com.opendxl.client.exception.WaitTimeoutException
+     */
+    public MultiServiceResponse syncMultiServiceRequest(final Request request, final long waitMillis)
+        throws DxlException {
+        request.setMultiServiceRequest(true);
+
+        final MultiServiceResponseHandler cb = new MultiServiceResponseHandler(request);
+        this.addResponseCallback(null, cb);
+        try {
+            final long startTime = System.currentTimeMillis();
+            final Response response = this.syncRequest(request, waitMillis);
+            if (response instanceof ErrorResponse) {
+                return new MultiServiceResponse(response);
+            } else {
+                return cb.waitForResponses(response, waitMillis - (System.currentTimeMillis() - startTime));
+            }
+        } finally {
+            this.removeResponseCallback(null, cb);
+        }
     }
 
     /**
@@ -1690,6 +1749,156 @@ public class DxlClient implements AutoCloseable {
             } catch (Exception ex) {
                 logger.error("Failure during disconnect", ex);
             }
+        }
+    }
+
+    /**
+     * Worker class that manages the handling of multi-service requests
+     */
+    private static class MultiServiceResponseHandler implements ResponseCallback {
+
+        /** The prefix associated with request message identifiers for applicable responses */
+        private String responseMessagePrefix;
+        /** The identifiers for requests associated with received responses */
+        private Set<String> receivedRequestIds = new HashSet<>();
+        /** The set of expected request identifiers (associated with received responses) */
+        @SuppressWarnings("unchecked")
+        private Set<String> expectedRequestIds = Collections.EMPTY_SET;
+        /** The received responses */
+        private Set<Response> receivedResponses = new HashSet<>();
+        /** General lock */
+        private Lock lock = new ReentrantLock();
+        /** Notification condition */
+        private Condition notifyCond = lock.newCondition();
+
+        /**
+         * Constructs the handler
+         *
+         * @param   request The initial request sent to the broker (initiated multi-service request)
+         *
+         */
+        MultiServiceResponseHandler(final Request request) {
+            super();
+            this.responseMessagePrefix = request.getMessageId() + ":";
+        }
+
+        /** {@inheritDoc} */
+        @Override
+        public void onResponse(final Response response) {
+            if (response.getRequestMessageId().startsWith(this.responseMessagePrefix)) {
+                lock.lock();
+                try {
+                    receivedRequestIds.add(response.getRequestMessageId());
+                    receivedResponses.add(response);
+                    notifyCond.signal();
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+
+        /**
+         * Waits for the responses to be received
+         *
+         * @param initialResponse The response from the broker (contains information about the services
+         *                        that are to be invoked as part of the multi-service request.
+         * @param timeoutMillis The timeout (in milliseconds)
+         * @return The result of the multi-service request
+         * @throws DxlException If an error occurs
+         */
+        MultiServiceResponse waitForResponses(
+                final Response initialResponse, final long timeoutMillis)
+            throws DxlException {
+
+            MultiServiceRequestInfo info;
+            try {
+                final String responsePayload = new String(initialResponse.getPayload(), Message.CHARSET_UTF8);
+                info = JsonUtils.fromString(responsePayload, MultiServiceRequestInfo.class);
+            } catch (Exception ex) {
+                throw new DxlException("Error parsing initial multi-service response", ex);
+            }
+
+            lock.lock();
+            try {
+                this.expectedRequestIds = new HashSet<>(info.getRequests().keySet());
+
+                final long startTime = System.currentTimeMillis();
+                long remaining = timeoutMillis;
+                while (!receivedRequestIds.equals(expectedRequestIds) && remaining > 0) {
+                    try {
+                        notifyCond.await(remaining, TimeUnit.MILLISECONDS);
+                        remaining = timeoutMillis - (System.currentTimeMillis() - startTime);
+                    } catch (Exception ex) {
+                        throw new DxlException("Error waiting for responses to multi-service request", ex);
+                    }
+                }
+            } finally {
+                lock.unlock();
+            }
+
+            return new MultiServiceResponse(
+                initialResponse, expectedRequestIds.size(), receivedResponses);
+        }
+    }
+
+    /**
+     * Information received from the broker in response to a multi-service request
+     * <P>
+     * In response to a multi-service request, the broker will send additional requests
+     * to each service identified (one service per unique type name) for the specified topic.
+     * </P>
+     * <P>
+     * This object includes information about each of the services that were sent a request
+     * along with the "request identifier" that the broker associated with the request. A
+     * new "request identifier" was generated for each individual service invocation.
+     * </P>
+     */
+    private static class MultiServiceRequestInfo {
+        /** Service info by request identifier */
+        private Map<String, ServiceInfo> requests;
+
+        /**
+         * Sets a map containing services by request identifier
+         *
+         * @param requests A map containing services by request identifier
+         */
+        void setRequests(Map<String, ServiceInfo> requests) {
+            this.requests = requests;
+        }
+
+        /**
+         * Returns a map containing the service by request identifier
+         *
+         * @return A map containing the service by request identifier
+         */
+        Map<String, ServiceInfo> getRequests() {
+            return this.requests;
+        }
+    }
+
+    /**
+     * Information about each service invoked as part of a multi-service request
+     */
+    private static class ServiceInfo {
+        /** The identifier of the service */
+        private String serviceId;
+
+        /**
+         * Sets the service identifier
+         *
+         * @param serviceId The service identifier
+         */
+        void setServiceId(final String serviceId) {
+            this.serviceId = serviceId;
+        }
+
+        /**
+         * Returns the service identifier
+         *
+         * @return  The service identifier
+         */
+        String getServiceId() {
+            return this.serviceId;
         }
     }
 }
