@@ -259,6 +259,8 @@ test {
     
     // Exclude the Proxy Usage Verification Test
     exclude "**/ProxyUsageVerificationTest.class"
+    //Exclude multiservicerequest test until the broker supports it
+    exclude "**/MultiServiceRequestTest.class"
 //    filter {
 //        //specific test method
 //        includeTestsMatching "com.opendxl.client.RegisterServiceTest"
