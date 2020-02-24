@@ -30,6 +30,9 @@ jobs:
         
     - name: Install dependencies
       run: |
+        echo ulimit -u
+        echo ulimit -v
+        sudo ulimit -u 15786
         sudo -E apt-get update
         sudo apt-get install -y apache2-utils
         mkdir squid-proxy-cache
