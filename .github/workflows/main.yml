@@ -41,6 +41,7 @@ jobs:
         
     - name: Execute CI
       run: |
+        ./gradlew assemble
         ipv4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
         echo ${ipv4}
         docker ps
