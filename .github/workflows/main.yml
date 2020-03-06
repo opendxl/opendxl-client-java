@@ -74,7 +74,7 @@ jobs:
         cat clientconfig/dxlclient.config
         echo Running Proxy Usage Verification Test for MQTT connections
         ./gradlew proxyUsageVerificationTest
-        docker exec -it squid tail /var/log/squid/access.log
+        docker exec squid tail /var/log/squid/access.log
         echo Running tests with MQTT and authenticated proxy
         ./gradlew cleanTest test --info --console=plain
         echo Changing config to use WebSockets
@@ -82,6 +82,6 @@ jobs:
         cat clientconfig/dxlclient.config
         echo Running Proxy Usage Verification Test for WebSocket connections
         ./gradlew proxyUsageVerificationTest
-        docker exec -it squid tail /var/log/squid/access.log
+        docker exec squid tail /var/log/squid/access.log
         echo Running tests with WebSockets and authenticated proxy
         ./gradlew cleanTest test --info --console=plain
