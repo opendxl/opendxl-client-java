@@ -26,7 +26,7 @@ public class EventThroughputRunner extends AbstractRunner {
     /**
      * The number of threads (clients)
      */
-    private static final int THREAD_COUNT = 1000;
+    private static final int THREAD_COUNT = 500;
 
     /**
      * The number of events to send (per thread)
