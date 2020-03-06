@@ -32,7 +32,7 @@ public class SyncRequestThroughputRunner extends AbstractRunner {
     /**
      * The number of clients (thread per client)
      */
-    private static final int THREAD_COUNT = 1000;
+    private static final int THREAD_COUNT = 500;
 
     /**
      * The number of requests to send
