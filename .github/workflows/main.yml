@@ -1,0 +1,88 @@
+
+name: Build
+
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+  schedule:
+    - cron:  '0 0 * * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: [ 8, 9, 10 ]
+      fail-fast: false
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        submodules: recursive
+        
+    - name: Set up Java ${{ matrix.java-version }}
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java-version }}
+        
+    - name: Install broker
+      run: |
+        docker pull opendxl/opendxl-broker
+        docker run -d -p 8883:8883 -p 8443:8443 -p 443:443 opendxl/opendxl-broker
+        docker ps -a
+        
+    - name: Install dependencies
+      run: |
+        free
+        sudo -E apt-get update
+        sudo apt-get install -y apache2-utils
+        mkdir squid-proxy-cache
+        htpasswd -b -c ${{ github.workspace }}/testing/passwords proxyuser proxypassword
+        cat ${{ github.workspace }}/testing/passwords
+        docker run --name squid -d --restart=always --publish 3128:3128 --volume ${{ github.workspace }}/testing/squid.conf:/etc/squid/squid.conf --volume ${{ github.workspace }}/testing/passwords:/etc/squid/passwords --volume ${{ github.workspace }}/squid-proxy-cache:/var/spool/squid sameersbn/squid
+        docker ps -a
+        
+        
+    - name: Execute CI
+      run: |
+        ./gradlew assemble
+        ipv4=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
+        echo ${ipv4}
+        docker ps
+        echo Provisioning client without proxy information
+        java -jar ${{ github.workspace }}/build/libs/dxlclient*all.jar provisionconfig clientconfig ${ipv4} client -u admin -p password
+        sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
+        cat clientconfig/dxlclient.config
+        echo Running tests with MQTT
+        ./gradlew test --info --console=plain
+        sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
+        cat clientconfig/dxlclient.config
+        echo Running tests with WebSockets and no proxy
+        ./gradlew cleanTest test --info --console=plain
+        echo Provisioning client with proxy information
+        java -Dhttps.proxyHost=${ipv4} -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyuser -Dhttps.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ipv4} client -u admin -p password
+        sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
+        echo Updating dxlclient.config to include proxy information
+        echo "[Proxy]" >> clientconfig/dxlclient.config
+        echo "Address=${ipv4}" >> clientconfig/dxlclient.config
+        echo "Port=3128" >> clientconfig/dxlclient.config
+        echo "User=proxyuser" >> clientconfig/dxlclient.config
+        echo "Password=proxypassword" >> clientconfig/dxlclient.config
+        cat clientconfig/dxlclient.config
+        echo Running Proxy Usage Verification Test for MQTT connections
+        ./gradlew proxyUsageVerificationTest
+        docker exec squid tail /var/log/squid/access.log
+        echo Running tests with MQTT and authenticated proxy
+        ./gradlew cleanTest test --info --console=plain
+        echo Changing config to use WebSockets
+        sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
+        cat clientconfig/dxlclient.config
+        echo Running Proxy Usage Verification Test for WebSocket connections
+        ./gradlew proxyUsageVerificationTest
+        docker exec squid tail /var/log/squid/access.log
+        echo Running tests with WebSockets and authenticated proxy
+        ./gradlew cleanTest test --info --console=plain
