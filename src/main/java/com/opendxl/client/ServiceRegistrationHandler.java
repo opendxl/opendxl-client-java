@@ -439,6 +439,8 @@ class ServiceRegistrationHandler {
         private final Object registrationThreadNotify = new Object();
         /** Whether the thread is running */
         private boolean running = true;
+        /** Track the notify count */
+        private long notifyCount = 0;
 
         /**
          * Cosntructs the registration thread
@@ -469,6 +471,7 @@ class ServiceRegistrationHandler {
          */
         void wakeup() {
             synchronized (registrationThreadNotify) {
+                this.notifyCount++;
                 registrationThreadNotify.notifyAll();
             }
         }
@@ -477,6 +480,7 @@ class ServiceRegistrationHandler {
         @Override
         public void run() {
             final long waitTime = (ttl * (60L / ttlResolution) * 1000L);
+            long lastNotifyCount = 0;
             while (running) {
                 if (log.isDebugEnabled()) {
                     log.debug("Registration thread running: " + this.getName());
@@ -492,15 +496,20 @@ class ServiceRegistrationHandler {
                 }
 
                 synchronized (registrationThreadNotify) {
-                    try {
-                        if (running) {
-                            if (log.isDebugEnabled()) {
-                                log.debug("Registration thread waiting: " + waitTime + ", " + this.getName());
+                    log.debug("Registration thread notify count " + this.notifyCount + ", " + lastNotifyCount);
+                    if (this.notifyCount == lastNotifyCount) {
+                        try {
+                            if (running) {
+                                if (log.isDebugEnabled()) {
+                                    log.debug("Registration thread waiting: " + waitTime + ", " + this.getName());
+                                }
+                                registrationThreadNotify.wait(waitTime);
                             }
-                            registrationThreadNotify.wait(waitTime);
+                        } catch (Exception ex) {
+                            log.error("Error during registration thread wait", ex);
                         }
-                    } catch (Exception ex) {
-                        log.error("Error during registration thread wait", ex);
+                    } else {
+                        lastNotifyCount = this.notifyCount;
                     }
                 }
             }
