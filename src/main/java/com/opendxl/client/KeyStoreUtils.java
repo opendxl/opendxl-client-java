@@ -104,8 +104,12 @@ class KeyStoreUtils {
         }
 
         try {
-            Certificate[] certChain = new Certificate[1];
+            //build the certificate and chain for the key entry
+            Certificate[] certChain = new Certificate[caChain.length + 1];
             certChain[0] = cert;
+            for (int i = 0; i < caChain.length; i++) {
+                certChain[i + 1] = caChain[(caChain.length - i) - 1];
+            }
             clientKeyStore.setKeyEntry(CLIENT_KEY_ALIAS, privateKey, keyStorePassword.toCharArray(), certChain);
         } finally {
             Arrays.fill(keyStorePassword.toCharArray(), '0');  //clear the password
