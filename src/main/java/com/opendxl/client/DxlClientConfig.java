@@ -350,7 +350,7 @@ public class DxlClientConfig {
      *
      * @param uniqueId The unique identifier of the client.
      */
-    protected void setUniqueId(final String uniqueId) {
+    public void setUniqueId(final String uniqueId) {
         this.uniqueId = uniqueId;
     }
 
