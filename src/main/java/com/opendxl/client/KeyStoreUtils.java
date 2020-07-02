@@ -131,23 +131,25 @@ class KeyStoreUtils {
     }
 
     /**
-     * Helper method to get the Issuer Certificate. When found, remove CA from the list
+     * Helper method to get the Issuer Certificate.
      *
      * @param caChain CA chain
      * @param cert Certificate to find the issuer
-     * @return Issuer CA Certificate or null if not found/root
+     * @return Issuer CA Certificate or null if not found or we are at the root
      */
     private static Certificate findIssuer(final List<Certificate> caChain, final Certificate cert) {
         final X509Certificate x509Cert = ((X509Certificate) cert);
         if (x509Cert != null) {
             final Principal issuerDN = x509Cert.getIssuerDN();
             for (Certificate ca : caChain) {
-                X509Certificate x509Ca = ((X509Certificate) ca);
+                final X509Certificate x509Ca = ((X509Certificate) ca);
                 if (x509Ca != null) {
-                    Principal subjectDN = x509Ca.getSubjectDN();
+                    //root ca found ..return null
+                    if (cert.equals(x509Ca)) {
+                       return null;
+                    }
+                    final Principal subjectDN = x509Ca.getSubjectDN();
                     if (issuerDN.equals(subjectDN)) {
-                        //once found, remove from list
-                        caChain.remove(ca);
                         return ca;
                     }
                 }
