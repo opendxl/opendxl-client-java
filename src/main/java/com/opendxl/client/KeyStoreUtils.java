@@ -144,7 +144,7 @@ class KeyStoreUtils {
             for (Certificate ca : caChain) {
                 final X509Certificate x509Ca = ((X509Certificate) ca);
                 if (x509Ca != null) {
-                    //root ca found ..return null
+                    //root ca found..return null
                     if (cert.equals(x509Ca)) {
                        return null;
                     }
