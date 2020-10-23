@@ -153,7 +153,7 @@ sourceSets {
 }
 
 test{
-     maxHeapSize = "2048m"
+     maxHeapSize = "4096m"
 }
 
 // Make check style run before creating a jar
