@@ -264,8 +264,9 @@ test {
 //        includeTestsMatching "com.opendxl.client.RegisterServiceTest"
 //    }
 
-    maxHeapSize = "8192m"
-    minHeapSize = "8192m"
+    maxHeapSize = "4096m"
+    minHeapSize = "4096m"
+    jvmArgs "-XX:MaxPermSize=2048m"
 }
 
 // Task for verifying proxy usage
