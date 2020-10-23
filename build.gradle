@@ -152,10 +152,6 @@ sourceSets {
     }
 }
 
-test{
-     maxHeapSize = "4096m"
-}
-
 // Make check style run before creating a jar
 jar.dependsOn(checkstyleMain)
 
@@ -267,6 +263,10 @@ test {
 //        //specific test method
 //        includeTestsMatching "com.opendxl.client.RegisterServiceTest"
 //    }
+
+    maxHeapSize = "4096m"
+    minHeapSize = "4096m"
+    jvmArgs "-XX:MaxPermSize=1024m"
 }
 
 // Task for verifying proxy usage
