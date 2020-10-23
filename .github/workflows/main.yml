@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - master
-      - unittestfailures
   pull_request:
   schedule:
     - cron:  '0 0 * * *'
