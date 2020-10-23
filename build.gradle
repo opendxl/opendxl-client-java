@@ -266,7 +266,7 @@ test {
 
     maxHeapSize = "4096m"
     minHeapSize = "4096m"
-    jvmArgs "-XX:MaxPermSize=2048m"
+    jvmArgs "-XX:MaxPermSize=256m"
 }
 
 // Task for verifying proxy usage
