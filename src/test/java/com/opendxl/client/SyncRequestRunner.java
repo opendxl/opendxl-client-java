@@ -28,7 +28,7 @@ public class SyncRequestRunner extends AbstractRunner {
     /**
      * The number of requests to send
      */
-    private static final int REQUEST_COUNT = 5000;
+    private static final int REQUEST_COUNT = 1000;
 
     /**
      * Maximum time to wait for the test to complete
