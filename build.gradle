@@ -152,6 +152,10 @@ sourceSets {
     }
 }
 
+test{
+     maxHeapSize = "2048m"
+}
+
 // Make check style run before creating a jar
 jar.dependsOn(checkstyleMain)
 
