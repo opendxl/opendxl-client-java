@@ -7,12 +7,16 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.security.KeyFactory;
 import java.security.KeyStore;
+import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Utility methods for generating Java {@link KeyStore} instances from store-related files
@@ -104,13 +108,53 @@ class KeyStoreUtils {
         }
 
         try {
-            Certificate[] certChain = new Certificate[1];
-            certChain[0] = cert;
-            clientKeyStore.setKeyEntry(CLIENT_KEY_ALIAS, privateKey, keyStorePassword.toCharArray(), certChain);
+            final List<Certificate> keyEntryCertChain = new ArrayList<>();
+            //add cert
+            keyEntryCertChain.add(cert);
+
+            //build cert chain starting with the issuer ending with the root
+            final List<Certificate> caCertsList = new ArrayList(Arrays.asList(caChain));
+            Certificate signer = findIssuer(caCertsList, cert);
+            while (signer != null) {
+                //add the CA
+                keyEntryCertChain.add(signer);
+                signer = findIssuer(caCertsList, signer);
+            }
+
+            clientKeyStore.setKeyEntry(CLIENT_KEY_ALIAS, privateKey, keyStorePassword.toCharArray(),
+                    keyEntryCertChain.toArray(new Certificate[0]));
         } finally {
             Arrays.fill(keyStorePassword.toCharArray(), '0');  //clear the password
         }
 
         return clientKeyStore;
+    }
+
+    /**
+     * Helper method to get the Issuer Certificate.
+     *
+     * @param caChain CA chain
+     * @param cert Certificate to find the issuer
+     * @return Issuer CA Certificate or null if not found or we are at the root
+     */
+    private static Certificate findIssuer(final List<Certificate> caChain, final Certificate cert) {
+        final X509Certificate x509Cert = ((X509Certificate) cert);
+        if (x509Cert != null) {
+            final Principal issuerDN = x509Cert.getIssuerDN();
+            for (Certificate ca : caChain) {
+                final X509Certificate x509Ca = ((X509Certificate) ca);
+                if (x509Ca != null) {
+                    //root ca found..return null
+                    if (cert.equals(x509Ca)) {
+                       return null;
+                    }
+                    final Principal subjectDN = x509Ca.getSubjectDN();
+                    if (issuerDN.equals(subjectDN)) {
+                        return ca;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
