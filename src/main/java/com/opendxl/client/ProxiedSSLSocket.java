@@ -59,7 +59,11 @@ class ProxiedSSLSocket extends SSLSocket {
      */
     @Override
     public void connect(SocketAddress socketAddress, int timeout) throws IOException {
-        proxySocket.connect(socketAddress, timeout);
+        try {
+            proxySocket.connect(socketAddress, timeout);
+        } catch (Throwable t) {
+            throw new IOException(t);
+        }
         this.socket = (SSLSocket) socketFactory.createSocket(proxySocket,
             ((InetSocketAddress) socketAddress).getHostName(), ((InetSocketAddress) socketAddress).getPort(), true);
     }
