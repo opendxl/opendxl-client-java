@@ -58,11 +58,11 @@ jobs:
         sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
         cat clientconfig/dxlclient.config
         echo Running tests with MQTT
-        ./gradlew test --info --console=plain
+        ./gradlew test --info --stacktrace --console=plain
         sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
         cat clientconfig/dxlclient.config
         echo Running tests with WebSockets and no proxy
-        ./gradlew cleanTest test --info --console=plain
+        ./gradlew cleanTest test --info --stacktrace --console=plain
         echo Provisioning client with proxy information
         java -Dhttps.proxyHost=${ipv4} -Dhttps.proxyPort=3128 -Dhttps.proxyUser=proxyuser -Dhttps.proxyPassword=proxypassword -jar ./build/libs/dxlclient*all.jar provisionconfig clientconfig ${ipv4} client -u admin -p password
         sed -i -e "s/127.0.0.1;127.0.0.1/127.0.0.1/g" -e "/local/d" -e "/docker/d" clientconfig/dxlclient.config
@@ -77,7 +77,7 @@ jobs:
         ./gradlew proxyUsageVerificationTest
         docker exec squid tail /var/log/squid/access.log
         echo Running tests with MQTT and authenticated proxy
-        ./gradlew cleanTest test --info --console=plain
+        ./gradlew cleanTest test --info --stacktrace --console=plain
         echo Changing config to use WebSockets
         sed -i -e "s/= false/= true/g" clientconfig/dxlclient.config
         cat clientconfig/dxlclient.config
@@ -85,4 +85,4 @@ jobs:
         ./gradlew proxyUsageVerificationTest
         docker exec squid tail /var/log/squid/access.log
         echo Running tests with WebSockets and authenticated proxy
-        ./gradlew cleanTest test --info --console=plain
+        ./gradlew cleanTest test --info --stacktrace --console=plain
