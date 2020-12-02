@@ -34,7 +34,7 @@ public class ProxyUsageVerificationTest {
         } catch (Exception e) {
             System.out.println("#### " + e.getMessage());
             e.printStackTrace();
-            assertTrue(e.getMessage().contains("Unable to connect to server: Connection refused"));
+            assertTrue(e.getMessage().contains("Connection refused"));
         }
 
         // Attempt to connect with the valid proxy information and do not expect an exception
