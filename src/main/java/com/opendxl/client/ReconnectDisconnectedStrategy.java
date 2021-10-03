@@ -4,7 +4,9 @@
 
 package com.opendxl.client;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * An implementation of the {@link DisconnectedStrategy} that attempts to reconnect to the fabric
@@ -13,7 +15,7 @@ public class ReconnectDisconnectedStrategy implements DisconnectedStrategy {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(ReconnectDisconnectedStrategy.class);
+    private static Logger logger = LogManager.getLogger(ReconnectDisconnectedStrategy.class);
 
     /**
      * {@inheritDoc}

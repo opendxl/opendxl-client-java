@@ -32,19 +32,20 @@ apply plugin: "com.github.johnrengelman.shadow"
 
 dependencies {
     implementation 'commons-codec:commons-codec:1.10'
-    implementation 'commons-io:commons-io:2.4'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.7'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.7'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
-    implementation 'log4j:log4j:1.2.17'
-//    implementation 'org.apache.logging.log4j:log4j-api:2.11.1'
-//    implementation 'org.apache.logging.log4j:log4j-core:2.11.1'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.12.4'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
+//    implementation 'log4j:log4j:1.2.17'
+    implementation 'org.apache.logging.log4j:log4j-api:2.11.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.11.1'
     implementation 'org.msgpack:msgpack:0.6.7'
     implementation 'info.picocli:picocli:3.8.2'
     implementation 'org.apache.commons:commons-lang3:3.8.1'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.60'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
     implementation 'org.apache.httpcomponents:httpclient:4.5.6'
     implementation 'org.apache.httpcomponents:httpcore:4.4.10'
+    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
