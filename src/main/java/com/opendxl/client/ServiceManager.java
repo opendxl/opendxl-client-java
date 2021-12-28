@@ -9,7 +9,8 @@ import com.opendxl.client.exception.DxlException;
 import com.opendxl.client.message.DxlErrorMessageEnum;
 import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Request;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +32,7 @@ class ServiceManager implements RequestCallback, AutoCloseable {
     /**
      * The logger
      */
-    private static Logger log = Logger.getLogger(ServiceManager.class);
+    private static Logger log = LogManager.getLogger(ServiceManager.class);
 
     /**
      * Read-write lock for handling registration and firing concurrency

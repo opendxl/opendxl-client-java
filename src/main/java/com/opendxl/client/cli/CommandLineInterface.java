@@ -5,11 +5,9 @@
 package com.opendxl.client.cli;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.varia.LevelRangeFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -292,7 +290,7 @@ public class CommandLineInterface extends DxlCliCommand {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * The log4j logging pattern
@@ -398,26 +396,6 @@ public class CommandLineInterface extends DxlCliCommand {
      * @param args The command line arguments
      */
     public static void main(String[] args) {
-        // create info/debug log4j appender
-        ConsoleAppender nonErrorConsole = new ConsoleAppender(new PatternLayout(LOGGING_PATTERN),
-                ConsoleAppender.SYSTEM_OUT);
-        LevelRangeFilter levelRangeFilter = new LevelRangeFilter();
-        levelRangeFilter.setLevelMax(Level.INFO);
-        levelRangeFilter.setLevelMin(Level.DEBUG);
-        nonErrorConsole.addFilter(levelRangeFilter);
-
-        // create error log4j appender
-        ConsoleAppender errorConsole = new ConsoleAppender(new PatternLayout(LOGGING_PATTERN),
-                ConsoleAppender.SYSTEM_ERR);
-        errorConsole.setThreshold(Level.ERROR);
-
-        // Remove all existing log4j appenders
-        Logger.getRootLogger().removeAllAppenders();
-
-        //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(nonErrorConsole);
-        Logger.getRootLogger().addAppender(errorConsole);
-
         // Set up the parser
         CommandLine commandLine = new CommandLine(new CommandLineInterface());
         try {
@@ -467,7 +445,7 @@ public class CommandLineInterface extends DxlCliCommand {
         // Get the DXL ClI command object
         DxlCliCommand parsedCommand = parseResult.commandSpec().commandLine().getCommand();
         // set the log level on non error console
-        nonErrorConsole.setThreshold(parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
+        if (parsedCommand.isVerbose()) ThreadContext.put("myLogLvl", "WARN");
 
         // show help message
         if (parseResult.isUsageHelpRequested() || !parseResult.errors().isEmpty() || (!parseResult.hasSubcommand()

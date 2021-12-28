@@ -14,7 +14,9 @@ import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
 import com.opendxl.client.util.UuidGenerator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -86,7 +88,7 @@ public class DxlClient implements AutoCloseable {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(DxlClient.class);
+    private static Logger logger = LogManager.getLogger(DxlClient.class);
 
     /**
      * The default "reply-to" prefix. This is typically used for setting up response
