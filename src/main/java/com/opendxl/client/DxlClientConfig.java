@@ -186,7 +186,7 @@ public class DxlClientConfig {
      * The broker ping timeout (in ms), defaults to 500ms
      */
     private int brokerPingTimeout =
-        Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_TIMEOUT, "1000"));
+        Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_TIMEOUT, "2000"));
 
     /**
      * Keep alive interval (30 minutes by default)
@@ -872,7 +872,8 @@ public class DxlClientConfig {
             if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
                 es.shutdownNow();
                 if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
-                    logger.error("Error shutting down getSortedBrokerList executor service thread pool");
+                    logger.warn("Error shutting down getSortedBrokerList executor service thread pool"
+                     + "Shutdown Time : " + brokerPingTimeout * 5);
                 }
             }
         }
