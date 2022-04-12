@@ -8,7 +8,8 @@ import com.opendxl.client.Broker;
 import com.opendxl.client.DxlClientConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.operator.OperatorCreationException;
 import picocli.CommandLine;
 
@@ -126,7 +127,7 @@ class ProvisionDxlClientSubcommand extends DxlCliCommand {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * The DXL Client provision command

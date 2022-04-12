@@ -3,7 +3,7 @@ import sys, os
 from recommonmark.parser import CommonMarkParser
 
 project = u'OpenDXL Java SDK'
-copyright = u'2019, McAfee LLC'
+copyright = u'2022, Trellix'
 
 with open('../VERSION', 'r') as content_file:
     VERSION = content_file.read()
@@ -17,7 +17,7 @@ master_doc = 'index'
 pygments_style = 'tango'
 add_function_parentheses = True
 
-extensions = ['sphinx.ext.autodoc', 'javasphinx',
+extensions = ['sphinx.ext.autodoc',
               'sphinxcontrib.plantuml']
 #'sphinxcontrib-inlinesyntaxhighlight',
 templates_path = ['_templates']

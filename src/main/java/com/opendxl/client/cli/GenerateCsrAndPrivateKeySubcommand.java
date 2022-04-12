@@ -4,7 +4,8 @@
 
 package com.opendxl.client.cli;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
 
 import java.lang.invoke.MethodHandles;
@@ -36,7 +37,7 @@ class GenerateCsrAndPrivateKeySubcommand extends DxlCliCommand {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * The path to the config directory

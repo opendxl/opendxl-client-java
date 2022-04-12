@@ -7,7 +7,8 @@ package com.opendxl.client;
 import com.opendxl.client.exception.DxlException;
 import com.opendxl.client.util.UuidGenerator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -215,7 +216,7 @@ public class DxlClientConfig {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(DxlClientConfig.class);
+    private static Logger logger = LogManager.getLogger(DxlClientConfig.class);
 
     /**
      * Incoming message queue size (defaults to 16384)

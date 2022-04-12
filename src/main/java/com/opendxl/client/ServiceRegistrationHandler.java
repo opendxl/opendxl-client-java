@@ -11,7 +11,8 @@ import com.opendxl.client.message.ErrorResponse;
 import com.opendxl.client.message.Message;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ class ServiceRegistrationHandler {
     /**
      * The logger
      */
-    private static Logger log = Logger.getLogger(ServiceRegistrationHandler.class);
+    private static Logger log = LogManager.getLogger(ServiceRegistrationHandler.class);
 
     /**
      * Read write lock for handling delete flag and registration time
