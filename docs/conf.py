@@ -3,7 +3,7 @@ import sys, os
 from recommonmark.parser import CommonMarkParser
 
 project = u'OpenDXL Java SDK'
-copyright = u'2022, Trellix'
+copyright = u'2022, Musarubra US LLC'
 
 with open('../VERSION', 'r') as content_file:
     VERSION = content_file.read()

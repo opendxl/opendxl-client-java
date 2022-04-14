@@ -18,7 +18,6 @@ plugins {
     id 'signing'
     id "com.github.johnrengelman.shadow" version "7.1.2"
     id "kr.motd.sphinx" version "2.10.1"
-//    id 'com.bmuschko.docker-remote-api' version '4.0.5'
 }
 
 group = "com.opendxl"
@@ -35,8 +34,6 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.7'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.7'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
-    //implementation 'log4j:log4j:1.2.17'
-    //implementation 'org.apache.logging.log4j:log4j-1.2-api:2.17.1' Bridging API Can't Be use as Project has appenders and filters
     implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
     implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
     implementation 'org.msgpack:msgpack:0.6.7'
