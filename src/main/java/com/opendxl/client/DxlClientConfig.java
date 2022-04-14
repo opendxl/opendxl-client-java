@@ -873,7 +873,7 @@ public class DxlClientConfig {
             if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
                 es.shutdownNow();
                 if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
-                    logger.error("Error shutting down getSortedBrokerList executor service thread pool");
+                    logger.warn("Not able to shutdown executor service thread pool");
                 }
             }
         }
