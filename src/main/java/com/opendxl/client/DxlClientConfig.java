@@ -187,7 +187,7 @@ public class DxlClientConfig {
      * The broker ping timeout (in ms), defaults to 500ms
      */
     private int brokerPingTimeout =
-        Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_TIMEOUT, "1000"));
+        Integer.parseInt(System.getProperty(Constants.SYSPROP_CONNECT_TIMEOUT, "2000"));
 
     /**
      * Keep alive interval (30 minutes by default)
