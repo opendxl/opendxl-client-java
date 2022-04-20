@@ -9,7 +9,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opendxl.client.Broker;
 import com.opendxl.client.DxlClientConfig;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -133,7 +134,7 @@ class UpdateConfigSubcommand extends DxlCliCommand {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * The Broker Cert Chain command

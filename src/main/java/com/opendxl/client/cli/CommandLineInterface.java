@@ -5,17 +5,25 @@
 package com.opendxl.client.cli;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.varia.LevelRangeFilter;
-import picocli.CommandLine;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.Configurator;
 
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.LoggerComponentBuilder;
+
+import picocli.CommandLine;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import java.lang.invoke.MethodHandles;
 import java.net.URISyntaxException;
 
@@ -292,7 +300,7 @@ public class CommandLineInterface extends DxlCliCommand {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger logger ;
 
     /**
      * The log4j logging pattern
@@ -398,25 +406,39 @@ public class CommandLineInterface extends DxlCliCommand {
      * @param args The command line arguments
      */
     public static void main(String[] args) {
-        // create info/debug log4j appender
-        ConsoleAppender nonErrorConsole = new ConsoleAppender(new PatternLayout(LOGGING_PATTERN),
-                ConsoleAppender.SYSTEM_OUT);
-        LevelRangeFilter levelRangeFilter = new LevelRangeFilter();
-        levelRangeFilter.setLevelMax(Level.INFO);
-        levelRangeFilter.setLevelMin(Level.DEBUG);
-        nonErrorConsole.addFilter(levelRangeFilter);
 
-        // create error log4j appender
-        ConsoleAppender errorConsole = new ConsoleAppender(new PatternLayout(LOGGING_PATTERN),
-                ConsoleAppender.SYSTEM_ERR);
-        errorConsole.setThreshold(Level.ERROR);
+        ConfigurationBuilder<BuiltConfiguration> builder =
+                ConfigurationBuilderFactory.newConfigurationBuilder();
 
-        // Remove all existing log4j appenders
-        Logger.getRootLogger().removeAllAppenders();
+        // create a non Error console appender
+        AppenderComponentBuilder nonErrorConsole = builder.newAppender("NonErrorConsole", "CONSOLE")
+                .addAttribute("target", ConsoleAppender.Target.SYSTEM_OUT)
+                        .add(builder.newLayout("PatternLayout")
+                                .addAttribute("pattern", LOGGING_PATTERN));
 
-        //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(nonErrorConsole);
-        Logger.getRootLogger().addAppender(errorConsole);
+        // create a Error console appender
+        AppenderComponentBuilder errorConsole = builder.newAppender("ErrorConsole", "CONSOLE")
+                .addAttribute("target", ConsoleAppender.Target.SYSTEM_ERR)
+                .add(builder.newLayout("PatternLayout")
+                        .addAttribute("pattern", LOGGING_PATTERN));
+
+        builder.add(nonErrorConsole);
+        builder.add(errorConsole);
+
+        LoggerComponentBuilder childLogger = builder.newLogger("org.apache.logging.log4j", Level.ERROR);
+        childLogger.add(builder.newAppenderRef("ErrorConsole"));
+        childLogger.addAttribute("additivity", false);
+
+        // Add Root Logger
+        RootLoggerComponentBuilder rootLogger = builder.newRootLogger(Level.INFO)
+                .add(builder.newAppenderRef("NonErrorConsole"));
+
+        builder.add(rootLogger);
+
+        // apply the configuration
+        Configurator.initialize(builder.build());
+
+        logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
         // Set up the parser
         CommandLine commandLine = new CommandLine(new CommandLineInterface());
@@ -467,7 +489,7 @@ public class CommandLineInterface extends DxlCliCommand {
         // Get the DXL ClI command object
         DxlCliCommand parsedCommand = parseResult.commandSpec().commandLine().getCommand();
         // set the log level on non error console
-        nonErrorConsole.setThreshold(parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
+        nonErrorConsole.addAttribute("level", parsedCommand.isVerbose() ? Level.DEBUG : Level.INFO);
 
         // show help message
         if (parseResult.isUsageHelpRequested() || !parseResult.errors().isEmpty() || (!parseResult.hasSubcommand()

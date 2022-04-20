@@ -5,7 +5,8 @@
 package com.opendxl.client.cli;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.util.io.pem.PemObject;
 
@@ -27,7 +28,7 @@ class CertUtils {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(MethodHandles.lookup().lookupClass());
+    private static Logger logger = LogManager.getLogger(MethodHandles.lookup().lookupClass());
 
     /**
      * Denotes a certificate request

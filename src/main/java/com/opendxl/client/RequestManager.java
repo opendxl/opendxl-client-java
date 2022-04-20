@@ -9,7 +9,8 @@ import com.opendxl.client.exception.DxlException;
 import com.opendxl.client.exception.WaitTimeoutException;
 import com.opendxl.client.message.Request;
 import com.opendxl.client.message.Response;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,7 +36,7 @@ class RequestManager implements ResponseCallback {
     /**
      * The logger
      */
-    private static Logger logger = Logger.getLogger(RequestManager.class);
+    private static Logger logger = LogManager.getLogger(RequestManager.class);
 
     /**
      * The interval at which to check asynchronous callbacks for removal (Defaults to 5 minutes)

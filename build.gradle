@@ -1,4 +1,3 @@
-
 buildscript {
     repositories {
         maven {
@@ -7,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.github.jengelman.gradle.plugins:shadow:4.0.3"
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
     }
 }
 
@@ -17,9 +16,8 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
-    id "com.github.johnrengelman.shadow" version "4.0.3"
-    id "kr.motd.sphinx" version "2.3.1"
-//    id 'com.bmuschko.docker-remote-api' version '4.0.5'
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "kr.motd.sphinx" version "2.10.1"
 }
 
 group = "com.opendxl"
@@ -36,9 +34,8 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.7'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.7'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
-    implementation 'log4j:log4j:1.2.17'
-//    implementation 'org.apache.logging.log4j:log4j-api:2.11.1'
-//    implementation 'org.apache.logging.log4j:log4j-core:2.11.1'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
     implementation 'org.msgpack:msgpack:0.6.7'
     implementation 'info.picocli:picocli:3.8.2'
     implementation 'org.apache.commons:commons-lang3:3.8.1'
@@ -69,16 +66,23 @@ jar {
         )
     }
 }
-
+// To Override the duplicate Strategy as it's treated as error Gradle 6.0.0 onwards
+tasks.withType(Copy).all {
+    duplicatesStrategy = 'include'
+}
 // Task for creating a jar with the source files
 task sourceJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    // classifier deprecated from 5.3.1 gradle version
+    // To Override the duplicate Strategy as it's treated as error Gradle 6.0.0 onwards
+    duplicatesStrategy = 'include'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
 // Task for creating a jar with JavaDoc
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    // classifier deprecated from 5.3.1 gradle version
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 
@@ -96,7 +100,8 @@ artifacts {
 // Set up the distribution zip
 distributions {
     main {
-        baseName = 'dxlclient-java-sdk'
+        // baseName deprecated after Gradle 5.3.1
+        distributionBaseName = 'dxlclient-java-sdk'
         contents {
             from(jar) {
                 into('lib')
@@ -170,7 +175,7 @@ sphinx {
     outputDirectory = "${project.buildDir}/docs"
 }
 
-task versionFile()  {
+task versionFile() {
     doLast {
         new File("${projectDir}/VERSION").text = """$version"""
     }
@@ -203,7 +208,7 @@ publishing {
             }
 
             from components.java
-            
+
             artifact(sourceJar) {
                 classifier = 'sources'
             }
@@ -246,7 +251,16 @@ task replaceVersionInREADME() {
     }
 }
 
-signing {sign publishing.publications.maven}
+signing { sign publishing.publications.maven }
+
+// Tasks To Declare implicit_dependency necessary after Gradle 7.1
+tasks.named('distTar') {
+    it.mustRunAfter(tasks.named('javadoc'))
+}
+
+tasks.named('javadocJar') {
+    it.mustRunAfter(tasks.named('sphinx'))
+}
 
 distZip.dependsOn javadocJar
 distZip.dependsOn sourceJar
@@ -256,7 +270,7 @@ assemble.dependsOn(replaceVersionInREADME)
 
 test {
     systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"
-    
+
     // Exclude the Proxy Usage Verification Test
     exclude "**/ProxyUsageVerificationTest.class"
 //    filter {
@@ -269,7 +283,7 @@ test {
 }
 
 // Task for verifying proxy usage
-task proxyUsageVerificationTest(type:Test) {
+task proxyUsageVerificationTest(type: Test) {
     systemProperty 'clientConfig', "${rootDir}/clientconfig/dxlclient.config"
     include "**/ProxyUsageVerificationTest.class"
 }
