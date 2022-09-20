@@ -50,134 +50,134 @@ public class CommandLineInterfaceTest {
      * Main usage help string
      */
     private static final String MAIN_USAGE_HELP = String.format(Locale.ROOT,
-            "Usage: java -jar dxlclient-all.jar [-hV] [--verbose] [COMMAND]%n" +
-                    "%n" +
-                    "optional arguments:%n" +
-                    "      --verbose   Verbose mode. Increases the log level to DEBUG%n" +
-                    "  -h, --help      Show this help message and exit.%n" +
-                    "  -V, --version   Print version information and exit.%n" +
-                    "Commands:%n" +
-                    "  generatecsr      Generate CSR and private key%n" +
-                    "  provisionconfig  Download and provision the DXL client configuration%n" +
-                    "  updateconfig     Update the DXL client configuration%n");
+            "Usage: java -jar dxlclient-all.jar [-hV] [--verbose] [COMMAND]%n"
+                    + "%n"
+                    + "optional arguments:%n"
+                    + "      --verbose   Verbose mode. Increases the log level to DEBUG%n"
+                    + "  -h, --help      Show this help message and exit.%n"
+                    + "  -V, --version   Print version information and exit.%n"
+                    + "Commands:%n"
+                    + "  generatecsr      Generate CSR and private key%n"
+                    + "  provisionconfig  Download and provision the DXL client configuration%n"
+                    + "  updateconfig     Update the DXL client configuration%n");
 
     /**
      * Usage help string fo the provision dxl client command
      */
     private static final String PROVISION_USAGE = String.format(Locale.ROOT,
-            "Usage: java -jar dxlclient-all.jar provisionconfig [-hV] [--verbose]%n" +
-                    "                                                   [--country=COUNTRY]%n" +
-                    "                                                   [--email-address=EMAIL]%n" +
-                    "                                                   [--locality=LOCALITY]%n" +
-                    "                                                   [--organization=ORG]%n" +
-                    "                                                   [--organizational-unit=ORG_UN%n" +
-                    "                                                   IT]%n" +
-                    "                                                   [--state-or-province=STATE]%n" +
-                    "                                                   [-e=TRUSTSTORE_FILE]%n" +
-                    "                                                   [-f=PREFIX] [-p=PASSWORD]%n" +
-                    "                                                   [-P=PASS]%n" +
-                    "                                                   [-r=<certRequestFile>]%n" +
-                    "                                                   [-t=PORT] [-u=USERNAME] [-s%n" +
-                    "                                                   [=NAME...]]... CONFIGDIR%n" +
-                    "                                                   HOSTNAME%n" +
-                    "                                                   COMMON_OR_CSRFILE_NAME%n" +
-                    "Download and provision the DXL client configuration%n" +
-                    "%n" +
-                    "positional arguments:%n" +
-                    "      CONFIGDIR              Path to the config directory%n" +
-                    "      HOSTNAME               Hostname where the management service resides%n" +
-                    "      COMMON_OR_CSRFILE_NAME If \"-r\" is specified, interpret as the filename for a%n" +
-                    "                               pre-existing csr. If \"-r\" is not specified, use as%n" +
-                    "                               the Common Name (CN) in the Subject DN for a new csr.%n" +
-                    "%n" +
-                    "optional arguments:%n" +
-                    "      --country=COUNTRY      Country (C) to use in the CSR's Subject DN%n" +
-                    "      --email-address=EMAIL  e-mail address to use in the CSR's Subject DN%n" +
-                    "      --locality=LOCALITY    Locality (L) to use in the CSR's Subject DN%n" +
-                    "      --organization=ORG     Organization (O) to use in the CSR's Subject DN%n" +
-                    "      --organizational-unit=ORG_UNIT%n" +
-                    "                             Organizational Unit (OU) to use in the CSR's Subject DN%n" +
-                    "      --state-or-province=STATE%n" +
-                    "                             State or province (ST) to use in the CSR's Subject DN%n" +
-                    "      --verbose              Verbose mode. Increases the log level to DEBUG%n" +
-                    "  -e, --truststore=TRUSTSTORE_FILE%n" +
-                    "                             Name of file containing one or more CA pems to use in%n" +
-                    "                               validating the management server%n" +
-                    "  -f, --file-prefix=PREFIX   file prefix to use for CSR, key, and cert files.%n" +
-                    "                               (default: client)%n" +
-                    "  -h, --help                 Show this help message and exit.%n" +
-                    "  -p, --password=PASSWORD    Password for the management service user%n" +
-                    "  -P, --passphrase=PASS      private key passphrase%n" +
-                    "  -r, --cert-request-file=<certRequestFile>%n" +
-                    "                             Interpret COMMON_OR_CSRFILE_NAME as a filename for an%n" +
-                    "                               existing csr to be signed. If not specified, a new%n" +
-                    "                               csr is generated.%n" +
-                    "  -s, --san[=NAME...]        add Subject Alternative Name(s) to the CSR%n" +
-                    "  -t, --port=PORT            Port where the management service resides%n" +
-                    "  -u, --user=USERNAME        User registered at the management service%n" +
-                    "  -V, --version              Print version information and exit.%n");
+            "Usage: java -jar dxlclient-all.jar provisionconfig [-hV] [--verbose]%n"
+                    + "                                                   [--country=COUNTRY]%n"
+                    + "                                                   [--email-address=EMAIL]%n"
+                    + "                                                   [--locality=LOCALITY]%n"
+                    + "                                                   [--organization=ORG]%n"
+                    + "                                                   [--organizational-unit=ORG_UN%n"
+                    + "                                                   IT]%n"
+                    + "                                                   [--state-or-province=STATE]%n"
+                    + "                                                   [-e=TRUSTSTORE_FILE]%n"
+                    + "                                                   [-f=PREFIX] [-p=PASSWORD]%n"
+                    + "                                                   [-P=PASS]%n"
+                    + "                                                   [-r=<certRequestFile>]%n"
+                    + "                                                   [-t=PORT] [-u=USERNAME] [-s%n"
+                    + "                                                   [=NAME...]]... CONFIGDIR%n"
+                    + "                                                   HOSTNAME%n"
+                    + "                                                   COMMON_OR_CSRFILE_NAME%n"
+                    + "Download and provision the DXL client configuration%n"
+                    + "%n"
+                    + "positional arguments:%n"
+                    + "      CONFIGDIR              Path to the config directory%n"
+                    + "      HOSTNAME               Hostname where the management service resides%n"
+                    + "      COMMON_OR_CSRFILE_NAME If \"-r\" is specified, interpret as the filename for a%n"
+                    + "                               pre-existing csr. If \"-r\" is not specified, use as%n"
+                    + "                               the Common Name (CN) in the Subject DN for a new csr.%n"
+                    + "%n"
+                    + "optional arguments:%n"
+                    + "      --country=COUNTRY      Country (C) to use in the CSR's Subject DN%n"
+                    + "      --email-address=EMAIL  e-mail address to use in the CSR's Subject DN%n"
+                    + "      --locality=LOCALITY    Locality (L) to use in the CSR's Subject DN%n"
+                    + "      --organization=ORG     Organization (O) to use in the CSR's Subject DN%n"
+                    + "      --organizational-unit=ORG_UNIT%n"
+                    + "                             Organizational Unit (OU) to use in the CSR's Subject DN%n"
+                    + "      --state-or-province=STATE%n"
+                    + "                             State or province (ST) to use in the CSR's Subject DN%n"
+                    + "      --verbose              Verbose mode. Increases the log level to DEBUG%n"
+                    + "  -e, --truststore=TRUSTSTORE_FILE%n"
+                    + "                             Name of file containing one or more CA pems to use in%n"
+                    + "                               validating the management server%n"
+                    + "  -f, --file-prefix=PREFIX   file prefix to use for CSR, key, and cert files.%n"
+                    + "                               (default: client)%n"
+                    + "  -h, --help                 Show this help message and exit.%n"
+                    + "  -p, --password=PASSWORD    Password for the management service user%n"
+                    + "  -P, --passphrase=PASS      private key passphrase%n"
+                    + "  -r, --cert-request-file=<certRequestFile>%n"
+                    + "                             Interpret COMMON_OR_CSRFILE_NAME as a filename for an%n"
+                    + "                               existing csr to be signed. If not specified, a new%n"
+                    + "                               csr is generated.%n"
+                    + "  -s, --san[=NAME...]        add Subject Alternative Name(s) to the CSR%n"
+                    + "  -t, --port=PORT            Port where the management service resides%n"
+                    + "  -u, --user=USERNAME        User registered at the management service%n"
+                    + "  -V, --version              Print version information and exit.%n");
 
     /**
      * Usage help string for the generatecsr CLI command
      */
     private static final String GENERATE_CSR_USAGE =
-            String.format(Locale.ROOT, "Usage: java -jar dxlclient-all.jar generatecsr [-hV] [--verbose]%n" +
-                    "                                               [--country=COUNTRY]%n" +
-                    "                                               [--email-address=EMAIL]%n" +
-                    "                                               [--locality=LOCALITY]%n" +
-                    "                                               [--organization=ORG]%n" +
-                    "                                               [--organizational-unit=ORG_UNIT]%n" +
-                    "                                               [--state-or-province=STATE]%n" +
-                    "                                               [-f=PREFIX] [-P=PASS] [-s%n" +
-                    "                                               [=NAME...]]... CONFIGDIR%n" +
-                    "                                               COMMON_NAME%n" +
-                    "Generate CSR and private key%n" +
-                    "%n" +
-                    "positional arguments:%n" +
-                    "      CONFIGDIR              Path to the config directory%n" +
-                    "      COMMON_NAME            Common Name (CN) to use in the CSR's Subject DN%n" +
-                    "%n" +
-                    "optional arguments:%n" +
-                    "      --country=COUNTRY      Country (C) to use in the CSR's Subject DN%n" +
-                    "      --email-address=EMAIL  e-mail address to use in the CSR's Subject DN%n" +
-                    "      --locality=LOCALITY    Locality (L) to use in the CSR's Subject DN%n" +
-                    "      --organization=ORG     Organization (O) to use in the CSR's Subject DN%n" +
-                    "      --organizational-unit=ORG_UNIT%n" +
-                    "                             Organizational Unit (OU) to use in the CSR's Subject DN%n" +
-                    "      --state-or-province=STATE%n" +
-                    "                             State or province (ST) to use in the CSR's Subject DN%n" +
-                    "      --verbose              Verbose mode. Increases the log level to DEBUG%n" +
-                    "  -f, --file-prefix=PREFIX   file prefix to use for CSR, key, and cert files.%n" +
-                    "                               (default: client)%n" +
-                    "  -h, --help                 Show this help message and exit.%n" +
-                    "  -P, --passphrase=PASS      private key passphrase%n" +
-                    "  -s, --san[=NAME...]        add Subject Alternative Name(s) to the CSR%n" +
-                    "  -V, --version              Print version information and exit.%n");
+            String.format(Locale.ROOT, "Usage: java -jar dxlclient-all.jar generatecsr [-hV] [--verbose]%n"
+                    + "                                               [--country=COUNTRY]%n"
+                    + "                                               [--email-address=EMAIL]%n"
+                    + "                                               [--locality=LOCALITY]%n"
+                    + "                                               [--organization=ORG]%n"
+                    + "                                               [--organizational-unit=ORG_UNIT]%n"
+                    + "                                               [--state-or-province=STATE]%n"
+                    + "                                               [-f=PREFIX] [-P=PASS] [-s%n"
+                    + "                                               [=NAME...]]... CONFIGDIR%n"
+                    + "                                               COMMON_NAME%n"
+                    + "Generate CSR and private key%n"
+                    + "%n"
+                    + "positional arguments:%n"
+                    + "      CONFIGDIR              Path to the config directory%n"
+                    + "      COMMON_NAME            Common Name (CN) to use in the CSR's Subject DN%n"
+                    + "%n"
+                    + "optional arguments:%n"
+                    + "      --country=COUNTRY      Country (C) to use in the CSR's Subject DN%n"
+                    + "      --email-address=EMAIL  e-mail address to use in the CSR's Subject DN%n"
+                    + "      --locality=LOCALITY    Locality (L) to use in the CSR's Subject DN%n"
+                    + "      --organization=ORG     Organization (O) to use in the CSR's Subject DN%n"
+                    + "      --organizational-unit=ORG_UNIT%n"
+                    + "                             Organizational Unit (OU) to use in the CSR's Subject DN%n"
+                    + "      --state-or-province=STATE%n"
+                    + "                             State or province (ST) to use in the CSR's Subject DN%n"
+                    + "      --verbose              Verbose mode. Increases the log level to DEBUG%n"
+                    + "  -f, --file-prefix=PREFIX   file prefix to use for CSR, key, and cert files.%n"
+                    + "                               (default: client)%n"
+                    + "  -h, --help                 Show this help message and exit.%n"
+                    + "  -P, --passphrase=PASS      private key passphrase%n"
+                    + "  -s, --san[=NAME...]        add Subject Alternative Name(s) to the CSR%n"
+                    + "  -V, --version              Print version information and exit.%n");
 
     /**
      * Usage help string for the updateconfig CLI command
      */
     private static final String UPDATE_CONFIG_USAGE = String.format(Locale.ROOT,
-            "Usage: java -jar dxlclient-all.jar updateconfig [-hV] [--verbose]%n" +
-                    "                                                [-e=TRUSTSTORE_FILE]%n" +
-                    "                                                [-p=PASSWORD] [-t=PORT]%n" +
-                    "                                                [-u=USERNAME] CONFIGDIR HOSTNAME%n" +
-                    "Update the DXL client configuration%n" +
-                    "%n" +
-                    "positional arguments:%n" +
-                    "      CONFIGDIR             Path to the config directory%n" +
-                    "      HOSTNAME              Hostname where the management service resides%n" +
-                    "%n" +
-                    "optional arguments:%n" +
-                    "      --verbose             Verbose mode. Increases the log level to DEBUG%n" +
-                    "  -e, --truststore=TRUSTSTORE_FILE%n" +
-                    "                            Name of file containing one or more CA pems to use in%n" +
-                    "                              validating the management server%n" +
-                    "  -h, --help                Show this help message and exit.%n" +
-                    "  -p, --password=PASSWORD   Password for the management service user%n" +
-                    "  -t, --port=PORT           Port where the management service resides%n" +
-                    "  -u, --user=USERNAME       User registered at the management service%n" +
-                    "  -V, --version             Print version information and exit.%n");
+            "Usage: java -jar dxlclient-all.jar updateconfig [-hV] [--verbose]%n"
+                    + "                                                [-e=TRUSTSTORE_FILE]%n"
+                    + "                                                [-p=PASSWORD] [-t=PORT]%n"
+                    + "                                                [-u=USERNAME] CONFIGDIR HOSTNAME%n"
+                    + "Update the DXL client configuration%n"
+                    + "%n"
+                    + "positional arguments:%n"
+                    + "      CONFIGDIR             Path to the config directory%n"
+                    + "      HOSTNAME              Hostname where the management service resides%n"
+                    + "%n"
+                    + "optional arguments:%n"
+                    + "      --verbose             Verbose mode. Increases the log level to DEBUG%n"
+                    + "  -e, --truststore=TRUSTSTORE_FILE%n"
+                    + "                            Name of file containing one or more CA pems to use in%n"
+                    + "                              validating the management server%n"
+                    + "  -h, --help                Show this help message and exit.%n"
+                    + "  -p, --password=PASSWORD   Password for the management service user%n"
+                    + "  -t, --port=PORT           Port where the management service resides%n"
+                    + "  -u, --user=USERNAME       User registered at the management service%n"
+                    + "  -V, --version             Print version information and exit.%n");
 
     /**
      * Provision DXL Client CLI command
