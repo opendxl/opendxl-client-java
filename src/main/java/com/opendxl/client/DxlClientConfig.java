@@ -870,10 +870,8 @@ public class DxlClientConfig {
         } finally {
             es.shutdown();
             if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
-                es.shutdownNow();
-                if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
-                    logger.error("Error shutting down getSortedBrokerList executor service thread pool");
-                }
+                logger.info("Shutting down getSortedBrokerList executor service thread pool taking longer than "
+                        + brokerPingTimeout * 5 + "milliseconds");
             }
         }
 
