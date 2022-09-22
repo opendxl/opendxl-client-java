@@ -868,8 +868,10 @@ public class DxlClientConfig {
                 futures.add(connectToBroker(es, broker, brokerPingTimeout));
             }
         } finally {
+            es.shutdown();
             if (!es.awaitTermination(brokerPingTimeout * 5, TimeUnit.MILLISECONDS)) {
-                es.shutdown();
+                logger.info("Shutting down getSortedBrokerList executor service thread pool taking longer than "
+                        + brokerPingTimeout * 5 + "milliseconds");
             }
         }
 
