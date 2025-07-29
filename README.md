@@ -36,12 +36,12 @@ Maven:
 <dependency>
   <groupId>com.opendxl</groupId>
   <artifactId>dxlclient</artifactId>
-  <version>0.2.6</version>
+  <version>0.2.9</version>
 </dependency>
 ```
 or Gradle:
 ```groovy
-compile 'com.opendxl:dxlclient:0.2.6'
+compile 'com.opendxl:dxlclient:0.2.9'
 ```
 
 ## Bugs and Feedback
